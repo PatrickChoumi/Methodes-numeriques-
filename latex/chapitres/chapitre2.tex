@@ -151,8 +151,8 @@ et
 \[
   \left\{
   \begin{aligned}
-    x_{n+1} &= x_n - \left.\frac{GG' + HH'}{G'^2 + H'^2}\right|_{z_n}\\[0.4em]
-    y_{n+1} &= y_n - \left.\frac{HG' - GH'}{G'^2 + H'^2}\right|_{z_n}
+    x_{n+1} &\approx x_n - \left.\frac{GG' + HH'}{G'^2 + H'^2}\right|_{z_n}\\[0.4em]
+    y_{n+1} &\approx y_n - \left.\frac{HG' - GH'}{G'^2 + H'^2}\right|_{z_n}
   \end{aligned}
   \right.
 \]
@@ -470,14 +470,11 @@ avec
 Pour obtenir les dérivées partielles par rapport à $S$, il suffit de dériver
 les relations $b_k$ par rapport à $S$. Pour cela nous posons
 \[
-  \frac{\partial b_k}{\partial S} = c_{k-1} .
+  \frac{\partial b_k}{\partial S} = c_{k-1}
 \]
-En dérivant $b_k = a_k + Sb_{k-1} - Pb_{k-2}$ par rapport à $S$, on a
+et
 \[
-  \frac{\partial b_k}{\partial S}
-  = b_{k-1} + S\frac{\partial b_{k-1}}{\partial S} - P\frac{\partial b_{k-2}}{\partial S},
-  \qquad\text{soit}\qquad
-  c_{k-1} = b_{k-1} + Sc_{k-2} - Pc_{k-3} .
+  \frac{\partial b_k}{\partial S} - b_{k-1} = Sc_{k-2} - Pc_{k-3} .
 \]
 On obtient alors la suite suivante
 \[
@@ -759,8 +756,8 @@ suivantes :
     x_{k+1} &= x_k + \frac{1}{\Delta}\bigl(f_2f_{1,y} - f_1f_{2,y}\bigr)_{(x_k,y_k)}
       \qquad\text{(quantité évaluée au point } (x_k,y_k)\text{)}\\
     y_{k+1} &= y_k + \frac{1}{\Delta}\bigl(f_1f_{2,x} - f_2f_{1,x}\bigr)_{(x_k,y_k)}\\
-    \Delta &= f_{1,x}f_{2,y} - f_{1,y}f_{2,x}, \qquad
-    f_{1,x} = \frac{\partial f_1}{\partial x}, \;\dots
+    \Delta &= f_{1,x}f_{2,y} - f_{1,y}f_{2,x}\\
+    f_{1,x} &= \frac{\partial f_1}{\partial x}
   \end{aligned}
 \]
 Dans le cas d'un système de degré supérieur à 2, on élabore le schéma de

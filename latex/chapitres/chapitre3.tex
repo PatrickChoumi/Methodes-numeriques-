@@ -237,15 +237,14 @@ d'ordre $\alpha$ est définie par
 On définit également la différence régressive d'ordre $\alpha$ de la manière
 suivante
 \[
-  \nabla^{\alpha} y_k = \nabla^{\alpha-1} y_k - \nabla^{\alpha-1} y_{k-1}
-  \qquad (\nabla y_k = y_k - y_{k-1}).
+  \nabla^{\alpha} y_k = \nabla^{\alpha-1} y_k - \nabla^{\alpha-1} y_{k-1} .
 \]
 Lorsque l'on a $x_{k+1} = x_k + h = x_1 + kh$, la formule d'interpolation par
 les différences divisées se réduit à :
 \[
   f(x) = y_1 + \frac{\Delta y_1}{h}(x - x_1)
              + \frac{\Delta^2 y_1}{h^2\,2!}(x - x_1)(x - x_2) + \dots
-             + \frac{\Delta^{k} y_1}{h^{k}\,k!}(x - x_1)(x - x_2)\cdots(x - x_k) .
+             + \frac{\Delta^{k+1} y_1}{h^{k+1}\,(k+1)!}(x - x_1)(x - x_2)\cdots(x - x_{k+1}) .
 \]
 Cette dernière formule est souvent appelée \textbf{formule de
 Newton-Gregory}.
@@ -338,7 +337,6 @@ Une deuxième intégration donne :
 \begin{equation}
   S''_{i-1}h_{i-1} + 2(h_i + h_{i-1})S''_i + S''_{i+1}h_i
   = 6\left[\frac{f_{i+1} - f_i}{h_i} - \frac{f_i - f_{i-1}}{h_{i-1}}\right]
-  \qquad (i = 2, \dots, n-1)
   \tag{b}
 \end{equation}
 où $h_i = x_{i+1} - x_i$, $S''_i = S''(x_i)$.

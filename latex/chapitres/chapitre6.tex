@@ -297,8 +297,8 @@ de suivre l'évolution temporelle de la température dans la poutre.
 
 \subsection{Méthode des différences progressives ou schéma explicite}
 
-Soit $h$ le pas spatial et $k$ le pas temporel et soit $m$ le nombre défini
-par $mh = l$.
+Soit $h$ le pas spatial et $k$ le pas temporel et soit $m$ le nombre entier
+défini par $mh = l$.
 
 On a
 \[
@@ -366,8 +366,8 @@ Or $\varepsilon_{i,j+1} = \varepsilon_{i,j}\,e^{-rk}$.
 
 Donc $e^{-rk}$ est le \emph{facteur d'amplification}.
 
-Le schéma est stable si le facteur d'amplification est inférieur à 1 (en
-module). Dans le cas particulier analysé ici, cette condition implique que :
+Le schéma est stable si le facteur d'amplification est inférieur à 1. Dans le
+cas particulier analysé ici, cette condition implique que :
 \[
   \abs{1 - \frac{4ka^2}{h^2}\sin^2\frac{ph}{2}} < 1
   \;\Longrightarrow\;

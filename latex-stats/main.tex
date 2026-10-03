@@ -7,75 +7,40 @@
 \usepackage[french]{babel}
 \usepackage{lmodern}
 \usepackage{microtype}
-\usepackage[a4paper,margin=2.2cm,headheight=14pt]{geometry}
+\usepackage[a4paper,margin=2.5cm]{geometry}
 \usepackage{amsmath,amssymb}
 \usepackage{array}
-\usepackage[table]{xcolor}
 \usepackage{enumitem}
-\usepackage[normalem]{ulem}
+\usepackage{needspace}
+
 \frenchsetup{StandardLists=true}
 \setlist[itemize]{label=\textbullet}
-\usepackage{titlesec}
-\usepackage{tikz}
-\usepackage[most]{tcolorbox}
-\usepackage{fancyhdr}
-\usepackage{needspace}
-\usepackage{lastpage}
-\usepackage[hidelinks]{hyperref}
 
-\hypersetup{
-  pdftitle={Statistiques -- Ajustement linéaire},
-  pdfsubject={Méthode de Mayer, méthode des moindres carrés, corrélation},
-  pdflang={fr}
-}
-
-% ---------------------------------------------------------------
-% Numérotation : I-, II- pour les parties ; 1), 2)... pour les étapes
-% ---------------------------------------------------------------
+% Numérotation : I, II pour les parties ; 1, 2... pour les étapes
 \renewcommand{\thesection}{\Roman{section}}
 \renewcommand{\thesubsection}{\arabic{subsection}}
-\titleformat{\section}{\normalfont\Large\bfseries}{\thesection-}{0.6em}{}
-\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection)}{0.5em}{}
-\titlespacing*{\section}{0pt}{1.6em}{0.8em}
-\titlespacing*{\subsection}{0pt}{1.2em}{0.5em}
 
 \newcommand{\abs}[1]{\left|#1\right|}
 
 % Points à compléter
 \newcommand{\blanc}[1][1.8cm]{\makebox[#1]{\dotfill}}
 
-% Puces des rubriques (« • Série marginale en x », ...)
-\newcommand{\rubrique}[1]{\par\medskip\noindent$\bullet$~\textbf{\uline{#1}}\par\smallskip}
-
-% Encadrés
-\newtcolorbox{retenons}[1][]{enhanced,breakable,colback=blue!3,
-  colframe=blue!45!black,boxrule=0.5pt,arc=1mm,left=8pt,right=8pt,
-  fonttitle=\bfseries,#1}
-\newtcolorbox{exercice}[1][]{enhanced,breakable,
-  colback=orange!4,colframe=orange!60!black,boxrule=0.5pt,arc=1mm,
-  left=8pt,right=8pt,fonttitle=\bfseries,#1}
+% Rubriques de l'activité
+\newcommand{\rubrique}[1]{\par\medskip\noindent\textbf{#1}\par\smallskip}
 
 % Tableaux
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
-\renewcommand{\arraystretch}{1.35}
-\newcommand{\barre}{\cellcolor{gray!35}}
+\renewcommand{\arraystretch}{1.3}
+\newcommand{\barre}{---}
 
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0.45em}
 
-\pagestyle{fancy}
-\fancyhf{}
-\fancyhead[L]{\small\itshape Statistiques -- Ajustement linéaire}
-\fancyfoot[C]{\thepage/\pageref*{LastPage}}
-\renewcommand{\headrulewidth}{0.4pt}
-
 \begin{document}
 
 \begin{center}
-  \fbox{\parbox{0.55\linewidth}{\centering\vspace{0.4em}
-    {\Huge\bfseries STATISTIQUES}\vspace{0.4em}}}
+  {\LARGE\bfseries Statistiques}
 \end{center}
-\thispagestyle{fancy}
 
 % =================================================================
 \section{Ajustement linéaire par la méthode de Mayer}
@@ -86,7 +51,7 @@ physique d'un certain nombre d'élèves de la classe. Les données sont présent
 dans un tableau :
 
 \begin{center}
-  \small
+  \small\setlength{\tabcolsep}{3pt}
   \begin{tabular}{|c|*{15}{C{0.62cm}|}}
     \hline
     $x$ & 10 & 12 & 10 & 13 & 09 & 11 & 12 & 11 & 13 & 12 & 14 & 10 & 15 & 10 & 12\\ \hline
@@ -140,16 +105,6 @@ des données.
 
 Représenter les points.
 
-\begin{center}
-  \begin{tikzpicture}[x=0.55cm,y=0.55cm,>=stealth]
-    \draw[gray!30,step=1] (8,9) grid (16.5,17.5);
-    \draw[->] (8,9) -- (17.2,9) node[right] {$x$ (maths)};
-    \draw[->] (8,9) -- (8,18.2) node[above] {$y$ (physique)};
-    \foreach \i in {9,...,16} \draw (\i,9) -- (\i,8.85) node[below] {\footnotesize\i};
-    \foreach \j in {10,...,17} \draw (8,\j) -- (7.85,\j) node[left] {\footnotesize\j};
-    \node[below left] at (8,9) {\footnotesize 8\,;\,9};
-  \end{tikzpicture}
-\end{center}
 
 Ces points semblent être regroupés autour d'une droite affine ; donc
 l'ajustement linéaire de $y$ en $x$ est possible. En posant
@@ -196,8 +151,7 @@ le point $G(\bar{x}\,;\,\bar{y})$.
 
 \subsection{Retenons}
 
-\begin{retenons}
-  \begin{itemize}
+\begin{itemize}
     \item Lorsque le nuage de points a la \og forme\fg{} d'une droite, on peut
           faire un ajustement linéaire de $y$ en $x$.
     \item La méthode de Mayer consiste à diviser la série statistique en deux
@@ -209,13 +163,11 @@ le point $G(\bar{x}\,;\,\bar{y})$.
             \qquad\text{et}\qquad
             b = \bar{y}_1 - a\bar{x}_1 .
           \]
-  \end{itemize}
-\end{retenons}
+\end{itemize}
 
 \needspace{10\baselineskip}
 \subsection{Exercice d'application}
 
-\begin{exercice}
   \begin{itemize}
     \item Pour l'activité d'apprentissage, l'équation de la droite
           d'ajustement linéaire est ${y = ax + b} = \blanc[4cm]$.
@@ -225,7 +177,6 @@ le point $G(\bar{x}\,;\,\bar{y})$.
           obtenu 8 en physique.
     \item Vérifier que $G$ appartient à cette droite.
   \end{itemize}
-\end{exercice}
 
 % =================================================================
 \section{Ajustement linéaire par la méthode des moindres carrés}
@@ -234,7 +185,7 @@ le point $G(\bar{x}\,;\,\bar{y})$.
 À partir du tableau des données :
 
 \begin{center}
-  \small
+  \small\setlength{\tabcolsep}{3pt}
   \begin{tabular}{|c|*{15}{C{0.62cm}|}}
     \hline
     $x_i$ & 10 & 12 & 10 & 13 & 09 & 11 & 12 & 11 & 13 & 12 & 14 & 10 & 15 & 10 & 12\\ \hline
@@ -269,16 +220,16 @@ appliquant les formules.
   \end{tabular}
 \end{center}
 
-$\bullet$ La \uline{covariance de $(X,Y)$} est
+$\bullet$ La covariance de $(X,Y)$ est
 \[
   \operatorname{cov}(X,Y) = \frac{\sum_{i=1}^{15} x_i y_i}{N} - \bar{x}\,\bar{y}
   = \frac{\blanc}{15} - \bigl(\blanc\bigr)\bigl(\blanc\bigr)
   = \blanc .
 \]
 
-$\bullet$ \uline{Calcul de la variance de $X$, $V(X)$ ; de l'écart type de
+$\bullet$ Calcul de la variance de $X$, $V(X)$ ; de l'écart type de
 $X$, $\sigma_X$ ; de la variance de $Y$, $V(Y)$ ; de l'écart type de $Y$,
-$\sigma_Y$.}
+$\sigma_Y$.
 
 Ici, on utilise la série marginale en $X$ et la série marginale en $Y$.
 
@@ -303,41 +254,42 @@ Ici, on utilise la série marginale en $X$ et la série marginale en $Y$.
   \end{tabular}
 \end{center}
 
+\needspace{14\baselineskip}
 On a alors :
 
 \noindent
 \begin{minipage}[t]{0.48\linewidth}
-  \underline{La moyenne de $X$ est}
+  La moyenne de $X$ est
   \[
     \bar{x} = \frac{\sum_{i=1}^{7} n_i x_i}{N} = \frac{\blanc}{15} = \blanc
   \]
-  \underline{La variance de $X$ est}
+  La variance de $X$ est
   \[
     V(X) = \frac{\sum_{i=1}^{7} n_i x_i^2}{N} - (\bar{x})^2 = \blanc
   \]
-  \underline{L'écart type de $X$ est}
+  L'écart type de $X$ est
   \[
     \sigma_X = \sqrt{V(X)} = \blanc = \blanc
   \]
 \end{minipage}%
-\hfill\vrule\hfill
+\hfill
 \begin{minipage}[t]{0.48\linewidth}
-  \underline{La moyenne de $Y$ est}
+  La moyenne de $Y$ est
   \[
     \bar{y} = \frac{\sum_{i=1}^{7} n_i y_i}{N} = \frac{\blanc}{15} = \blanc
   \]
-  \underline{La variance de $Y$ est}
+  La variance de $Y$ est
   \[
     V(Y) = \frac{\sum_{i=1}^{7} n_i y_i^2}{N} - (\bar{y})^2 = \blanc
   \]
-  \underline{L'écart type de $Y$ est}
+  L'écart type de $Y$ est
   \[
     \sigma_Y = \sqrt{V(Y)} = \blanc = \blanc
   \]
 \end{minipage}
 
-\begin{exercice}[title={Exercice}]
-  Avec les données précédentes, calculer
+\medskip
+\textbf{Exercice.} Avec les données précédentes, calculer
   \[
     a = \frac{\operatorname{cov}(X,Y)}{V(X)} = \blanc[2.4cm]
     \qquad;\qquad
@@ -350,12 +302,11 @@ On a alors :
     \item Calculer
           $r = \dfrac{\operatorname{cov}(X,Y)}{\sqrt{V(X)} \times \sqrt{V(Y)}}$.
   \end{itemize}
-\end{exercice}
 
 \subsection{\texorpdfstring{Corrélation linéaire entre $X$ et $Y$}{Corrélation linéaire entre X et Y}}
 
-\begin{retenons}[title={Retenons}]
-  \begin{itemize}
+\textbf{Retenons.}
+\begin{itemize}
     \item Le coefficient de corrélation linéaire entre $X$ et $Y$ est
           \[
             r = \frac{\operatorname{cov}(X,Y)}{\sqrt{V(X)} \times \sqrt{V(Y)}} .
@@ -367,8 +318,7 @@ On a alors :
 
           Si $\abs{r} = 1$, on dit que la corrélation est parfaite.
     \item L'ajustement linéaire se justifie si $0{,}7 \le \abs{r} \le 1$.
-  \end{itemize}
-\end{retenons}
+\end{itemize}
 
 \subsection{\texorpdfstring{Droite de régression de $y$ en $x$ ou droite
 d'ajustement linéaire obtenue par la méthode des moindres carrés}{Droite de
@@ -416,7 +366,6 @@ et
 
 \subsection{Exercice d'application}
 
-\begin{exercice}
   \begin{enumerate}[label=\alph*)]
     \item Ayant calculé le coefficient de corrélation linéaire de l'activité
           d'apprentissage, qualifier la corrélation entre $X$ et $Y$.
@@ -479,6 +428,5 @@ et
             \item Écrire l'équation de la droite de régression de $y$ en $x$.
           \end{enumerate}
   \end{enumerate}
-\end{exercice}
 
 \end{document}
