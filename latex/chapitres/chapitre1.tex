@@ -1,0 +1,449 @@
+\chapter{Systèmes d'équations algébriques linéaires}
+
+\section{Introduction}
+
+Le traitement des problèmes scientifiques conduit très souvent à des systèmes
+d'équations algébriques linéaires à plusieurs inconnues. Lorsque le nombre
+d'équations n'est pas élevé (par exemple moins de 3), on peut trouver les
+solutions du système d'équations par des méthodes analytiques connues
+(éliminations, substitution). Mais lorsque ce nombre devient élevé ou lorsque
+les coefficients des équations sont variables, il est utile de développer des
+codes de calcul numériques qui aideront l'ordinateur à calculer les solutions.
+
+L'objet de ce chapitre est de présenter les schémas numériques pour la
+résolution des équations algébriques linéaires : les méthodes directes
+(élimination de Gauss et de Jordan, racine carrée de Cholesky, décomposition
+triangulaire, fragmentation) et les méthodes itératives (de Jacobi et de
+Gauss-Seidel).
+
+\section{Méthodes directes pour les systèmes d'équations linéaires}
+
+\subsection{Méthodes d'élimination de Gauss et de Jordan}
+
+\subsubsection{Principe de la méthode}
+
+Soit le système algébrique de la forme :
+\[
+  AX = b
+\]
+où $A = (a_{ij})$, $X = (x_i)$ et $b = (b_i)$.
+
+Ce système d'équations est de la forme
+\[
+  \left\{
+  \begin{aligned}
+    a_{11}x_1 + a_{12}x_2 + \dots + a_{1n}x_n &= b_1\\
+    a_{21}x_1 + a_{22}x_2 + \dots + a_{2n}x_n &= b_2\\
+    &\;\;\vdots\\
+    a_{n1}x_1 + a_{n2}x_2 + \dots + a_{nn}x_n &= b_n
+  \end{aligned}
+  \right.
+\]
+
+La méthode d'élimination de Gauss est basée sur le principe suivant. Les
+inconnues sont éliminées successivement en exprimant à partir d'une des
+équations une inconnue en fonction des autres puis en substituant dans le
+reste des équations (voir classes du secondaire). On part ainsi d'un système de
+$n$ équations à $n$ inconnues à un système de $n-1$ équations à $n-1$
+inconnues. Le processus se poursuit jusqu'à l'obtention d'une équation à une
+inconnue. On trouve alors cette dernière inconnue et par un processus inverse,
+les autres inconnues sont calculées. À chaque étape, l'équation qui permet
+d'exprimer une inconnue en fonction des autres est appelée \emph{équation
+pivotale}. Pour éviter les erreurs d'arrondis, l'équation pivotale doit être
+celle qui possède le plus grand coefficient de l'inconnue à éliminer.
+
+La procédure de cette méthode peut alors se formuler de la manière suivante :
+
+Pour une ligne n\textsuperscript{o}~$i$, notée $L_i$, on fait l'opération
+\[
+  L_i \leftarrow L_i - \frac{a_{i1}}{a_{11}}L_1, \qquad i = 2 \text{ jusqu'à } n.
+\]
+
+Pour $i$ allant de $2$ à $n$, on obtient alors un nouveau système de la forme
+\[
+  \left\{
+  \begin{aligned}
+    a_{11}x_1 + a_{12}x_2 + \dots + a_{1n}x_n &= b_1\\
+    0 + a'_{22}x_2 + \dots + a'_{2n}x_n &= b'_2\\
+    0 + a'_{32}x_2 + \dots + a'_{3n}x_n &= b'_3\\
+    &\;\;\vdots\\
+    0 + a'_{n2}x_2 + \dots + a'_{nn}x_n &= b'_n
+  \end{aligned}
+  \right.
+\]
+Les coefficients $a'_{ij}$ et $b'_i$ sont donnés par
+\[
+  a'_{ij} = a_{ij} - \frac{a_{i1}}{a_{11}}a_{1j}, \qquad
+  b'_i = b_i - \frac{a_{i1}}{a_{11}}b_1 .
+\]
+On continue le processus en considérant le système constitué des lignes $2$ à
+$n$ et ainsi de suite jusqu'au système constitué des lignes $n-1$ et $n$.
+
+\subsubsection{Algorithme}
+
+Ainsi pour une étape $k$, c'est-à-dire en considérant le système constitué des
+lignes $k$ à $n$, l'algorithme suivant est utilisé :
+
+\begin{algo}
+  \For{$l$ allant de $k+1$ à $n$}
+    \State $b_l \leftarrow b_l - \dfrac{a_{lk}}{a_{kk}}\,b_k$
+    \For{$j$ allant de $k+1$ à $n$}
+      \State $a_{lj} \leftarrow a_{lj} - \dfrac{a_{lk}}{a_{kk}}\,a_{kj}$
+    \EndFor
+  \EndFor
+\end{algo}
+
+On peut ainsi en déduire l'algorithme de triangularisation du système
+d'équations en faisant varier $k$ de $1$ à $n-1$. Le système triangulaire se
+présente ainsi
+\[
+  \left\{
+  \begin{array}{l@{\;}l@{\;}l@{\;}c@{\;}l}
+    a_{11}x_1 + & a_{12}x_2 + & \dots\dots\dots\dots\dots\dots & + a_{1n}x_n &= b_1\\
+    0 + & a_{22}x_2 + & \dots\dots\dots\dots\dots\dots & + a_{2n}x_n &= b_2\\
+    0 + & 0 & + a_{33}x_3 \dots\dots\dots\dots & + a_{3n}x_n &= b_3\\
+    \vdots & & & & \\
+    0 + & 0 + & \dots\dots\dots\dots\dots\dots + 0 & + a_{nn}x_n &= b_n
+  \end{array}
+  \right.
+\]
+
+\NB Il faut noter que les coefficients $a_{ij}$ et $b_k$ du système
+triangulaire ne sont pas ceux du départ.
+
+Le système algébrique triangulaire peut se résoudre de la manière suivante :
+
+La dernière équation donne
+\[
+  x_n = \frac{b_n}{a_{nn}} .
+\]
+Pour l'inconnue $x_k$, on a
+\[
+  x_k = \bigl(b_k - a_{k,k+1}x_{k+1} - a_{k,k+2}x_{k+2} - \dots - a_{k,n}x_n\bigr)\big/ a_{kk}
+\]
+ou sous forme condensée
+\[
+  x_k = \Bigl(b_k - \sum_{l=k+1}^{n} a_{k,l}\,x_l\Bigr)\Big/ a_{kk} .
+\]
+
+\begin{exercice}[Exercices]
+\begin{enumerate}
+  \item Écrire l'algorithme de résolution du système algébrique triangulaire.
+  \item Écrire l'algorithme qui permet d'interchanger les lignes des systèmes
+        algébriques dû à la règle de pivot maximal.
+  \item Écrire l'algorithme complet de la méthode de Gauss (triangularisation
+        et résolution du système triangulaire) en prenant soin de faire jouer
+        la règle du pivot maximal.
+\end{enumerate}
+\end{exercice}
+
+\subsubsection{Méthode de Jordan}
+
+Elle est analogue à la méthode de Gauss. Mais ici, on met aussi à zéro les
+termes qui se trouvent au-dessus de la diagonale principale. On obtient alors
+un système diagonal.
+
+\subsection{Méthodes par décomposition de la matrice}
+
+\subsubsection{Méthode de la décomposition triangulaire}
+
+\paragraph{a- Principe}
+
+Soit le système
+\[
+  AX = b .
+\]
+On peut de manière unique décomposer la matrice $A$ en deux matrices
+triangulaires dont l'une est triangulaire inférieure avec les éléments
+quelconques sur la diagonale et l'autre triangulaire supérieure avec tous les
+éléments égaux à 1 sur la diagonale.
+
+Soit $L$ et $S$ ces deux matrices triangulaires, on a
+\[
+  A = LS .
+\]
+Le système d'équations devient
+\[
+  SX = L^{-1}b .
+\]
+Ce dernier système est un système triangulaire que l'on peut résoudre par le
+schéma précédent.
+
+\paragraph{b- Décomposition de la matrice}
+
+On peut écrire $L$ et $S$ sous la forme
+\[
+  L = \begin{pmatrix}
+    l_{11} & 0 & 0 & \cdots & 0\\
+    l_{21} & l_{22} & 0 & \cdots & 0\\
+    \vdots & & \ddots & & \vdots\\
+    \vdots & & & \ddots & 0\\
+    l_{n1} & l_{n2} & l_{n3} & \cdots & l_{nn}
+  \end{pmatrix},
+  \qquad
+  S = \begin{pmatrix}
+    1 & s_{12} & s_{13} & \cdots & s_{1n}\\
+    0 & 1 & s_{23} & \cdots & s_{2n}\\
+    \vdots & & 1 & & s_{3n}\\
+    \vdots & & & \ddots & \vdots\\
+    0 & 0 & 0 & \cdots & 1
+  \end{pmatrix}.
+\]
+L'équation $LS = A$ entraîne par identification les relations suivantes
+\[
+\begin{array}{ll}
+  \left\{\begin{aligned}
+    a_{j1} &= l_{j1}\\
+    a_{1j} &= l_{11}s_{1j}
+  \end{aligned}\right.
+  &
+  \begin{aligned}
+    &1 \le j \le n\\
+    &2 \le j \le n
+  \end{aligned}
+  \\[1.2em]
+  \left\{\begin{aligned}
+    a_{j2} &= l_{j1}s_{12} + l_{j2}\\
+    a_{2j} &= l_{21}s_{1j} + l_{22}s_{2j}
+  \end{aligned}\right.
+  &
+  \begin{aligned}
+    &2 \le j \le n\\
+    &3 \le j \le n
+  \end{aligned}
+  \\[1.2em]
+  \left\{\begin{aligned}
+    a_{j3} &= l_{j1}s_{13} + l_{j2}s_{23} + l_{j3}\\
+    a_{3j} &= l_{31}s_{1j} + l_{32}s_{2j} + l_{33}s_{3j}
+  \end{aligned}\right.
+  &
+  \begin{aligned}
+    &3 \le j \le n\\
+    &4 \le j \le n
+  \end{aligned}
+  \\
+  \quad\vdots & \\
+  \left\{\begin{aligned}
+    a_{j,n-1} &= l_{j1}s_{1,n-1} + l_{j2}s_{2,n-1} + \dots + l_{j,n-2}s_{n-2,n-1} + l_{j,n-1}\\
+    a_{n-1,j} &= l_{n-1,1}s_{1j} + l_{n-1,2}s_{2j} + \dots + l_{n-1,n-1}s_{n-1,j}
+  \end{aligned}\right.
+  &
+  \begin{aligned}
+    &n-1 \le j \le n\\
+    &j = n
+  \end{aligned}
+  \\[1.2em]
+  \;a_{nn} = l_{n1}s_{1n} + l_{n2}s_{2n} + \dots + l_{nn} &
+\end{array}
+\]
+
+Avec ces équations on obtient les éléments de la première colonne de $L$ puis
+ceux de la première ligne de $S$, ensuite ceux de la 2\textsuperscript{e}
+colonne de $L$ et ceux de la 2\textsuperscript{e} ligne de $S$ et ainsi de
+suite. On obtient alors les éléments suivants qui permettent de calculer les
+éléments $l_{ij}$ et $s_{ij}$. On a :
+\[
+\begin{aligned}
+  &\left\{\begin{aligned}
+    l_{j1} &= a_{j1}\\
+    s_{1j} &= \frac{a_{1j}}{l_{11}}
+  \end{aligned}\right.
+  \qquad
+  \left\{\begin{aligned}
+    l_{j2} &= a_{j2} - l_{j1}s_{12}\\
+    s_{2j} &= \frac{1}{l_{22}}\bigl(a_{2j} - l_{21}s_{1j}\bigr)
+  \end{aligned}\right.
+  \\[0.6em]
+  &\left\{\begin{aligned}
+    l_{j3} &= a_{j3} - l_{j1}s_{13} - l_{j2}s_{23}\\
+    s_{3j} &= \frac{1}{l_{33}}\bigl(a_{3j} - l_{31}s_{1j} - l_{32}s_{2j}\bigr)
+  \end{aligned}\right.
+  \\
+  &\quad\vdots\\
+  &\left\{\begin{aligned}
+    l_{j,n-1} &= a_{j,n-1} - \sum_{k=1}^{n-2} l_{jk}\,s_{k,n-1}\\
+    s_{n-1,j} &= \frac{1}{l_{n-1,n-1}}\Bigl[a_{n-1,j} - \sum_{k=1}^{n-2} l_{n-1,k}\,s_{kj}\Bigr]
+  \end{aligned}\right.
+  \\[0.6em]
+  &\; l_{nn} = a_{nn} - \sum_{k=1}^{n-1} l_{nk}\,s_{kn}
+\end{aligned}
+\]
+
+\begin{exercice}
+\begin{enumerate}
+  \item Écrire l'algorithme permettant de calculer les $l_{ij}$ et $s_{ij}$.
+  \item Trouver dans la littérature l'algorithme d'inversion d'une matrice et
+        de calcul des éléments du produit $L^{-1}b$.
+\end{enumerate}
+\end{exercice}
+
+\subsubsection{Méthode de la racine carrée de Cholesky}
+
+Une matrice $A$ symétrique peut être mise sous la forme d'un produit de deux
+matrices $M$ et $M'$ dont l'une est la transposée de l'autre. On a ainsi une
+seule matrice triangulaire supérieure $M$ à calculer. Ceci simplifie les
+calculs et diminue l'encombrement mémoire de la machine. En utilisant le
+procédé précédent on établit que les éléments de $M$ sont définis par :
+\[
+\begin{aligned}
+  m_{11} &= \sqrt{a_{11}}\\
+  m_{1j} &= \frac{a_{1j}}{m_{11}}\\
+  m_{22} &= \sqrt{a_{22} - \sum_{k=1}^{1} m_{k2}^2} = \sqrt{a_{22} - m_{12}^2}\\
+  m_{2j} &= \frac{a_{2j} - \sum_{k=1}^{1} m_{k2}m_{kj}}{m_{22}}
+          = \frac{a_{2j} - m_{12}m_{1j}}{m_{22}}\\
+  m_{pp} &= \sqrt{a_{pp} - \sum_{k=1}^{p-1} m_{kp}^2}
+          && \text{pour } p \text{ allant de } 2 \text{ à } n\\
+  m_{pj} &= \frac{a_{pj} - \sum_{k=1}^{p-1} m_{kp}m_{kj}}{m_{pp}}
+          && \text{pour } p \text{ allant de } 2 \text{ à } n
+             \text{ et } j \text{ allant de } p+1 \text{ à } n\\
+  m_{nn} &= \sqrt{a_{nn} - m_{1n}^2 - m_{2n}^2 - \dots - m_{n-1,n}^2}
+\end{aligned}
+\]
+
+\begin{exercice}
+Écrire l'algorithme de calcul des coefficients $m_{pp}$ et $m_{pj}$.
+\end{exercice}
+
+\subsubsection{Fragmentation des systèmes volumineux}
+
+Quand $n$ est très grand, il n'y a pas assez de mémoire pour stocker les
+$n(n+1)$ coefficients du système et mettre en place le programme de calcul. On
+fragmente alors le système d'équations en décomposant la matrice du système en
+sous-matrices.
+
+Par exemple, on mettra le système
+\[
+  AX = b
+\]
+sous la forme
+\[
+  {\renewcommand{\arraystretch}{1.5}
+  \left(\begin{array}{c:c}
+    A_1 & A_2\\ \hdashline
+    A_3 & A_4
+  \end{array}\right)
+  \left(\begin{array}{c}
+    X_1\\ \hdashline
+    X_2
+  \end{array}\right)
+  =
+  \left(\begin{array}{c}
+    B_1\\ \hdashline
+    B_2
+  \end{array}\right)}.
+\]
+Les matrices $A_1$ et $A_2$ ne sont pas nécessairement des matrices carrées et
+la décomposition par des droites en pointillés est telle que les
+multiplications matricielles suivantes sont possibles :
+\[
+  \left\{
+  \begin{aligned}
+    A_1X_1 + A_2X_2 &= B_1\\
+    A_3X_1 + A_4X_2 &= B_2
+  \end{aligned}
+  \right.
+\]
+Si $A_1$ est régulière, alors on a
+\[
+  X_1 = A_1^{-1}\bigl[B_1 - A_2X_2\bigr].
+\]
+En substituant dans la deuxième équation, on obtient
+\[
+  \bigl[A_3A_1^{-1}A_2 - A_4\bigr]X_2 = \bigl[A_3A_1^{-1}B_1 - B_2\bigr].
+\]
+On peut ainsi calculer les éléments de $X_2$ et substituer dans l'expression
+de $X_1$ pour avoir les éléments de $X_1$. On obtient donc ainsi toutes les
+composantes de $X$.
+
+Cette méthode peut être généralisée en décomposant la matrice en $9$, $16$,
+$25$, \dots{} sous-matrices.
+
+\subsubsection{Systèmes à coefficients complexes}
+
+Soit le système matriciel
+\[
+  AZ = b
+\]
+avec
+\[
+  A = M + iN, \qquad b = c + id, \qquad Z = X + iY .
+\]
+Le système algébrique peut alors se décomposer en deux sous-systèmes de la
+forme
+\[
+  \left\{
+  \begin{aligned}
+    MX - NY &= c\\
+    NX + MY &= d
+  \end{aligned}
+  \right.
+\]
+On peut alors réunir ces deux sous-systèmes en un système unique, ou utiliser
+l'approche du paragraphe précédent.
+
+\section{Méthodes itératives pour les systèmes d'équations linéaires}
+
+\subsection{Formules itératives}
+
+Les méthodes directes telles que la méthode d'élimination de Gauss sont
+appropriées pour les systèmes de taille moyenne. Pour les systèmes de grande
+taille, il est conseillé d'utiliser les méthodes itératives qui sont plus
+rapides, plus faciles à programmer et moins encombrantes. Cependant, ces
+méthodes itératives sont basées sur le calcul des suites infinies qu'il faudra
+tronquer à partir d'un certain rang. Pour le choix des valeurs initiales des
+itérations, on fixe généralement les inconnues $x_i = 1$ ou $x_i = 0$ pour
+$i = 1$ jusqu'à $n$.
+
+Le principe des méthodes itératives consiste à exprimer l'inconnue $x_i$ de la
+ligne $i$ en fonction des autres inconnues ; c'est-à-dire
+\[
+  x_i = \frac{b_i - \displaystyle\sum_{\substack{j=1\\ j\neq i}}^{n} a_{ij}x_j}{a_{ii}} .
+\]
+Ceci suggère que les valeurs connues $x_1, x_2, x_3, \dots, x_{i-1}, x_{i+1},
+\dots, x_n$ soient substituées pour trouver $x_i$. Au départ, il faut donc
+donner des valeurs initiales aux inconnues $x_i$. Ces valeurs initiales sont
+généralement fixées à $x_i = 1$ ou $x_i = 0$ pour $i$ allant de $1$ à $n$.
+
+Il existe deux variantes de méthode itérative : celle de \textbf{Jacobi} et
+celle de \textbf{Gauss-Seidel}.
+
+La formule itérative de \textbf{Jacobi} est :
+\[
+  x_i^{(k+1)} = \frac{b_i - \displaystyle\sum_{\substack{j=1\\ j\neq i}}^{n} a_{ij}x_j^{(k)}}{a_{ii}}
+\]
+où $x_i^{(k)}$ sont les valeurs des inconnues après $k$ itérations.
+
+Dans la formule de \textbf{Gauss-Seidel}, les valeurs $x_j^{(k+1)}$ pour
+$j \le i-1$ sont utilisées aussitôt qu'elles sont déterminées pour calculer
+$x_i^{(k+1)}$. La formule itérative de \textbf{Gauss-Seidel} se met alors sous
+la forme :
+\[
+  x_i^{(k+1)} = \frac{b_i - \displaystyle\sum_{j=1}^{i-1} a_{ij}x_j^{(k+1)}
+                 - \displaystyle\sum_{j=i+1}^{n} a_{ij}x_j^{(k)}}{a_{ii}} .
+\]
+Notons que les deux formules sont importantes car il existe des systèmes
+d'équations pour lesquels la méthode de Jacobi converge tandis que la méthode
+de Gauss-Seidel ne converge pas. Dans d'autres cas c'est la méthode de
+Gauss-Seidel qui converge et celle de Jacobi ne converge pas.
+
+\subsection{Conditions d'arrêt}
+
+Pour la condition d'arrêt de l'itération, il y a plusieurs méthodes. Elles
+consistent à arrêter les itérations lorsque toutes les quantités
+\[
+  d_i = \abs{x_i^{(k+1)} - x_i^{(k)}} < \varepsilon
+\]
+ou aussi
+\[
+  d_i = \abs{\frac{x_i^{(k+1)} - x_i^{(k)}}{x_i^{(k+1)}}} < \varepsilon .
+\]
+Cependant, le meilleur test de convergence est d'utiliser la condition
+\[
+  d = \frac{\displaystyle\sum_{i=1}^{n}\abs{x_i^{(k+1)} - x_i^{(k)}}}
+           {\displaystyle\sum_{i=1}^{n}\abs{x_i^{(k+1)}}} < \varepsilon .
+\]
+
+\begin{exercice}
+Écrire les algorithmes des méthodes de Jacobi et de Gauss-Seidel avec
+imposition de la condition d'arrêt.
+\end{exercice}

@@ -1,0 +1,304 @@
+\chapter{Intégration et dérivation numérique}
+
+Dans certains problèmes scientifiques, on arrive souvent à des dérivées
+premières ou d'ordre $n$ ou à des intégrales simples ou doubles qui ne peuvent
+pas être calculées par des méthodes analytiques. Il faut alors faire appel à
+des méthodes numériques qui permettent de trouver des solutions approchées en
+utilisant des formes discrètes issues des définitions mathématiques de base.
+
+Ce chapitre présente les méthodes de dérivation numérique (en partant des
+formules classiques, des interpolations linéaires, quadratiques et cubiques)
+et des méthodes d'intégration numériques (formules des trapèzes et de
+Simpson).
+
+\section{Dérivation numérique}
+
+\subsection{Formules classiques}
+
+Soit $f$ une fonction différentiable sur un intervalle $[a,b]$. Le nombre
+dérivé de $f$ au point $x$ est défini par :
+\[
+  f'(x) = \lim_{h\to 0}\frac{f(x+h) - f(x)}{h} .
+\]
+On peut également utiliser la formule
+\[
+  f'(x) = \lim_{h\to 0}\frac{f(x + h/2) - f(x - h/2)}{h} .
+\]
+De la même manière, la dérivée seconde est donnée par :
+\[
+  f''(x) = \lim_{h\to 0}\frac{f(x+h) - 2f(x) + f(x-h)}{h^2} .
+\]
+Numériquement, on écrit
+\[
+  f'(x) = \frac{f(x+h) - f(x)}{h}
+  \qquad\text{ou}\qquad
+  f'(x) = \frac{f\bigl(x + \frac{h}{2}\bigr) - f\bigl(x - \frac{h}{2}\bigr)}{h}
+\]
+et
+\[
+  f''(x) = \frac{f(x+h) - 2f(x) + f(x-h)}{h^2}
+\]
+où $h$ est un nombre très petit : par exemple $h = 10^{-3}$, $10^{-1}$.
+
+La formule de la dérivée première peut s'obtenir à partir de la formule de
+l'interpolation linéaire. En effet, la formule de l'interpolation linéaire est
+\[
+  f(x) = f(x_1)\frac{x - x_2}{x_1 - x_2} + f(x_2)\frac{x - x_1}{x_2 - x_1}
+       + \frac{1}{2}f''(\xi)(x - x_1)(x - x_2) .
+\]
+D'où
+\[
+  f'(x) = \frac{f(x_2) - f(x_1)}{x_2 - x_1}
+        + \frac{1}{2}f''(\xi)\bigl[(x - x_1) + (x - x_2)\bigr]
+        + \frac{1}{2}(x - x_1)(x - x_2)\frac{\dd}{\dd x}\bigl[f''\bigl(\xi(x)\bigr)\bigr] .
+\]
+L'erreur de troncature correspondant à la dérivée par interpolation linéaire
+est donc
+\[
+  E = \frac{1}{2}f''(\xi)\bigl[(x - x_1) + (x - x_2)\bigr]
+    + \frac{1}{2}(x - x_1)(x - x_2)\frac{\dd}{\dd x}\bigl[f''\bigl(\xi(x)\bigr)\bigr]
+\]
+avec $\xi \in [x_1\,;\,x_2]$.
+
+Si nous posons $x = x_1$ et $x_2 = x_1 + h$, on obtient
+\[
+  f'(x_1) = \frac{f(x_1 + h) - f(x_1)}{h}
+\]
+avec une erreur de troncature $E = -\dfrac{1}{2}hf''(\xi)$.
+
+C'est la formule classique donnée précédemment.
+
+\subsection{Formules plus précises}
+
+\subsubsection{Dérivée à partir de l'interpolation quadratique}
+
+La formule d'interpolation quadratique est
+\[
+  f(x) = f(x_1)f_1(x) + f(x_2)f_2(x) + f(x_3)f_3(x)
+\]
+où
+\[
+  f_1(x) = \frac{(x - x_2)(x - x_3)}{(x_1 - x_2)(x_1 - x_3)}, \quad
+  f_2(x) = \frac{(x - x_1)(x - x_3)}{(x_2 - x_1)(x_2 - x_3)}, \quad
+  f_3(x) = \frac{(x - x_1)(x - x_2)}{(x_3 - x_1)(x_3 - x_2)} .
+\]
+En procédant comme dans le cas d'une interpolation linéaire, et en posant
+$x = x_2$, on établit que :
+\[
+  f'(x) = \frac{f(x+h) - f(x-h)}{2h}
+\]
+avec une erreur de troncature
+\[
+  E = -\frac{1}{6}h^2f'''(\xi) \qquad\text{où } \xi \in [x - h\,;\,x + h] .
+\]
+Si l'on posait $x = x_1$, il viendrait le résultat suivant :
+
+Si $f$ est de classe $C^3$ sur l'intervalle $[a,b]$, alors pour toutes valeurs
+de $x$ et $h$ avec $a < x < x + 2h < b$, il existe $\xi \in [x\,;\,x + 2h]$ tel
+que
+\[
+  f'(x) = \frac{1}{2h}\bigl[-3f(x) + 4f(x+h) - f(x+2h)\bigr] + \frac{1}{3}h^2f'''(\xi) .
+\]
+
+\subsubsection{Dérivée à partir de l'interpolation cubique}
+
+On obtient le résultat suivant :
+
+Si $f$ est de classe $C^5$ sur l'intervalle $[a,b]$ alors pour toute valeur de
+$x$ et $h$ telles que $a < x - 2h < x + 2h < b$, il existe
+$\xi \in [x - 2h\,;\,x + 2h]$ tel que
+\[
+  f'(x) = \frac{1}{12h}\bigl[f(x-2h) - 8f(x-h) + 8f(x+h) - f(x+2h)\bigr]
+        + \frac{1}{30}h^4f^{(5)}(\xi) .
+\]
+
+\begin{exercice}[Exercice 1]
+Établir la formule de dérivation numérique à partir de l'interpolation
+quadratique.
+\end{exercice}
+
+\begin{exercice}[Exercice 2]
+Au cours d'une expérience de dynamique, la position en fonction du temps est
+donnée dans le tableau suivant :
+\begin{center}
+  \begin{tabular}{|c|c|c|c|c|c|c|}
+    \hline
+    $t$ & 1.0 & 1.10 & 1.20 & 1.30 & 1.40 & 1.50\\ \hline
+    $x$ & 1.6487 & 1.7333 & 1.8221 & 1.9155 & 2.0138 & 2.1170\\ \hline
+  \end{tabular}
+\end{center}
+Calculer les vitesses aux instants $t = 1.05$ ; $1.15$ ; $1.25$ ; $1.35$ et
+$1.45$.
+\end{exercice}
+
+\section{Intégrations numériques -- Formules de Newton-Cotes}
+
+\subsection*{L'intégrale définie}
+
+\[
+  I = \int_a^b f(x)\,\dd x
+\]
+représente un nombre qui, dans certains cas favorables peut être calculé
+analytiquement. Dans le cas contraire, on doit faire appel au calcul
+numérique. Pour ce faire, la fonction $f$ supposée continue sur $[a,b]$ est
+remplacée par une formule d'interpolation. Généralement, $f$ est approximée
+par un polynôme et les formules d'intégration qui s'en déduisent sont dites
+\emph{formules de Newton-Cotes}. Ces formules supposent que les n\oe uds
+d'interpolation sont équidistants.
+
+\subsection{Méthode des trapèzes}
+
+\subsubsection{Formule composite des trapèzes}
+
+Dans la méthode des trapèzes, l'interpolation de la fonction $f$ est
+linéaire. En supposant que l'intervalle $[a,b]$ est court, on a
+\[
+  f(x) = f(a)\frac{x - b}{a - b} + f(b)\frac{x - a}{b - a}
+       + \frac{1}{2}f''(\xi)(x - a)(x - b) .
+\]
+Il vient alors
+\[
+  I \cong \frac{b - a}{2}\bigl[f(a) + f(b)\bigr] + E
+\]
+où $E$ est l'erreur de troncature définie par
+\[
+  E = \frac{1}{2}\int_a^b f''(\xi)(x - a)(x - b)\,\dd x .
+\]
+Pour évaluer $E$, nous utilisons le théorème de la moyenne pour les
+intégrales.
+
+\paragraph{Théorème de la moyenne} Soient $f$ et $g$ deux fonctions
+continues sur $[a,b]$. Si $g(x)$ ne change pas de signe sur $[a,b]$, alors il
+existe $\eta \in [a,b]$ tel que
+\[
+  \int_a^b f(x)g(x)\,\dd x = f(\eta)\int_a^b g(x)\,\dd x .
+\]
+Puisque le produit $(x - a)(x - b)$ reste négatif sur $[a,b]$, nous aurons
+donc
+\[
+  E = -\frac{1}{12}f''(\xi)(b - a)^3 .
+\]
+Si $b - a = h$, alors
+\[
+  E = -\frac{1}{12}f''(\xi)h^3 .
+\]
+Lorsque la longueur de l'intervalle $[a,b]$ n'est pas assez petite, l'on
+utilise la propriété d'additivité de l'intégrale pour faire un découpage en
+morceaux réduits, à savoir :
+\[
+  \int_a^b f(x)\,\dd x = \sum_{k=1}^{n}\int_{x_{k-1}}^{x_k} f(x)\,\dd x
+  \qquad\text{où } a = x_0 < x_1 < \dots < x_{n-1} < x_n = b .
+\]
+Prenons $x_k = x_0 + kh$, on obtient alors :
+\[
+  \int_a^b f(x)\,\dd x = \frac{h}{2}\bigl[f(x_0) + 2f(x_1) + 2f(x_2) + \dots
+                         + 2f(x_{n-1}) + f(x_n)\bigr] + E
+\]
+où $E = \sum_{k=1}^{n} E_k$.
+
+C'est la formule composite de la méthode des trapèzes.
+
+Sachant que $E_k = -\dfrac{1}{12}h^3f''(\xi_k)$, on obtient
+\[
+  E = \sum_{k=1}^{n} E_k = -\frac{1}{12}h^3\sum_{k=1}^{n} f''(\xi_k)
+    = -\frac{nh^3}{12}\,\frac{\sum_{k=1}^{n} f''(\xi_k)}{n}
+    = -\frac{nh^3}{12}f''(\eta)
+\]
+où $\eta \in [a,b]$. Or $b - a = nh$. D'où
+\[
+  E = -\frac{h^2}{12}(b - a)f''(\eta) .
+\]
+
+\begin{exercice}[Exercice 3]
+Calculer à la main $I = \displaystyle\int_1^2 \frac{\dd x}{x}$ pour $h = 0.2$,
+puis pour $h = 0.1$. Comparer à la valeur exacte.
+\end{exercice}
+
+\subsubsection{Algorithme de la formule composite des trapèzes}
+
+Cet algorithme permet de calculer une intégrale par la méthode composite des
+trapèzes. Il utilise des tableaux pour $x_k$ et $f_k$.
+
+\begin{algo}
+  \State 1\textdegree- Définir la fonction $f$
+  \State 2\textdegree- Donner $a$, $b$ et $n$
+  \State 3\textdegree- $h \leftarrow \dfrac{b - a}{n}$, $S \leftarrow 0$
+  \State 4\textdegree- \textbf{Pour} $k$ allant de $0$ jusqu'à $n$, \textbf{faire}
+  \State \hspace{2.5em} $x_k \leftarrow a + kh$
+  \State \hspace{2.5em} $f_k \leftarrow f(x_k)$
+  \State \hspace{1.2em} \textbf{Fin pour}
+  \State 5\textdegree- \textbf{Pour} $k$ allant de $1$ jusqu'à $n-1$, \textbf{faire}
+  \State \hspace{2.5em} $S \leftarrow S + hf_k$
+  \State \hspace{1.2em} \textbf{Fin pour}
+  \State \hspace{1.2em} $S \leftarrow S + \dfrac{h}{2}(f_0 + f_n)$
+  \State 6\textdegree- \textbf{Écrire} $S$
+\end{algo}
+
+\begin{exercice}[Exercice 4]
+Écrire un autre algorithme qui n'utilise pas les tableaux.
+\end{exercice}
+
+\subsection{Méthode de Simpson}
+
+Dans la méthode de Simpson, la fonction $f$ est approximée par un polynôme de
+degré deux qui passe par les points $a$, $b$ et $c = \dfrac{a+b}{2}$. Cette
+méthode permet d'obtenir :
+\[
+  \int_a^b f(x)\,\dd x = \frac{b - a}{6}\bigl[f(a) + 4f(c) + f(b)\bigr] + E
+\]
+avec
+\[
+  E = \frac{1}{6}\int_a^b f'''(\xi)(x - a)(x - b)(x - c)\,\dd x .
+\]
+En utilisant l'additivité des intégrales, on obtient :
+\[
+  \int_a^b f(x)\,\dd x = \frac{h}{3}\bigl[f(x_0) + 4f(x_1) + 2f(x_2) + 4f(x_3)
+                         + 2f(x_4) + \dots + 4f(x_{n-1}) + f(x_n)\bigr] .
+\]
+
+\begin{exercice}[Exercice 5]
+Écrire un algorithme pour la méthode de Simpson.
+\end{exercice}
+
+\begin{exercice}[Exercice 6]
+Établir une formule d'intégration numérique qui utilise une interpolation de
+degré 3 et qui interpole les points $a$, $b$, $c = \dfrac{a+b}{4}$ et
+$d = \dfrac{3(a+b)}{4}$.
+\end{exercice}
+
+\begin{exercice}[Exercice 7]
+Utiliser la méthode de Simpson pour calculer manuellement l'intégrale
+$I = \displaystyle\int_0^1 \frac{4}{1+x^2}\,\dd x$ avec $h = 0.1$.
+\end{exercice}
+
+\section{Intégrales mixtes et doubles}
+
+\subsection{Intégrale mixte}
+
+C'est une intégrale de la forme
+\[
+  I = \int_a^b f(x)g(x)\,\dd x
+\]
+où l'expression mathématique de $g(x)$ est connue et où $f(x)$ est approchée
+par une formule d'interpolation. Ce type d'intégrale intervient par exemple
+dans le calcul des coefficients de Fourier du développement d'une fonction :
+\[
+  a_n = \frac{2}{T}\int_0^T f(x)\cos(nx)\,\dd x
+  \qquad\text{et}\qquad
+  b_n = \frac{2}{T}\int_0^T f(x)\sin(nx)\,\dd x .
+\]
+Dans ce cas $g(x) = \cos(nx)$ ou $\sin(nx)$. Ce type d'intégrale intervient
+également dans la résolution des équations intégrales (par exemple
+l'équation $f(x) = 5x + \int_0^1 (t + x)f(t)\,\dd t$).
+
+Pour calculer ce type d'intégrale, on élabore des formules d'intégration de
+type Newton-Cotes ($f(x)$ est interpolée par un polynôme).
+
+\subsection{Interpolation double}
+
+Il s'agit de calculer une intégrale de la forme
+\[
+  I = \int_{x=a}^{x=b}\int_{y=c}^{y=d} Z(x,y)\,\dd x\,\dd y .
+\]
+Pour ce faire, l'on peut utiliser la formule d'interpolation double de la
+fonction $Z(x,y)$.

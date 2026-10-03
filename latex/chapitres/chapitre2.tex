@@ -1,0 +1,791 @@
+\chapter{Équations algébriques non linéaires}
+
+\section{Introduction}
+
+Les équations algébriques non linéaires se présentent sous la forme
+$f(x) = 0$ ou $f_i(x) = 0$ avec $i$ allant de $1$ à $n$. La variable $x$ peut
+être réelle ou complexe. La résolution numérique de ces équations fait appel à
+plusieurs méthodes qui seront expliquées dans ce chapitre. Il s'agit notamment
+de la méthode de Newton-Raphson, la méthode de dichotomie et de la méthode de
+Bairstow. Ce chapitre expliquera aussi comment effectuer les opérations sur
+les polynômes ainsi que la présentation des méthodes permettant de trouver
+plusieurs racines simultanément. Le cas des systèmes d'équations non linéaires
+sera aussi présenté.
+
+\section{Méthodes de Newton-Raphson et dichotomie}
+
+La formule de Newton-Raphson a été donnée par Raphson en 1698. Mais Newton
+avait suggéré une méthode plus voisine quelques mois auparavant. Il se
+pourrait aussi que cette formule ait été utilisée par Héron en l'an 100 avant
+Jésus-Christ pour trouver la racine carrée d'un nombre. Cette méthode est de
+la classe des méthodes itératives par approximations successives qui se
+traduisent par répétition systématique d'une opération déterminée, ce qui
+finit par donner de proche en proche la solution exacte.
+
+\subsection{Formule de la méthode de Newton-Raphson}
+
+On commence généralement par trouver une solution grossière ou approchée
+$x_0$, dite approximation d'ordre zéro. Dans le cas d'un problème de physique,
+une telle solution $x_0$ peut être suggérée par la signification du problème
+ou par une courbe. Généralement, on localise un intervalle $[a,b]$ tel que
+$x_0$ appartienne à cet intervalle. Si nous désignons la solution exacte par
+$\bar{x} = x_0 + h$, alors, la formule de Taylor donne
+\[
+  f(x_0 + h) \approx f(x_0) + h f'(x_0) + O(h^2)
+\]
+or
+\[
+  f(x_0 + h) = 0 \;\longrightarrow\; f(x_0) + h f'(x_0) \approx 0
+  \;\longrightarrow\; h \approx -\frac{f(x_0)}{f'(x_0)}
+\]
+d'où
+\[
+  \bar{x} = x_0 - \frac{f(x_0)}{f'(x_0)} .
+\]
+En posant $x_1 = x_0 - \dfrac{f(x_0)}{f'(x_0)}$, on obtient une première
+approximation de la solution (l'indice désignant l'ordre de l'approximation).
+Procédons de même avec $x_1$, on obtient la seconde approximation,
+\[
+  x_2 = x_1 - \frac{f(x_1)}{f'(x_1)} .
+\]
+À l'ordre $n+1$, on obtient
+\[
+  x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)} .
+\]
+C'est une formule résultant d'une erreur d'ordre $O(h^2)$. En négligeant les
+termes d'ordre supérieur, on a remplacé la courbe représentative de $f(x)$ par
+une tangente en $x = x_0$ ; la méthode consiste géométriquement à tracer de
+proche en proche les tangentes à la courbe et à rechercher leur point
+d'intersection avec l'axe des abscisses. En effet, on a l'équation
+\[
+  f(\bar{x}) = y = f(x_0) + h f'(x_0) = f(x_0) + (\bar{x} - x_0) f'(x_0)
+\]
+qui est l'équation de la tangente au point $\bigl(x_0, f(x_0)\bigr)$.
+
+Cette interprétation graphique fait que la méthode de Newton est souvent
+appelée \emph{méthode de la tangente}.
+
+\paragraph{Remarques} Lorsque $f(x_0)f''(x_0) > 0$, la suite
+$x_{n+1} = x_n - \dfrac{f(x_n)}{f'(x_n)}$ est monotone, bornée et converge vers
+$\bar{x}$. Ce résultat donne une condition suffisante pour que la méthode de
+Newton converge vers $\bar{x}$. Mais cette condition n'est pas nécessaire.
+Dans le cas où il n'y a pas convergence, on change la valeur de $x_0$.
+
+\subsection{Condition d'arrêt}
+
+La méthode de Newton converge vers la solution exacte $\bar{x}$, mais on ne
+connaît pas explicitement à quel moment une certaine précision est atteinte.
+Pour cela, on utilise généralement le résultat suivant :
+
+Soit $\bar{x}$ une racine de l'équation $f(x) = 0$ et soit $x_n$ une valeur
+approchée de $\bar{x}$. Si sur $[a,b]$ contenant $\bar{x}$ et $x_n$, on a
+\[
+  \abs{f'(x)} \ge m > 0, \quad \text{alors} \quad
+  \abs{x_n - \bar{x}} \le \frac{\abs{f(x_n)}}{m} .
+\]
+Dans la pratique, on pourra prendre $m$ comme
+$m = \min\bigl(\abs{f'(a)}, \abs{f'(b)}\bigr)$.
+
+Si $E$ est la précision exigée, on s'arrêtera lorsque
+$\dfrac{\abs{f(x_n)}}{m} < E$.
+
+\begin{exercice}
+Écrire l'algorithme de la méthode de Newton-Raphson en y intégrant la
+condition d'arrêt.
+\end{exercice}
+
+\subsection{Autres formules : formule du troisième et du premier ordre}
+
+La formule de Newton est l'une des méthodes les plus utilisées parce qu'elle
+est relativement simple et d'une convergence très suffisante dans la plupart
+des cas. Il faut toutefois que $x_0$ soit assez près de la racine pour que la
+dérivée $f'$ ne change pas de signe entre $x_0$ et $x$. Si en effet $f'$
+s'annule sans que $f$ s'annule aussi, la tangente à la courbe va couper l'axe
+des $x$ à l'infini. On risque alors d'osciller indéfiniment autour de la
+solution sans jamais l'atteindre.
+
+Il est possible de modifier la formule de Newton et d'écrire
+\[
+  x_{n+1} = x_n - p\,\frac{f(x_n)}{f'(x_n)}
+\]
+où $p$ est un nombre ou une fonction. On peut aussi utiliser la formule
+\[
+  x_{n+1} = x_n - \frac{g\,f(x_n)}{g\,f'(x_n) + h\,f(x_n)} .
+\]
+En développant la série de Taylor jusqu'à l'ordre 2, on obtient
+\[
+  f(x_0 + h) = f(x_0) + h f'(x_0) + \frac{h^2}{2} f''(x_0) + O(h^3) .
+\]
+En remplaçant $h$ par $h = \bar{x} - x_0 \approx -\dfrac{f}{f'}$ (d'après la
+formule de Newton), on obtient
+\[
+  x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)}
+          - \frac{1}{2}\,\frac{f''(x_n)}{f'(x_n)}
+            \left(\frac{f(x_n)}{f'(x_n)}\right)^{2} .
+\]
+C'est la formule du troisième ordre.
+
+Soit l'équation $f(x) = 0$. De cette équation, on peut tirer $x$ en fonction
+de $x$ en écrivant $x = g(x)$, où $g$ est défini à partir de $f(x)$. Dans ce
+cas on peut écrire $x_{n+1} = g(x_n)$. C'est la formule d'itération du premier
+ordre.
+
+\subsection{Formule de Newton pour les racines complexes}
+
+Soit l'équation
+\[
+  f(z) = 0
+\]
+avec $z = x + iy$. On a
+\[
+  f(z) \approx f(z_0) + (z - z_0) f'(z_0)
+  \;\Longrightarrow\; z - z_0 = -\frac{f(z_0)}{f'(z_0)} .
+\]
+Pour le calcul numérique, il faut séparer les parties réelles et imaginaires.
+On aura donc
+\[
+  f(z_0) = G(x_0, y_0) + iH(x_0, y_0), \qquad
+  \frac{\dd f}{\dd z_0} = f'(z_0) = G'(x_0, y_0) + iH'(x_0, y_0)
+\]
+et
+\[
+  \left\{
+  \begin{aligned}
+    x_{n+1} &= x_n - \left.\frac{GG' + HH'}{G'^2 + H'^2}\right|_{z_n}\\[0.4em]
+    y_{n+1} &= y_n - \left.\frac{HG' - GH'}{G'^2 + H'^2}\right|_{z_n}
+  \end{aligned}
+  \right.
+\]
+
+\subsection{Méthode de dichotomie ou de bissection}
+
+Supposons que $f(a) < 0 < f(b)$ et $f$ est strictement croissante sur $[a,b]$.
+La solution $x_0$ de l'équation $f(x) = 0$ appartient à l'intervalle $[a,b]$.
+Le milieu de l'intervalle est $c = (a+b)/2$. Si $f(a)$ et $f(c)$ ont des signes
+opposés, alors $x_0$ appartient à $[a,c]$. Si par contre $f(b)$ et $f(c)$ sont
+de signes opposés, alors $x_0$ appartient à $[c,b]$. Dans l'un ou l'autre
+cas, la taille de l'intervalle est divisée par 2. Une nouvelle bissection peut
+être faite sur le nouvel intervalle contenant la solution et ainsi de suite.
+Ainsi, après $n$ étapes, la taille de l'intervalle devient $(b-a)/2^n$.
+
+\begin{exercice}
+Écrire l'algorithme de la méthode de bissection.
+\end{exercice}
+
+\section{Calcul de toutes les racines d'une équation polynomiale}
+
+\subsection{Opérations sur les polynômes}
+
+\subsubsection{Schéma de calcul numérique d'un polynôme}
+
+Pour déterminer les valeurs numériques de
+\[
+  P_n(x) = a_0x^n + a_1x^{n-1} + \dots + a_{n-1}x + a_n ,
+\]
+on peut calculer chaque terme et faire la somme. Mais, ce procédé n'est pas en
+général court. Il exige $2n-1$ multiplications. On peut utiliser le schéma dit
+de \textbf{Horner}. On calcule les nombres $b_k$ définis par :
+\[
+  \begin{aligned}
+    b_0 &= a_0,\\
+    b_k &= a_k + b_{k-1}x \qquad (k \text{ allant de } 1 \text{ à } n).
+  \end{aligned}
+\]
+$b_n$ est alors la valeur numérique cherchée.
+
+L'algorithme utilisé se présente ainsi :
+
+\begin{algo}
+  \State \textbf{Début}
+  \State \quad $x \leftarrow$ \textit{valeur de} $x$
+  \State \quad $b_0 \leftarrow a_0$
+  \State \quad \textbf{Pour} $k$ allant de $1$ à $n$ \textbf{faire}
+  \State \quad\quad $b_k \leftarrow a_k + b_{k-1}x$
+  \State \quad \textbf{Fin pour}
+  \State \quad \textbf{Écrire} $b_n = P_n(x)$
+  \State \textbf{Fin}
+\end{algo}
+
+La première méthode de calcul exige $(2n-1)$ multiplications alors que le
+schéma de Horner n'en demande que $n$ multiplications et le nombre d'additions
+est le même dans les deux cas. De plus le schéma de Horner a l'avantage de
+n'introduire qu'un type d'opérations :
+\[
+  b_k = a_k + b_{k-1}x .
+\]
+La programmation est alors plus aisée.
+
+Pour un polynôme à coefficients complexes,
+\[
+  \begin{aligned}
+    &P_n(z) = c_0z^n + c_1z^{n-1} + \dots + c_{n-1}z + c_n,\\
+    &z = x + iy \quad\text{et}\quad c_p = a_p + ib_p,\\
+    &P_n(z) = G_n(x,y) + iH_n(x,y).
+  \end{aligned}
+\]
+Le schéma de Horner peut également être utilisé. On remplace tout simplement
+les quantités $b_k$ par les quantités
+\[
+  P_k = G_k + iH_k
+\]
+avec
+\[
+  \begin{aligned}
+    G_0 &= a_0, & H_0 &= b_0,\\
+    G_k &= a_k + xG_{k-1} - yH_{k-1}, &
+    H_k &= b_k + yG_{k-1} + xH_{k-1}.
+  \end{aligned}
+\]
+
+\subsubsection{Division d'un polynôme par \texorpdfstring{$x-r$}{x-r}}
+
+En divisant le polynôme
+\[
+  P_n(x) = a_0x^n + a_1x^{n-1} + \dots + a_{n-1}x + a_n
+\]
+par
+\[
+  C(x) = x - r ,
+\]
+on obtient un quotient $Q(x)$ et un reste $R$ liés entre eux par la relation
+\[
+  P(x) = (x - r)\,Q(x) + R .
+\]
+$Q(x)$ est un polynôme de degré $n-1$ et $R$ est une constante. Ils sont de la
+forme
+\[
+  \begin{aligned}
+    Q(x) &= b_0x^{n-1} + b_1x^{n-2} + \dots + b_{n-2}x + b_{n-1}\\
+    R &= b_n
+  \end{aligned}
+\]
+où $b_k = a_k + r\,b_{k-1}$ $(k = 1 \text{ à } n)$, avec $b_0 = a_0$.
+
+Si $b_n = 0$, alors le polynôme est divisible par $x - r$ ; c'est-à-dire que
+$r$ est une racine de $P(x)$.
+
+\paragraph{Remarques}
+\begin{itemize}
+  \item[$*$] Ces formules sont semblables pour des grandeurs complexes. La
+        seule différence apparaît dans le calcul effectif qui exige un
+        dédoublement de colonne comme ci-dessus.
+  \item[$**$] Quand les coefficients $a_k$ sont réels et que
+        $r = \alpha + i\beta$, on peut diviser $P(x)$ par le facteur
+        quadratique $(x - r)(x - r^*)$ où $r^*$ est le complexe conjugué.
+\end{itemize}
+
+\subsubsection{Division d'un polynôme par un facteur quadratique}
+
+Soit le polynôme $P_n(x)$ que l'on désire diviser par le facteur quadratique
+\[
+  Q_2(x) = x^2 - Sx + P .
+\]
+On a :
+\[
+  P_n(x) = Q_2(x)\,Q_{n-2}(x) + R_1(x) .
+\]
+$Q_{n-2}(x)$ et $R_1(x)$ sont respectivement les polynômes de degré $n-2$ et
+$1$ que l'on peut écrire sous la forme
+\[
+  \begin{aligned}
+    Q_{n-2}(x) &= b_0x^{n-2} + b_1x^{n-3} + \dots + b_{n-3}x + b_{n-2}\\
+    R_1(x) &= b_{n-1}(x - S) + b_n
+  \end{aligned}
+\]
+avec
+\[
+  \begin{aligned}
+    b_0 &= a_0, \qquad b_1 = a_1 + Sb_0,\\
+    b_2 &= a_2 + Sb_1 - Pb_0,\\
+    &\;\;\vdots\\
+    b_k &= a_k + Sb_{k-1} - Pb_{k-2} \qquad (k = 2 \text{ à } n).
+  \end{aligned}
+\]
+Si $S$ et $P$ sont respectivement la somme et le produit de deux racines du
+polynôme $P_n(x)$, alors le reste $R_1$ est nul ; c'est-à-dire $b_{n-1} = 0$
+et $b_n = 0$.
+
+\subsection{Calcul d'une racine réelle et passage à l'équation de degré
+\texorpdfstring{$n-1$}{n-1}}
+
+L'idée la plus simple est de calculer la suite des valeurs
+$b_k = a_k + b_{k-1}x_0$ qui conduisent à la valeur du polynôme et comme on
+devrait avoir $b_n = 0$, on obtiendra
+\[
+  x = -\frac{a_n}{b_{n-1}} .
+\]
+On recommence le calcul des quantités $b_k$ avec cette nouvelle valeur de $x$
+jusqu'à obtenir la précision choisie. À ce moment les coefficients $b_0$,
+$b_1$, \dots, $b_{n-1}$ donnent le polynôme restant de degré $n-1$. On peut
+alors continuer le processus de recherche des racines sur le polynôme de
+degré $n-1$.
+\[
+  P_n(x) = a_0x^n + a_1x^{n-1} + \dots + a_{n-1}x + a_n
+\]
+L'inconvénient de ce processus est qu'il n'est pas toujours convergent. Cette
+méthode appelée méthode de \textbf{Lin} fut développée en 1941.
+
+Elle peut également s'appliquer sur le plan complexe. Pour cela, on part d'une
+valeur arbitraire $z_0 = x_0 + iy_0$ et on calcule les coefficients de Horner
+complexes jusqu'à $G_{n-1}$ et $H_{n-1}$. On obtient alors des nouvelles
+valeurs $z_1 = x_1 + iy_1$ en écrivant que $G_n = 0$ et $H_n = 0$. On a en
+effet
+\[
+  \left\{
+  \begin{aligned}
+    a_n + x_1G_{n-1} - y_1H_{n-1} &= 0\\
+    b_n + x_1H_{n-1} + y_1G_{n-1} &= 0
+  \end{aligned}
+  \right.
+  \quad\Longrightarrow\quad
+  \left\{
+  \begin{aligned}
+    x_1 &= -\frac{a_nG_{n-1} + b_nH_{n-1}}{G_{n-1}^2 + H_{n-1}^2}\\[0.4em]
+    y_1 &= \frac{a_nH_{n-1} - b_nG_{n-1}}{G_{n-1}^2 + H_{n-1}^2}
+  \end{aligned}
+  \right.
+\]
+On recommence le processus jusqu'à ce que
+\[
+  \abs{z^{(k+1)} - z^{(k)}} < \varepsilon .
+\]
+
+\begin{exercice}
+Établir l'algorithme de ce schéma de Lin pour les solutions réelles.
+\end{exercice}
+
+\subsection{Formule d'itération de Newton sur l'axe réel}
+
+Soit l'équation $P_n(x) = 0$, la dérivée de ce polynôme en $x$ est $P'_n(x)$.
+Les valeurs numériques de $P_n(x)$ et de $P'_n(x)$ se calculent par le schéma
+de Horner suivant :
+\[
+  \begin{aligned}
+    b_0 &= a_0\\
+    b_k &= a_k + xb_{k-1} \qquad (k = 1, \dots, n)
+  \end{aligned}
+\]
+et
+\[
+  \begin{aligned}
+    c_0 &= b_0\\
+    c_k &= b_k + xc_{k-1} \qquad (k = 1, \dots, n-1)
+  \end{aligned}
+\]
+On a
+\[
+  \left\{
+  \begin{aligned}
+    P_n(x) &= b_n\\
+    P'_n(x) &= c_{n-1}
+  \end{aligned}
+  \right.
+\]
+La formule d'itération de Newton devient
+\[
+  x_{k+1} = f(x_k) \qquad\text{où}\qquad f(x) = x - \frac{b_n}{c_{n-1}} .
+\]
+On peut alors poursuivre le processus jusqu'à obtenir
+\[
+  \abs{x_{k+1} - x_k} < \varepsilon .
+\]
+Après avoir trouvé une racine $x^*$ de l'équation, on divise le polynôme par
+$x - x^*$ et on continue le processus jusqu'à l'obtention de toutes les
+racines.
+
+\subsection{Calcul de deux racines et passage à l'équation de degré
+\texorpdfstring{$n-2$}{n-2}}
+
+Dans le cas de la division d'un polynôme par le facteur quadratique
+\[
+  G_2(x) = x^2 - Sx + P ,
+\]
+si $S$ et $P$ sont la somme et le produit de deux racines du polynôme
+$P_n(x)$, alors on aura
+\[
+  b_n = 0 \quad\text{et}\quad b_{n-1} = 0
+  \quad\Longrightarrow\quad
+  P = \frac{a_n}{b_{n-2}} \quad\text{et}\quad
+  S = \frac{Pb_{n-3} - a_{n-1}}{b_{n-2}} .
+\]
+Le processus peut alors continuer jusqu'à $b_n = b_{n-1} = 0$ à la précision
+choisie. On obtient finalement un nouveau polynôme de degré $n-2$ pour lequel
+on peut reprendre le calcul pour retrouver les deux racines suivantes et ainsi
+de suite, on parvient à résoudre l'équation.
+
+\subsection{Méthode de Bairstow}
+
+Soit le polynôme :
+\[
+  P_n(x) = a_0x^n + a_1x^{n-1} + \dots + a_{n-1}x + a_n
+\]
+à diviser par $G_2(x) = x^2 - Sx + P$. On obtient
+\[
+  P_n(x) = G_2(x)\,Q_{n-2}(x) + R_1(x)
+\]
+où
+\[
+  \begin{aligned}
+    Q_{n-2}(x) &= b_0x^{n-2} + b_1x^{n-3} + \dots + b_{n-3}x + b_{n-2}\\
+    \text{et}\quad R_1(x) &= b_{n-1}(x - S) + b_n
+  \end{aligned}
+\]
+avec
+\[
+  b_0 = a_0, \qquad b_1 = a_1 + Sb_0, \qquad
+  b_k = a_k + Sb_{k-1} - Pb_{k-2} \quad (k = 2, \dots, n).
+\]
+Si l'on a $b_n = 0$ et $b_{n-1} = 0$, alors $S$ et $P$ sont la somme et le
+produit de deux racines du polynôme et les grandeurs $b_k$ sont les
+coefficients du polynôme de degré $n-2$. La méthode de Bairstow consiste à
+partir des valeurs arbitraires de $S$ et $P$ et de calculer la suite des
+coefficients $b_k$.
+
+Soit
+\[
+  \begin{aligned}
+    F(S,P) &= b_{n-1},\\
+    G(S,P) &= b_n .
+  \end{aligned}
+\]
+Si $F$ et $G$ ne sont pas nuls à la précision choisie, alors on améliore $S_0$
+et $P_0$ ($S_0$ et $P_0$ étant les valeurs initiales de $S$ et de $P$) par la
+formule d'itération de Newton à deux variables. Les deux fonctions de $S$ et
+de $P$ sont $F$ et $G$ et les formules d'itération se mettent sous la forme
+\[
+  \begin{aligned}
+    S_{k+1} &= S_k + \frac{\alpha}{\Delta}\\
+    P_{k+1} &= P_k + \frac{\beta}{\Delta}
+  \end{aligned}
+\]
+avec
+\[
+  \begin{aligned}
+    \alpha &= F\frac{\partial G}{\partial P} - G\frac{\partial F}{\partial P}\\
+    \beta &= G\frac{\partial F}{\partial S} - F\frac{\partial G}{\partial S}\\
+    \Delta &= \frac{\partial G}{\partial S}\frac{\partial F}{\partial P}
+            - \frac{\partial F}{\partial S}\frac{\partial G}{\partial P}
+  \end{aligned}
+\]
+Pour obtenir les dérivées partielles par rapport à $S$, il suffit de dériver
+les relations $b_k$ par rapport à $S$. Pour cela nous posons
+\[
+  \frac{\partial b_k}{\partial S} = c_{k-1} .
+\]
+En dérivant $b_k = a_k + Sb_{k-1} - Pb_{k-2}$ par rapport à $S$, on a
+\[
+  \frac{\partial b_k}{\partial S}
+  = b_{k-1} + S\frac{\partial b_{k-1}}{\partial S} - P\frac{\partial b_{k-2}}{\partial S},
+  \qquad\text{soit}\qquad
+  c_{k-1} = b_{k-1} + Sc_{k-2} - Pc_{k-3} .
+\]
+On obtient alors la suite suivante
+\[
+  \begin{aligned}
+    c_0 &= b_0\\
+    c_1 &= b_1 + Sc_0\\
+    c_k &= b_k + Sc_{k-1} - Pc_{k-2} \qquad (k = 2, \dots, n)
+  \end{aligned}
+\]
+Posons
+\[
+  \frac{\partial b_k}{\partial P} = -c_{k-2} .
+\]
+On constate que l'on obtient une suite identique à celle définie ci-dessus.
+
+Il vient finalement :
+\[
+  \begin{aligned}
+    \alpha &= b_nc_{n-3} - b_{n-1}c_{n-2}\\
+    \beta &= b_nc_{n-2} - b_{n-1}c_{n-1}\\
+    \Delta &= c_{n-2}^2 - c_{n-1}c_{n-3}
+  \end{aligned}
+\]
+Ces formules ont été établies par Bairstow en 1914 pour des besoins de
+l'industrie d'aéronautique. Avec ces nouvelles valeurs de $S$ et de $P$, on
+calcule à nouveau les coefficients $b_q$ et $c_q$ ainsi de suite jusqu'à ce
+que $b_{n-1}$ et $b_n$ soient nuls à la précision choisie. Une fois que l'on a
+terminé le calcul de $S$ et de $P$, on détermine les deux racines
+correspondantes par :
+\[
+  x = \frac{1}{2}\Bigl[S \pm \sqrt{S^2 - 4P}\Bigr]
+  \qquad\text{ou}\qquad
+  x + iy = \frac{1}{2}\Bigl[S \pm i\sqrt{-S^2 + 4P}\Bigr] .
+\]
+Les coefficients restants $b_k$ sont ceux de l'équation de degré $n-2$. On peut
+alors recommencer le processus et calculer par paire toutes les racines.
+Toutefois, si $n$ est impair, il restera à la fin une équation de la forme :
+\[
+  b_0 + b_1x = 0 \quad\Longrightarrow\quad x = -\frac{b_0}{b_1} .
+\]
+
+\subsection{Calcul simultané de toutes les racines}
+
+Pour calculer simultanément toutes les racines $x_1, x_2, \dots, x_n$ d'un
+polynôme de degré $n$, il faut disposer de $n$ équations entre ces racines.
+Malheureusement, c'est souvent difficile d'obtenir ce système d'équations
+entre les racines. Mais pour les équations de degré inférieur à 5, on peut
+trouver des relations : relations de Viète.
+
+\subsubsection{Cas où toutes les racines sont réelles}
+
+Si nous considérons l'équation du 3\textsuperscript{e} degré
+\[
+  x^3 + a_1x^2 + a_2x + a_3 = 0 .
+\]
+On a les relations de Viète suivantes entre les racines :
+\[
+  \left\{
+  \begin{aligned}
+    x_1 + x_2 + x_3 &= -a_1\\
+    x_1x_2 + x_1x_3 + x_2x_3 &= a_2\\
+    x_1x_2x_3 &= -a_3
+  \end{aligned}
+  \right.
+  \quad\Longleftrightarrow\quad
+  \left\{
+  \begin{aligned}
+    x_1 &= -a_1 - x_2 - x_3\\
+    x_2 &= \frac{1}{x_1}\bigl(a_2 - x_1x_3 - x_2x_3\bigr)\\
+    x_3 &= -\frac{a_3}{x_1x_2}
+  \end{aligned}
+  \right.
+\]
+On obtient ainsi un schéma itératif du 1\textsuperscript{er} ordre qui permet
+par approximations successives d'avoir les trois racines de l'équation.
+\[
+  \left\{
+  \begin{aligned}
+    x_1^{(k+1)} &= -a_1 - x_2^{(k)} - x_3^{(k)}\\
+    x_2^{(k+1)} &= \frac{1}{x_1^{(k)}}\Bigl(a_2 - x_1^{(k)}x_3^{(k)} - x_2^{(k)}x_3^{(k)}\Bigr)\\
+    x_3^{(k+1)} &= -\frac{a_3}{x_1^{(k)}x_2^{(k)}}
+  \end{aligned}
+  \right.
+\]
+
+\subsubsection{Cas où il y a des racines complexes}
+
+Si les coefficients de l'équation sont réels, les racines complexes se
+présentent par paires conjuguées l'une de l'autre. En associant les racines
+par couple et en faisant apparaître les sommes et les produits, on opère
+uniquement sur les quantités réelles.
+
+Pour une équation du 3\textsuperscript{e} degré :
+$x^3 + a_1x^2 + a_2x + a_3 = 0$, si on pose $x_1 + x_2 = S$, $x_1x_2 = P$,
+$x_3 = r$, les relations de Viète s'écrivent :
+\[
+  \left\{
+  \begin{aligned}
+    S + r + a_1 &= 0\\
+    P + rS - a_2 &= 0\\
+    rP + a_3 &= 0
+  \end{aligned}
+  \right.
+\]
+De ces relations, on tire :
+\[
+  \left\{
+  \begin{aligned}
+    S &= -r - a_1\\
+    P &= a_2 - rS\\
+    r &= -\frac{a_3}{P}
+  \end{aligned}
+  \right.
+\]
+On peut alors partir des valeurs quelconques de $S$, $P$ et $r$ pour faire le
+processus itératif et déterminer ces grandeurs à la précision choisie.
+
+\subsubsection{Extension aux équations de degré supérieur}
+
+Pour une équation du 4\textsuperscript{e} ordre :
+$x^4 + a_1x^3 + a_2x^2 + a_3x + a_4 = 0$, on a les relations suivantes :
+\[
+  \left\{
+  \begin{aligned}
+    S_1 + S_2 + a_1 &= 0\\
+    S_1S_2 + P_1 + P_2 - a_2 &= 0\\
+    S_1P_2 + S_2P_1 + a_3 &= 0\\
+    P_1P_2 - a_4 &= 0
+  \end{aligned}
+  \right.
+\]
+avec
+\[
+  S_1 = x_1 + x_2, \quad P_1 = x_1x_2, \quad S_2 = x_3 + x_4
+  \quad\text{et}\quad P_2 = x_3x_4 .
+\]
+On peut alors tirer le schéma itératif du 1\textsuperscript{er} ordre
+suivant :
+\[
+  \left\{
+  \begin{aligned}
+    S_1 &= -a_1 - S_2\\
+    P_1 &= a_2 - P_2 - S_1S_2\\
+    S_2 &= -\frac{1}{P_1}\bigl(a_3 + S_1P_2\bigr)\\
+    P_2 &= \frac{a_4}{P_1}
+  \end{aligned}
+  \right.
+\]
+\[
+  \begin{aligned}
+    x_1 &= \frac{S_1 - \sqrt{S_1^2 - 4P_1}}{2}\,; &
+    x_2 &= \frac{S_1 + \sqrt{S_1^2 - 4P_1}}{2}\\[0.4em]
+    x_3 &= \frac{S_2 - \sqrt{S_2^2 - 4P_2}}{2}\,; &
+    x_4 &= \frac{S_2 + \sqrt{S_2^2 - 4P_2}}{2}
+  \end{aligned}
+\]
+Pour une équation du 5\textsuperscript{e} degré on a :
+\[
+  \left\{
+  \begin{aligned}
+    S_1 &= -\bigl(a_1 + S_2 + r\bigr)\\
+    P_1 &= a_2 - P_2 - S_1S_2 - r\bigl(S_1 + S_2\bigr)\\
+    S_2 &= -\frac{1}{P_1}\Bigl[a_3 + S_1P_2 + r\bigl(P_1 + P_2 + S_1S_2\bigr)\Bigr]\\
+    P_2 &= \frac{1}{P_1}\Bigl[a_4 - r\bigl(S_1P_2 + S_2P_1\bigr)\Bigr]\\
+    r &= -\frac{a_5}{P_1P_2}
+  \end{aligned}
+  \right.
+  \qquad\text{où } r = x_5 .
+\]
+
+\subsubsection{Quelques relations et règles importantes}
+
+\paragraph{Relations de Viète}
+Soit le polynôme de degré $n$ en $z$ défini par :
+\[
+  P_n(z) = a_0z^n + a_1z^{n-1} + \dots + a_{n-1}z + a_n
+\]
+où les $a_i$ et $z$ sont des réels ou complexes.
+
+Soit $z_j$ les racines de ce polynôme, on a alors
+\[
+  P_n(z) = a_0(z - z_1)(z - z_2)\cdots(z - z_n) .
+\]
+En développant cette expression et après identification des coefficients on
+obtient les relations suivantes :
+\[
+  \begin{aligned}
+    a_1 &= -a_0\sum_i z_i\\
+    a_2 &= a_0\sum_{i<j} z_iz_j\\
+    a_3 &= -a_0\sum_{i<j<k} z_iz_jz_k\\
+    &\;\;\vdots\\
+    a_n &= (-1)^n a_0\,z_1z_2\cdots z_n
+  \end{aligned}
+\]
+
+\paragraph{Localisation des racines dans le plan}
+
+\subparagraph{-- Règle des signes de Descartes.}
+Le nombre de racines réelles positives ne peut pas dépasser le nombre de
+changements de signe que l'on observe en parcourant la suite des coefficients
+du polynôme. Il ne peut différer de ce nombre que par un nombre pair. On a une
+règle analogue pour les racines négatives. Il suffit de changer $x$ en $-x$.
+
+\textbf{Exemples :} L'équation $x^4 - 8x^3 + 24x^2 - 32x + 15 = 0$ n'a pas de
+racines réelles négatives. De même, l'équation
+$x^4 - 2x^3 - 3x^2 + 8x - 4 = 0$ n'a pas plus de trois racines réelles
+positives.
+
+\subparagraph{-- Règle de Gua.}
+Si le carré d'un coefficient intermédiaire est inférieur ou égal au produit
+des coefficients voisins, alors il y a des racines imaginaires.
+
+\textbf{Exemple :} L'équation $x^3 + 7x^2 + x + 8 = 0$ possède une racine
+imaginaire car on a
+\[
+  1 \times 1 < 7 \times 8 .
+\]
+
+\subparagraph{-- Règle des lacunes.}
+S'il manque un terme entre deux termes de même signe ou plusieurs termes entre
+deux termes de signe quelconque, alors il y a des racines imaginaires.
+
+\textbf{Exemple :} L'équation $x^3 + 6x + 20 = 0$ a le terme en $x^2$ absent
+et les coefficients des termes $x^3$ et $x$ sont positifs. On peut donc
+affirmer qu'il y a des racines complexes.
+
+\subparagraph{-- Règle de Sturm.}
+Soit $a$ un nombre réel positif, si l'équation $(x - a)P_n(x) = 0$ présente
+$(2k+1)$ variations de signe de plus que l'équation $P_n(x) = 0$ alors il y a
+au moins $2k$ racines complexes.
+
+\textbf{Exemple :} Soit l'équation $x^3 + 7x^2 + x + 7 = 0$ et l'équation
+$(x - 1)P_n(x) = 0$ égale à
+\[
+  x^4 + 6x^3 - 6x^2 + 6x - 7 = 0
+\]
+qui présente trois changements de signe. Il y a donc 2 racines complexes pour
+l'équation $P_n(x) = 0$.
+
+\section{Système d'équations non linéaires}
+
+Soit un système d'équations non linéaires
+\[
+  f_j(x_i) = 0 \qquad
+  \left\{
+  \begin{aligned}
+    i &= 1, \dots, n\\
+    j &= 1, \dots, n
+  \end{aligned}
+  \right.
+\]
+On peut aussi élaborer des processus itératifs du 1\textsuperscript{er},
+2\textsuperscript{e} et 3\textsuperscript{e} ordre pour ce type de système
+d'équations. En particulier, pour le système de deux équations non linéaires
+\[
+  \left\{
+  \begin{aligned}
+    f_1(x,y) &= 0\\
+    f_2(x,y) &= 0
+  \end{aligned}
+  \right. ,
+\]
+on peut trouver $x$ à partir de $f_1(x,y)$ et $y$ à partir de $f_2(x,y)$ et
+utiliser le processus itératif du 1\textsuperscript{er} ordre suivant :
+\[
+  \left\{
+  \begin{aligned}
+    x_{k+1} &= F_1(x_k, y_k)\\
+    y_{k+1} &= F_2(x_k, y_k)
+  \end{aligned}
+  \right.
+\]
+On peut également généraliser les formules itératives de Jacobi et de
+Gauss-Seidel. De même, à partir de la méthode de Newton, le système de deux
+équations non linéaires à 2 inconnues donne les formules itératives
+suivantes :
+\[
+  \begin{aligned}
+    x_{k+1} &= x_k + \frac{1}{\Delta}\bigl(f_2f_{1,y} - f_1f_{2,y}\bigr)_{(x_k,y_k)}
+      \qquad\text{(quantité évaluée au point } (x_k,y_k)\text{)}\\
+    y_{k+1} &= y_k + \frac{1}{\Delta}\bigl(f_1f_{2,x} - f_2f_{1,x}\bigr)_{(x_k,y_k)}\\
+    \Delta &= f_{1,x}f_{2,y} - f_{1,y}f_{2,x}, \qquad
+    f_{1,x} = \frac{\partial f_1}{\partial x}, \;\dots
+  \end{aligned}
+\]
+Dans le cas d'un système de degré supérieur à 2, on élabore le schéma de
+Newton de la manière suivante. Supposons que la solution d'ordre zéro soit le
+vecteur $x_i^{(0)}$ et que la solution d'ordre 1 est $x_i^{(1)}$. On a
+\[
+  f_j\bigl(x^{(1)}\bigr) = f_j\bigl(x^{(0)}\bigr)
+  + \sum_{i=1}^{n}\bigl(x_i^{(1)} - x_i^{(0)}\bigr)
+    \left.\frac{\partial f_j}{\partial x_i}\right|_{x^{(0)}}
+  \qquad (\text{évalué en } x^{(0)}) .
+\]
+Or $x_i^{(1)}$ étant solution de l'équation, on a $f_j\bigl(x^{(1)}\bigr) = 0$ ;
+d'où le système matriciel
+\[
+  \sum_{i=1}^{n}\bigl(x_i^{(1)} - x_i^{(0)}\bigr)
+  \left.\frac{\partial f_j}{\partial x_i}\right|_{x^{(0)}}
+  = -f_j\bigl(x^{(0)}\bigr) .
+\]
+En évaluant ce système matriciel on obtient le vecteur $x_i^{(1)}$. On reprend
+le processus et ainsi de suite. À chaque étape on résout le système
+matriciel :
+\[
+  \sum_{i=1}^{n}\bigl(x_i^{(k+1)} - x_i^{(k)}\bigr)
+  \left.\frac{\partial f_j}{\partial x_i}\right|_{x^{(k)}}
+  = -f_j\bigl(x^{(k)}\bigr) .
+\]
+Dès que les quantités $x_i^{(k)}$ sont trouvées à la précision choisie, on a
+alors l'ensemble des racines du système algébrique non linéaire.

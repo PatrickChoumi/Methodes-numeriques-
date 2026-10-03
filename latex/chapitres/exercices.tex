@@ -1,0 +1,521 @@
+\chapter*{Exercices}
+\addcontentsline{toc}{chapter}{Exercices}
+\markboth{Exercices}{}
+
+\subsection*{Exercice 1}
+
+La répartition de l'énergie rayonnée par une étoile en fonction de la
+longueur d'onde est donnée par la loi de Planck
+\[
+  I(\lambda) = (8\pi hc)\Big/\left(\lambda^5\left[\exp\Bigl(\frac{hc}{\lambda kT}\Bigr) - 1\right]\right)
+\]
+où $h$, $k$ et $c$ sont respectivement les constantes de Planck, de Boltzmann
+et la célérité de la lumière. On pose $x = hc/\lambda kT$. D'après les
+résultats expérimentaux, $I$ est maximale pour $x_m$.
+\begin{enumerate}[label=\arabic*-]
+  \item Établir l'équation vérifiée par $x_m$.
+  \item On veut trouver $x_m$ par la méthode de Newton-Raphson. Établir
+        l'algorithme permettant de calculer la valeur numérique de $x_m$.
+\end{enumerate}
+
+\subsection*{Exercice 2}
+
+L'équation de Van der Waals pour une mole de gaz de masse $M$ est
+\[
+  \Bigl(P + \frac{a}{V^2}\Bigr)(V - b) = RMT
+\]
+où $a$, $b$ et $R$ sont des constantes. $P$, $T$ et $V$ sont respectivement la
+pression, la température et le volume.
+
+Établir un algorithme qui permet de calculer le volume $V$ chaque fois que
+l'on connaît la température et la pression.
+
+\subsection*{Exercice 3}
+
+En 1976, Desantis a établi que le facteur de compressibilité $b$ des gaz réels
+vérifie la relation
+\[
+  z = \bigl(1 + y + y^2 - y^3\bigr)\big/\bigl(1 - y^3\bigr)
+\]
+où $y = b/4v$ ; $v$ est le volume molaire et $z$ est une constante. On veut
+trouver $b$ par la méthode de Newton-Raphson.
+\begin{enumerate}[label=\arabic*-]
+  \item Expliquer le principe de la méthode.
+  \item Établir alors un algorithme permettant de résoudre le problème.
+  \item Traduire cet algorithme en Fortran.
+\end{enumerate}
+
+\subsection*{Exercice 4}
+
+Une grandeur $y$ vérifie l'équation suivante :
+\[
+  \frac{\dd y}{\dd x} = -ay - by^4 + c
+  \qquad\text{avec}\quad y(0) = y_0 .
+\]
+$a$, $b$ et $c$ sont des constantes.
+
+On se propose de résoudre cette équation numériquement par la méthode de
+prédicteur-correcteur (Adams-Bashforth du second ordre associé à la méthode
+de Runge-Kutta d'ordre 2).
+\begin{enumerate}[label=\arabic*)-]
+  \item Établir le schéma itératif correspondant.
+  \item Établir l'algorithme de résolution de l'équation.
+  \item Traduire cet algorithme en Pascal et en Fortran.
+\end{enumerate}
+
+\subsection*{Exercice 5}
+
+Dans le domaine $x \in\, ]0, 1[$ une grandeur $y$ vérifie l'équation
+différentielle
+\[
+  y'' + \frac{a}{x}y' + be^{cy} = 0
+  \qquad\text{avec}\quad y'(0) = 0 \quad\text{et}\quad y(1) = 1 .
+\]
+$a$, $b$ et $c$ sont des constantes. On veut résoudre cette équation par la
+méthode de tir (associée à la méthode de Runge-Kutta d'ordre 4).
+\begin{enumerate}[label=\arabic*)-]
+  \item En utilisant la méthode de Newton (pour les équations algébriques non
+        linéaires), donner le schéma itératif qui permet de calculer les
+        valeurs successives de la condition de tir en $x = 0$.
+  \item Établir la méthode itérative de Runge-Kutta d'ordre 4.
+  \item Établir l'algorithme complet (incluant le schéma des conditions
+        initiales) permettant de résoudre le problème.
+\end{enumerate}
+
+\subsection*{Exercice 6}
+
+Dans l'espace $KA$ entre une cathode et une anode $A$ parallèle à $K$, le
+potentiel à la distance $x$ de $K$ satisfait l'équation différentielle
+\begin{equation}
+  V'' = aV^{-1/2}
+  \tag{1}
+\end{equation}
+où $a$ est une constante. On se propose de trouver numériquement les valeurs
+de $V$.
+\begin{enumerate}[label=\arabic*-]
+  \item Dans cette première question, on suppose que le potentiel et le champ
+        électrique sont nuls sur la cathode (problème à valeurs initiales). On
+        résout alors (1) par la méthode de Runge-Kutta d'ordre 2.
+        \begin{enumerate}[label=\alph*-]
+          \item Sachant que RK2 dérive de la formule intégrale des trapèzes,
+                donner l'expression générale des itérations RK2 pour une
+                équation différentielle du premier ordre.
+          \item L'équation (1) peut se décomposer en deux équations
+                différentielles du premier ordre. Établir l'algorithme de
+                résolution numérique de (1) par RK2.
+          \item Traduire cet algorithme en Pascal et en Fortran.
+        \end{enumerate}
+  \item Dans cette deuxième question, on suppose connues les conditions aux
+        limites $V_K = 0$ et $V_A = V_0$, la distance $KA = l$. Le problème
+        peut alors se résoudre par la méthode de tir.
+        \begin{enumerate}[label=\alph*-]
+          \item Expliquer le principe de la méthode de tir.
+          \item Écrire alors l'algorithme de résolution de (1) par la méthode
+                de tir.
+        \end{enumerate}
+\end{enumerate}
+
+\subsection*{Exercice 7}
+
+Soit une équation de la forme :
+\[
+  y''' = f(x, y, y', y'')
+  \qquad\text{avec}\quad y(a) = y_1 \quad\text{et}\quad y(b) = y_2 .
+\]
+On veut résoudre cette équation par la méthode de tir.
+\begin{enumerate}[label=\arabic*)-]
+  \item Établir le problème aux valeurs initiales résultant.
+  \item Le problème aux valeurs initiales résultant doit être résolu par la
+        méthode prédicteur-correcteur.
+        \begin{enumerate}[label=\alph*)-]
+          \item Expliquer le principe de la méthode prédicteur-correcteur sur
+                une équation différentielle du premier ordre.
+          \item En déduire l'algorithme de résolution du problème
+                différentiel du troisième ordre ci-dessus.
+        \end{enumerate}
+\end{enumerate}
+
+\subsection*{Exercice 8}
+
+\begin{enumerate}[label=\arabic*-]
+  \item On considère une fonction $y$ de classe $C^4$ sur un intervalle
+        $[a,b]$.
+        \begin{enumerate}[label=\alph*-]
+          \item En utilisant la formule d'interpolation polynomiale de degré 2,
+                établir que $y' = \bigl(y(x+h) - y(x-h)\bigr)/2h$ où $h$ est
+                le pas de dérivation.
+          \item Déduire de a) une expression pour $y''$.
+        \end{enumerate}
+  \item Soit le problème aux valeurs aux limites
+        $y'' = p(x)y' + q(x)y + g(x)$ défini sur $[a,b]$ avec $y(a) = c$ et
+        $y(b) = d$. On veut résoudre ce problème par la méthode des
+        différences finies.
+
+        Établir à partir de la question 1) le système algébrique découlant du
+        problème.
+  \item On veut résoudre le système algébrique ci-dessus par la méthode
+        itérative de Jacobi.
+        \begin{enumerate}[label=\alph*-]
+          \item Expliquer le principe de la méthode itérative de Jacobi.
+          \item Écrire alors l'algorithme permettant de résoudre le problème.
+          \item Traduire l'algorithme en Pascal.
+        \end{enumerate}
+\end{enumerate}
+
+\subsection*{Exercice 9}
+
+Une particule de masse $M$ se déplace dans un potentiel de la forme :
+\[
+  u(y) = \frac{1}{2}ky^2 + \frac{1}{4}k_1y^4 .
+\]
+Le milieu présente une viscosité linéaire de coefficient $\alpha$ et la
+particule est soumise à une force extérieure $f(t) = F\cos\omega t$.
+\begin{enumerate}[label=\arabic*)-]
+  \item Établir l'équation du mouvement de la particule et adimensionner cette
+        équation (rendre l'équation sans dimension).
+  \item On donne $y(0) = \dot{y}(0) = 0$ et on veut utiliser la méthode de
+        Runge-Kutta d'ordre 4 pour trouver les valeurs de $y$ et $\dot{y}$ en
+        fonction du temps $t$.
+
+        Établir l'algorithme de résolution numérique de l'équation
+        adimensionnée trouvée à la question (1).
+  \item À partir de la résolution numérique, on obtient un ensemble de valeurs
+        discrètes $y_i = y(t_i)$, l'expression analytique $y(t)$ étant
+        inconnue, on propose la formule approchée suivante :
+        \[
+          y(t) = \sum_{n=1}^{N}\bigl(a_n\cos n\omega t + b_n\sin n\omega t\bigr).
+        \]
+        Expliquer comment on peut utiliser la méthode des moindres carrés pour
+        déterminer les valeurs des coefficients $a_n$ et $b_n$. Établir les
+        algorithmes permettant de déterminer ces coefficients.
+\end{enumerate}
+
+\subsection*{Exercice 10}
+
+On considère un système algébrique linéaire $n \times n$ de la forme $AX = b$
+où $A = (a_{ij})$, $b = (b_i)$ et $X = (x_i)$ avec $i, j = 1, 2, \dots, n$.
+
+On veut résoudre ce système par la méthode d'élimination de Gauss ou du
+pivot.
+\begin{enumerate}[label=\arabic*-]
+  \item Indiquer le principe de la méthode.
+  \item Établir l'algorithme correspondant.
+  \item De l'algorithme ci-dessus, on obtient un système triangulaire. Établir
+        l'algorithme de résolution du système triangulaire obtenu.
+  \item Traduire ce dernier algorithme en Pascal.
+\end{enumerate}
+
+\subsection*{Exercice 11}
+
+Le mouvement d'un pendule est décrit par l'équation différentielle
+\[
+  \frac{\dd^2 Y}{\dd t^2} + \omega_0^2\sin Y = 0
+\]
+où $\omega_0$ est la pulsation propre du pendule et $Y$ le déplacement
+angulaire.
+\begin{enumerate}[label=\arabic*-]
+  \item On veut résoudre numériquement cette équation par la méthode de
+        Runge-Kutta d'ordre 2.
+        \begin{enumerate}[label=\alph*-]
+          \item Établir l'algorithme de résolution de cette équation.
+          \item Traduire cet algorithme en Fortran.
+        \end{enumerate}
+  \item Lorsque le pendule oscille entre $Y_0$ et $-Y_0$, sa période est
+        définie par la relation
+        \begin{equation}
+          T(Y_0) = \frac{2T_0}{\pi}\int_0^{\pi/2}\frac{\dd x}{\sqrt{1 - A(\sin x)^2}}
+          \tag{2}
+        \end{equation}
+        où $T_0 = 2\pi/\omega_0$ et $A = \sin^2(Y_0/2)$.
+        \begin{enumerate}[label=\alph*-]
+          \item Après avoir établi la formule composite des trapèzes, donner
+                l'algorithme de calcul de l'intégrale (2).
+          \item Traduire cet algorithme en Pascal et en Fortran.
+        \end{enumerate}
+  \item De l'intégration numérique de l'intégrale (2), on obtient le tableau
+        suivant :
+        \begin{center}
+          \begin{tabular}{|l|c|c|c|c|}
+            \hline
+            $Y_0$ & $\pi/18$ & $\pi/9$ & $\pi/6$ & $2\pi/9$\\ \hline
+            $T(Y_0)/T_0$ & 1,002 & 1,008 & 1,020 & 1,030\\ \hline
+          \end{tabular}
+        \end{center}
+        On exprime alors $T(Y_0)$ sous la forme $T(Y_0) = T_0(a + bY_0^2)$. En
+        utilisant la méthode des moindres carrés, déterminer les valeurs
+        numériques de $a$ et de $b$.
+\end{enumerate}
+
+\subsection*{Exercice 12}
+
+On mesure la capacité calorifique $C_v$ d'un corps à volume constant et on
+obtient les résultats suivants
+\begin{center}
+  \begin{tabular}{lccc}
+    $T$ (K) & 0.1 & 0.3 & 0.5\\
+    $C_v \times 10^4$ cal/K.mole & 0.211 & 0.694 & 1.361
+  \end{tabular}
+\end{center}
+\begin{enumerate}[label=\arabic*-]
+  \item On se propose de déterminer la chaleur $Q$ absorbée par une mole du
+        corps lorsque sa température passe de 0.1~K à 0.5~K ; calculer $Q$ par
+        la formule de Simpson.
+  \item En réalité, le tableau ci-dessus est une partie d'un tableau plus
+        général contenant de nombreuses valeurs expérimentales. On propose la
+        formule $C_v = a + bT$. On veut alors déterminer les coefficients $a$
+        et $b$ par la méthode des moindres carrés.
+        \begin{enumerate}[label=\alph*-]
+          \item Définir le système d'équations vérifié par $a$ et $b$.
+          \item Établir des algorithmes permettant d'évaluer numériquement les
+                coefficients du système d'équations et de calculer les
+                valeurs de $a$ et de $b$.
+          \item Traduire ces algorithmes en Pascal.
+          \item On veut calculer $Q$ par la formule composite de Simpson à
+                partir des valeurs expérimentales de $C_v$. Établir
+                l'algorithme de calcul.
+        \end{enumerate}
+\end{enumerate}
+
+\subsection*{Exercice 13}
+
+On considère l'équation intégrale :
+\begin{equation}
+  \phi(x) = f(x) + \int_a^b k(x,t)\,\phi(t)\,\dd t
+  \tag{1}
+\end{equation}
+où $k(x,t)$ est une fonction connue. On subdivise le domaine $[a,b]$ en $n$
+points $t_i = ih$ équidistants.
+\begin{enumerate}[label=\arabic*)-]
+  \item L'équation (1) peut être approximée par la formule composite des
+        trapèzes. Elle prend alors la forme :
+        \begin{equation}
+          \phi(x) = f(x) + (b - a)\sum_{i=1}^{n} c_i\,k(x, t_i)\,\phi_i
+          \tag{2}
+        \end{equation}
+        où $\phi_i = \phi(t_i)$.
+
+        Donner les expressions des coefficients $c_i$.
+  \item Sachant que l'équation (2) est vérifiée en tout point $x_j = t_j$,
+        montrer que l'équation intégrale (1) se réduit au système
+        algébrique :
+        \begin{equation}
+          \phi_j = f_j + (b - a)\sum_{i=1}^{n} c_i\,k(t_j, t_i)\,\phi_i
+          \tag{3}
+        \end{equation}
+        où les $\phi_j$ et $\phi_i$ sont les inconnues.
+  \item Le système algébrique (3) peut se mettre sous la forme :
+        \begin{equation}
+          AX = b
+          \tag{4}
+        \end{equation}
+        où $A$ est une matrice $(n,n)$, $X$ et $b$ sont les matrices colonnes
+        de $n$ éléments. Définir ces matrices.
+  \item On veut résoudre le système (4) par la méthode de Gauss.
+        \begin{enumerate}[label=\alph*)-]
+          \item Donner l'algorithme de triangularisation du système.
+          \item Écrire l'algorithme de résolution du système triangularisé.
+          \item Traduire ce dernier algorithme en Pascal et Fortran.
+        \end{enumerate}
+  \item $\phi(x)$ possède un zéro dans l'intervalle $[a,b]$ et on se propose
+        de trouver ce zéro en utilisant la méthode de bissection. Décrire
+        cette méthode et donner son algorithme.
+\end{enumerate}
+
+\subsection*{Exercice 14}
+
+À l'instant initial $t = 0$, la température d'un mur d'épaisseur $L$ vaut
+$T_0$. Sur la surface $x = 0$, la température varie suivant la loi :
+\[
+  T(x = 0, t) = T_0 + T_1\sin\frac{\pi}{2}t \qquad\text{pour } t > 0 .
+\]
+Par un mécanisme approprié, la face $x = L$ est maintenue à la température
+constante $T_L$. L'équation de la chaleur dans le milieu est alors :
+\[
+  \frac{\partial T}{\partial t} = \alpha\frac{\partial^2 T}{\partial x^2}
+  \qquad\text{où } \alpha \text{ est la diffusibilité.}
+\]
+\begin{enumerate}[label=\arabic*)-]
+  \item On se propose de résoudre numériquement le problème ainsi posé par la
+        méthode des différences finies progressives.
+        \begin{enumerate}[label=\alph*)-]
+          \item Donner la forme discrète du problème. Quel est l'ordre de
+                l'erreur de discrétisation ?
+          \item Écrire l'algorithme de résolution du système discret obtenu.
+          \item Traduire cet algorithme en Pascal.
+        \end{enumerate}
+  \item On veut maintenant utiliser la méthode de Richardson pour résoudre le
+        même problème.
+        \begin{enumerate}[label=\alph*)-]
+          \item Donner le nouveau système discret et indiquer l'ordre et
+                l'erreur de discrétisation.
+          \item En admettant que l'on utilise le schéma discret de la question
+                (1) pour approximer les températures
+                $T_{i,1} = T(x = i\Delta_x, \Delta t)$, établir l'algorithme
+                permettant de trouver la température aux instants ultérieurs.
+          \item Traduire cet algorithme en Fortran.
+        \end{enumerate}
+\end{enumerate}
+
+\subsection*{Exercice 15}
+
+\begin{enumerate}[label=\arabic*)]
+  \item On considère l'équation de la chaleur
+        $\dfrac{\partial u}{\partial t} = a^2\dfrac{\partial^2 u}{\partial x^2}$
+        définie sur $D = \R_+ \times\, ]0, l[$ avec
+        $u(0,t) = u(l,t) = 0$, $u(x,0) = f(x)$.
+
+        On veut résoudre cette équation par le schéma explicite avec
+        $\dfrac{\partial u}{\partial t} = \dfrac{u_{i,j+1} - u_{i,j}}{k}$.
+
+        Établir que la condition de stabilité de ce schéma est
+        $\dfrac{a^2k}{h^2} \le \dfrac{1}{2}$ où $k$ et $h$ sont les pas
+        temporel et spatial.
+  \item Que devient cette condition de stabilité dans le cas d'un problème
+        plan : $\dfrac{\partial u}{\partial t} = a^2\Delta u$ ? On prendra
+        $h_1$ et $h_2$ les pas spatiaux.
+  \item On considère l'équation d'advection-diffusion dans le plan :
+        \[
+          \frac{\partial\Omega}{\partial t} + u_1\frac{\partial\Omega}{\partial x}
+          + u_2\frac{\partial\Omega}{\partial y} = \nu\Delta\Omega .
+        \]
+        On la discrétise par le schéma centré en espace. Établir que la
+        condition de stabilité est $\dfrac{\nu k}{h^2} \le \dfrac{1}{4}$ où
+        $k$ est le pas temporel et $h$ est le pas spatial suivant $x$ et sur
+        $y$.
+
+        Que devient cette condition dans le cas unidimensionnel ?
+\end{enumerate}
+
+\subsection*{Exercice 16}
+
+Soit l'équation d'onde suivante :
+\[
+  \frac{\partial^2 u}{\partial t^2} + a\frac{\partial u}{\partial t}
+  = c^2\frac{\partial^2 u}{\partial x^2} + du^3
+\]
+où $(t, x) \in \R_+ \times\, ]0, l[$ et $u(0,t) = u(l,t) = 0$,
+$u(x,0) = f(x)$, $\dfrac{\partial u}{\partial t}(x,0) = g(x)$.
+
+$a$, $c$ et $d$ sont des constantes.
+\begin{enumerate}[label=\arabic*)-]
+  \item Définir chaque terme de cette équation.
+  \item On veut résoudre numériquement cette équation par les méthodes de
+        différences finies centrées. Donner la forme discrète du problème
+        ainsi posé.
+  \item Exprimer $u_{i,2} = u(x = ih, t = 2k)$ en fonction des valeurs des
+        fonctions $f$ et $g$ aux points $i-2$ ; $i-1$ ; $i$ ; $i+1$ et $i+2$
+        et des pas $h$ et $k$.
+  \item Établir un algorithme de résolution du système discret obtenu à la
+        question (2).
+  \item Traduire l'algorithme dans un langage de programmation de votre choix.
+\end{enumerate}
+
+\subsection*{Exercice 17}
+
+\begin{center}
+  \begin{tikzpicture}[>=Stealth]
+    % coupe du tube (1 cm pour 125 mm) : région hachurée entre les deux rectangles
+    \fill[pattern=north east lines, even odd rule]
+      (0,0) rectangle (8,6.4) (2,1.6) rectangle (6,4.8);
+    \draw[thick] (0,0) rectangle (8,6.4);
+    \draw[thick] (2,1.6) rectangle (6,4.8);
+    \node at (3.2,3.6) {$p_s$};
+    % cotes intérieures
+    \draw[<->, dashed] (2,2.4) -- (6,2.4) node[pos=0.5, below] {$L_1$};
+    \draw[<->, dashed] (5.2,1.6) -- (5.2,4.8) node[pos=0.6, left] {$l_1$};
+    % cotes extérieures
+    \draw[<->] (-0.5,0) -- (-0.5,6.4) node[midway, left] {$l$};
+    \draw[<->] (0,-0.5) -- (8,-0.5) node[midway, below] {$L$};
+  \end{tikzpicture}
+\end{center}
+\[
+  L = 1000~\text{mm}, \quad L_1 = 500~\text{mm}, \quad l = 800~\text{mm}, \quad l_1 = 400~\text{mm}
+\]
+Le dispositif représente la coupe d'un tube rectangulaire dans lequel
+s'écoule dans sa partie centrale un liquide avec une pression $p_s$. La
+pression sur la surface extérieure est nulle. À chaque point de la région
+hachurée, la distribution des pressions vérifie l'équation
+\[
+  \frac{\partial^2 p}{\partial x^2} + \frac{\partial^2 p}{\partial y^2} = 0 .
+\]
+\begin{enumerate}[label=\arabic*)-]
+  \item Faites un adimensionnement de cette équation et précisez les nouvelles
+        conditions sur la frontière. La pression adimensionnée est $u$.
+  \item \begin{enumerate}[label=\alph*)-]
+          \item En utilisant la méthode des différences finies, établir
+                l'équation discrète vérifiée par $u_{i,j}$ en tout point
+                $(x_i = ih, y_j = jk)$.
+          \item Discrétiser les conditions aux limites.
+        \end{enumerate}
+  \item On se propose de trouver les $u_{i,j}$ par la méthode itérative de
+        Gauss-Seidel.
+        \begin{enumerate}[label=\alph*)-]
+          \item Décrire cette méthode itérative.
+          \item Établir l'algorithme de calcul des $u_{i,j}$.
+        \end{enumerate}
+  \item On suppose que le tube a maintenant une forme cylindrique de rayon
+        intérieur $R_1 = 400$~mm et de rayon extérieur $R_2 = 800$~mm.
+        \begin{enumerate}[label=\alph*)-]
+          \item Quelle est alors l'équation vérifiée par la pression $p$ ou la
+                grandeur adimensionnée $u$ ?
+          \item Proposer une méthode de discrétisation de cette nouvelle
+                équation.
+        \end{enumerate}
+\end{enumerate}
+
+\subsection*{Exercice 18}
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.6,>=Stealth]
+    % plaque L x l avec une encoche centrale de largeur L/3 et de hauteur l/2
+    \fill[pattern=north east lines]
+      (0,0) -- (3,0) -- (3,3) -- (6,3) -- (6,0) -- (9,0) -- (9,6) -- (0,6) -- cycle;
+    \draw[thick]
+      (0,0) -- (3,0) -- (3,3) -- (6,3) -- (6,0) -- (9,0) -- (9,6) -- (0,6) -- cycle;
+    % cotes
+    \draw[<->] (0,6.6) -- (9,6.6) node[midway, above] {$L$};
+    \draw[<->] (-0.6,0) -- (-0.6,6) node[midway, left] {$l$};
+    \draw[<->] (0,-0.6) -- (3,-0.6) node[midway, below] {$\frac{L}{3}$};
+    \draw[<->] (6,-0.6) -- (9,-0.6) node[midway, below] {$\frac{L}{3}$};
+    \draw[<->] (5.5,0) -- (5.5,3) node[midway, left] {$\frac{l}{2}$};
+  \end{tikzpicture}
+\end{center}
+
+La répartition d'une grandeur physique $u$ sur la plaque représentée vérifie
+l'équation de Poisson suivante
+\[
+  \frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2} = f(x, y)
+\]
+avec $u = g(x, y)$ sur la frontière.
+\begin{enumerate}[label=\arabic*)-]
+  \item En utilisant la méthode des différences finies, établir l'équation
+        discrète vérifiée par $u_{i,j}$.
+  \item On se propose de trouver les $u_{i,j}$ par la méthode itérative de
+        Jacobi.
+        \begin{enumerate}[label=\alph*)-]
+          \item Décrire cette méthode.
+          \item Établir l'algorithme de calcul de $u_{i,j}$.
+        \end{enumerate}
+\end{enumerate}
+
+\subsection*{Exercice 19}
+
+\begin{center}
+  \begin{tikzpicture}[scale=0.8,>=Stealth]
+    \fill[pattern=north east lines] (0,0) -- (4,0) -- (0,4) -- cycle;
+    \draw[thick] (0,0) -- (4,0) -- (0,4) -- cycle;
+    \draw[<->] (-0.5,0) -- (-0.5,4) node[midway, left] {$h$};
+    \draw[<->] (0,-0.5) -- (4,-0.5) node[midway, below] {$l$};
+  \end{tikzpicture}
+\end{center}
+
+La répartition d'une grandeur physique sur la plaque triangulaire ci-dessus
+vérifie l'équation de Laplace :
+$\dfrac{\partial^2 u}{\partial x^2} + \dfrac{\partial^2 u}{\partial y^2} = 0$
+avec $u = 0$ sur l'hypoténuse et $\dfrac{\partial u}{\partial n} = a$ sur les
+autres côtés ($n$ est la normale par rapport aux côtés considérés).
+\begin{enumerate}[label=\arabic*)-]
+  \item Discrétiser ce problème par la méthode des différences finies.
+  \item Établir l'algorithme de calcul des valeurs discrètes $u_{i,j}$ sur
+        toute la plaque.
+\end{enumerate}

@@ -1,0 +1,621 @@
+\chapter{Équations différentielles et équations intégro-différentielles}
+
+Un ensemble très important des problèmes scientifiques est décrit par des
+équations différentielles ordinaires et des équations aux dérivées partielles
+linéaires et non linéaires, à conditions aux limites (ou aux frontières) ou à
+conditions initiales. Dans certains cas, un tel problème peut se résoudre en
+trouvant les solutions générales et particulières par les méthodes analytiques
+et classiques (résolution directe, utilisation des facteurs intégrants,
+utilisation de la transformée de Laplace, etc.).
+
+Lorsqu'aucune méthode analytique ne permet de calculer la solution analytique,
+il faut trouver les méthodes numériques pour approcher la valeur cherchée.
+
+Ce chapitre est consacré à la présentation des méthodes numériques pour
+résoudre les équations différentielles ordinaires à valeurs initiales et à
+valeurs aux limites. On abordera aussi les méthodes de résolution numérique
+des équations intégro-différentielles dans lesquelles il y a la présence des
+dérivées de la variable inconnue et des intégrales de la variable inconnue.
+
+\section{Généralités}
+
+\subsection{Définition et classification}
+
+Une équation différentielle est une relation qui lie une fonction $y$ à ses
+dérivées. S'il y a une seule variable indépendante, on parle alors d'équation
+différentielle ordinaire. Dans le cas de plusieurs variables indépendantes, on
+parle d'équations aux dérivées partielles. Les équations différentielles
+ordinaires de variable indépendante $x$ peuvent se mettre sous la forme
+\begin{equation}
+  F\bigl(x, y, y', \dots, y^{(n-1)}, y^{(n)}\bigr) = 0
+  \tag{1}
+\end{equation}
+où $y^{(i)}$ est la dérivée d'ordre $i$ et $n$ est l'ordre de l'équation
+différentielle et $a \le x \le b$.
+
+Le degré d'une équation différentielle, si celle-ci peut être décrite comme un
+polynôme, où les indéterminées sont des dérivées, est le degré de la dérivée de
+l'ordre le plus élevé. Par exemple, l'équation
+$(y'')^3 + (y')^5 + 7y = e^x$ est une équation différentielle de second ordre
+et de degré 3. Si la fonction $F$ est un polynôme dont les degrés de $y$ et de
+ses dérivées sont égaux à 0 ou 1 et si $F$ ne contient pas des produits de $y$
+et de ses dérivées, ou des dérivées entre elles, alors l'équation
+différentielle est dite \emph{linéaire}. Dans tous les autres cas, l'équation
+est dite \emph{non linéaire}.
+
+La résolution d'une équation différentielle d'ordre $n$ nécessite la
+connaissance au préalable de $n$ constantes, notamment $n$ conditions imposées
+à $y$ et à ses dérivées. Si l'on fixe la valeur de $y$ et de ses $(n-1)$
+dérivées au point initial $x = a$, alors, on a un \emph{problème aux valeurs
+initiales}. Si par contre les $n$ conditions sont imposées les unes en $x = a$
+et les autres en $x = b$, on a un \emph{problème aux valeurs aux limites}.
+
+\subsection{Origine des équations différentielles}
+
+Les équations différentielles sont d'une importance fondamentale dans presque
+tous les domaines de la science. Ceci est dû au fait que plusieurs lois et
+phénomènes ont une formulation mathématique sous forme d'équations
+différentielles. Par exemple, la seconde loi de Newton est une équation
+différentielle du second ordre. De même la loi de la radioactivité est une
+équation du premier ordre.
+
+\subsection{Position du problème numérique}
+
+Considérons l'équation différentielle ordinaire du premier ordre
+\begin{equation}
+  y' = f(x, y) .
+  \tag{2}
+\end{equation}
+Le problème est de trouver la valeur $\bar{y}$ de $y$ correspondant à
+$x = x_0 + h$ (ou en $x_k = x_0 + kh$) connaissant $y = y_0$ pour $x = x_0$.
+$h$ est un nombre réel et $k$ un nombre entier.
+
+En intégrant (2), on obtient
+\begin{equation}
+  y = y_0 + \int_{x_0}^{x} f(x, y)\,\dd x .
+  \tag{3}
+\end{equation}
+On a alors
+\begin{equation}
+  \bar{y} = y_0 + \int_{x_0}^{x_0+h} f(x, y)\,\dd x = y_0 + L
+  \qquad\text{où}\qquad
+  L = \int_{x_0}^{x_0+h} f(x, y)\,\dd x .
+  \tag{4}
+\end{equation}
+On peut donc utiliser des méthodes numériques de calcul des intégrales pour
+calculer l'intégrale. On peut également utiliser le développement de
+$y(x+h)$ en série de puissances de $h$ (puis insérer les différentes dérivées
+à partir de l'équation (2)).
+
+\section{Méthodes pour les problèmes à valeurs initiales}
+
+\subsection{Méthode d'Euler}
+
+Encore appelée méthode de la dérivée première, elle s'exprime par la formule
+\[
+  y(x+h) = y(x) + hf(x, y) .
+\]
+La formule itérative est donc
+\[
+  y_{k+1} = y_k + hf(x_k, y_k) .
+\]
+C'est la méthode la plus simple. Mais son inconvénient réside dans le fait
+qu'elle est souvent très instable et exige des pas de calcul $h$ très petits.
+
+\paragraph{Algorithme de la méthode d'Euler}
+
+\begin{algo}
+  \State Définir $f(x,y)$
+  \State $x \leftarrow x_0$, $y \leftarrow y_0$
+  \State Donner la valeur de $h$
+  \For{$k$ allant de $1$ à $n$}
+    \State $y \leftarrow y + hf(x,y)$
+    \State $x \leftarrow x + h$
+    \Print $x$ et $y$
+  \EndFor
+\end{algo}
+
+\subsection{Les méthodes de Runge et de Kutta}
+
+Ce sont les méthodes élaborées par C.~Runge en 1894 et améliorées par
+W.~Kutta vers 1901. Elles utilisent les méthodes d'intégration numérique des
+trapèzes et de Simpson. Ces méthodes sont les plus utilisées car elles sont
+très stables.
+
+\subsubsection{Méthode de Runge-Kutta du second ordre}
+
+Elle est basée sur la formule intégrale des trapèzes (voir chapitre sur
+l'intégration numérique) et son schéma itératif se met sous la forme :
+\[
+  y_{k+1} = y_k + \frac{h}{2}\Bigl\{f(x_k, y_k) + f\bigl[x_k + h,\; y_k + hf(x_k, y_k)\bigr]\Bigr\} .
+\]
+Elle présente une erreur d'ordre $O(h^3)$.
+
+\begin{exercice}
+Écrire l'algorithme de la méthode de Runge-Kutta d'ordre 2.
+\end{exercice}
+
+\subsubsection{Méthode de Runge du quatrième ordre}
+
+Supposons les valeurs $y_0$, $y_1$, $y_2$ de $y$ connues aux points $x_0$,
+$x_1 = x_0 + \dfrac{h}{2}$ et $x_2 = x_0 + h$.
+
+En utilisant la formule d'intégration numérique de Simpson (voir chapitre
+précédent), on obtient
+\[
+  L = \frac{h}{6}\Bigl[f(x_0, y_0) + 4f\Bigl(x_0 + \frac{h}{2}, y_1\Bigr) + f(x_0 + h, y_2)\Bigr].
+\]
+Les valeurs $y_1$ et $y_2$ étant inconnues, on utilise les approximations
+\[
+  y_1 \approx y_0 + \frac{h}{2}f(x_0, y_0) = y_0 + \frac{h}{2}f_0, \qquad
+  y_2 \approx y_0 + hf(x_0 + h, y_0 + hf_0) .
+\]
+Ces approximations sont choisies de telle manière qu'en développant $L$ en
+séries de puissance de $h$, ces 3 premiers termes coïncident avec le
+développement en série de Taylor de $y(x+h)$. Il vient alors
+\[
+  L \approx \frac{h}{6}\Bigl\{f(x_0, y_0)
+     + 4f\Bigl[x_0 + \frac{h}{2},\; y_0 + \frac{h}{2}f(x_0, y_0)\Bigr]
+     + f\Bigl[x_0 + h,\; y_0 + hf\bigl(x_0 + h, y_0 + hf(x_0, y_0)\bigr)\Bigr]\Bigr\}.
+\]
+Soit plus généralement,
+\[
+  y_{k+1} = y_k + L
+\]
+avec
+\[
+  L = \frac{h}{6}\Bigl\{f(x_k, y_k)
+     + 4f\Bigl[x_k + \frac{h}{2},\; y_k + \frac{h}{2}f(x_k, y_k)\Bigr]
+     + f\Bigl[x_k + h,\; y_k + hf\bigl(x_k + h, y_k + hf(x_k, y_k)\bigr)\Bigr]\Bigr\}.
+\]
+Elle présente une erreur d'ordre $O(h^5)$.
+
+Pratiquement on fait le calcul de la manière suivante. On calcule les quantités
+$L_i$ définies par :
+\[
+  \begin{aligned}
+    L_1 &= hf(x_k, y_k)\\
+    L_2 &= hf(x_k + h, y_k + L_1)\\
+    L_3 &= hf(x_k + h, y_k + L_2)\\
+    L_4 &= hf\Bigl(x_k + \frac{h}{2}, y_k + \frac{L_1}{2}\Bigr)
+  \end{aligned}
+\]
+Par la suite, on écrit
+\[
+  y_{k+1} = y_k + \frac{1}{6}\bigl(L_1 + 4L_4 + L_3\bigr).
+\]
+
+\begin{exercice}
+Établir l'algorithme de la méthode de Runge d'ordre 4.
+\end{exercice}
+
+\subsubsection{Méthode de Runge-Kutta ou de Kutta-Simpson du quatrième ordre}
+
+C'est une amélioration de la méthode de Runge d'ordre 4. Elle présente
+également une erreur d'ordre $O(h^5)$ et son schéma itératif s'écrit :
+\[
+  y_{k+1} = y_k + \frac{1}{6}\bigl(L_1 + 2L_2 + 2L_3 + L_4\bigr)
+\]
+avec
+\[
+  \begin{aligned}
+    L_1 &= hf(x_k, y_k)\\
+    L_2 &= hf\Bigl(x_k + \frac{h}{2}, y_k + \frac{L_1}{2}\Bigr)\\
+    L_3 &= hf\Bigl(x_k + \frac{h}{2}, y_k + \frac{L_2}{2}\Bigr)\\
+    L_4 &= hf(x_k + h, y_k + L_3)
+  \end{aligned}
+\]
+C'est la méthode la plus utilisée. Il existe d'autres variantes des méthodes de
+Runge-Kutta telles que la méthode de Kutta-Merson ou de Kutta-Simpson du
+sixième ordre.
+
+\subsection{Méthodes à pas multiples ou d'Adams-Bashforth}
+
+\subsubsection{Formule du second ordre}
+
+Soit l'équation différentielle
+\[
+  y' = f(x, y) .
+\]
+On veut connaître $y(x+h)$ connaissant $y(x)$ et $y(x-h)$. Pour cela, on fait
+le développement suivant :
+\[
+  y(x+h) = y(x) + hy' + \frac{h^2}{2}y'' + O(h^3)
+  \quad\Longrightarrow\quad
+  y_{k+1} = y_k + hy'_k + \frac{h^2}{2}y''_k .
+\]
+On a aussi
+\[
+  y'(x-h) = y'(x) - hy''(x) .
+\]
+D'où, il vient alors
+\[
+  y''_k = \frac{y'_k - y'_{k-1}}{h} .
+\]
+Finalement, on obtient
+\[
+  y_{k+1} = y_k + \frac{h}{2}\bigl[3y'_k - y'_{k-1}\bigr]
+  \quad\Longrightarrow\quad
+  y_{k+1} = y_k + \frac{h}{2}\bigl[3f(x_k, y_k) - f(x_{k-1}, y_{k-1})\bigr].
+\]
+C'est la formule d'Adams-Bashforth du second ordre présentant une erreur
+d'ordre $O(h^3)$.
+
+Pratiquement au début des itérations, il faut connaître les valeurs de $y$ en
+$x_0$ et en $x_1$ afin de calculer la première valeur $y_2$ de l'itération.
+Pour avoir $y_1$, on peut utiliser l'une des formules approchées classiques.
+Par exemple en utilisant la formule d'intégration des trapèzes, on obtient :
+\[
+  y_1 = y_0 + \frac{h}{2}\Bigl[f(x_0, y_0) + f\bigl[x_0 + h, y_0 + hf(x_0, y_0)\bigr]\Bigr].
+\]
+La formule itérative peut alors débuter par $k = 1$, et on calcule les $y_2$,
+$y_3$, $y_4$\dots{} Par exemple,
+\[
+  y_2 = y_1 + \frac{h}{2}\bigl[3f(x_1, y_1) - f(x_0, y_0)\bigr].
+\]
+
+\begin{exercice}
+Écrire l'algorithme de la méthode d'Adams-Bashforth du second ordre.
+\end{exercice}
+
+\subsubsection{Formules d'ordre supérieur}
+
+Pour obtenir des formules d'ordre supérieur présentant par exemple des erreurs
+d'ordre $O(h^4)$ ou $O(h^5)$, il suffit de développer à l'ordre supérieur
+$y(x+h)$ et de remplacer les différentes dérivées.
+
+\subsection{Méthode de prédicteur-correcteur}
+
+Les méthodes de Runge, Runge-Kutta et de Kutta-Simpson sont fondamentalement
+implicites car l'inconnue $y_{k+1}$ est exprimée à l'aide d'une fonction
+contenant $y_{k+1}$. Par exemple, dans le cas de Runge-Kutta d'ordre 2, on a
+normalement
+\[
+  y_{k+1} = y_k + \frac{h}{2}\bigl[f(x_k, y_k) + f(x_{k+1}, y_{k+1})\bigr].
+\]
+Afin d'avoir une expression explicite, on part des approximations pour
+exprimer $y_{k+1}$ du second membre de l'égalité en fonction de $y_k$. On
+pourrait aussi partir des formules d'Adams-Bashforth pour évaluer (prédire) les
+valeurs de $y_{k+1}$, puis insérer ces valeurs prédites dans le second membre
+de la formule implicite afin d'avoir une valeur corrigée. Dans un tel
+processus, la formule explicite est appelée \emph{prédicteur} tandis que la
+formule implicite utilisée est appelée \emph{correcteur}. Par exemple une
+méthode de prédicteur-correcteur peut utiliser les formules suivantes :
+\begin{align*}
+  y_{k+1} &= y_k + \frac{h}{2}\bigl[3f(x_k, y_k) - f(x_{k-1}, y_{k-1})\bigr]\\
+          &\equiv \text{prédicteur (formule d'Adams-Bashforth du second ordre),}\\[0.6em]
+  y_{k+1} &= y_k + \frac{h}{2}\bigl[f(x_k, y_k) + f(x_{k+1}, y_{k+1})\bigr]\\
+          &\equiv \text{correcteur (Runge-Kutta d'ordre 2).}
+\end{align*}
+On peut également combiner les autres formules implicites de RK aux autres
+formules explicites d'Adams-Bashforth pour avoir d'autres méthodes de
+prédicteur-correcteur plus élaborées.
+
+\begin{exercice}
+Établir l'algorithme de la méthode de prédicteur-correcteur, utilisant comme
+prédicteur la formule d'Adams-Bashforth du second ordre et comme correcteur la
+formule de $RK_2$ et traduire cet algorithme en Pascal ou en Fortran ou en C.
+\end{exercice}
+
+\section{Méthodes pour les problèmes aux valeurs limites}
+
+Il s'agit des problèmes de la forme
+\[
+  y^{(n)} = f\bigl(x, y, y', \dots, y^{(n-1)}\bigr), \qquad a < x < b
+\]
+avec $y(a) = y_1$ et $y(b) = y_2$ et d'autres conditions sur les dérivées. On
+peut résoudre ce type de problème par plusieurs méthodes dont la méthode de
+tir, la méthode des fonctions complémentaires ou de superposition et la
+méthode des différences finies.
+
+\subsection{Méthode de tir}
+
+Elle est utilisée dans le cas des problèmes aux limites non linéaires. Il
+s'agit de transformer un problème aux valeurs aux limites en un problème aux
+valeurs initiales par un choix adéquat des valeurs initiales. Ce choix se fait
+à l'une des bornes du domaine d'intégration et doit être tel que la solution
+passe le plus près possible de la valeur de la grandeur à l'autre borne du
+domaine d'intégration.
+
+Par exemple, considérons une équation du second ordre
+\[
+  y'' = f(x, y, y') \quad\text{avec}\quad y(a) = \eta_1 \quad\text{et}\quad y(b) = \eta_2 .
+\]
+La méthode de tir consiste à choisir $\gamma$ telle que $y'(a) = \gamma$ et de
+résoudre le problème aux valeurs initiales
+\[
+  y'' = f(x, y, y') \quad\text{avec}\quad y(a) = \eta_1 \quad\text{et}\quad y'(a) = \gamma .
+\]
+Le choix de $\gamma$ est bon lorsqu'en $x = b$, on a $y(b) \approx \eta_2$.
+Sinon il faut choisir une autre valeur pour $\gamma$. Une procédure à utiliser
+pour le choix de $\gamma$ est la suivante. On sait que la valeur $y(b)$ dépend
+de $\gamma$ ; c'est-à-dire que $y(b) = y(b, \gamma)$. Pour un bon choix de
+$\gamma$, on doit avoir
+\[
+  y(b, \gamma) - \eta_2 \approx 0 \;\Longleftrightarrow\; f(\gamma) = 0
+  \quad\text{où}\quad f(\gamma) = y(b, \gamma) - \eta_2 .
+\]
+Or d'après la méthode de Newton (voir chapitre II), le schéma itératif donnant
+la solution de cette équation algébrique est
+\[
+  \gamma_{n+1} = \gamma_n - \frac{f(\gamma_n)}{f'(\gamma_n)}
+  = \gamma_n - \frac{y(b, \gamma_n) - \eta_2}{y'(b, \gamma_n)}
+  = \gamma_n - \frac{(\gamma_n - \gamma_{n-1})\bigl(y(b, \gamma_n) - \eta_2\bigr)}
+                    {y(b, \gamma_n) - y(b, \gamma_{n-1})}
+\]
+
+Ainsi en pratique, on commence par donner une valeur initiale $\gamma_0$ à
+$\gamma$. Ensuite, on choisit la valeur suivante $\gamma_1$, les autres valeurs
+de $\gamma$ $(\gamma_2, \gamma_3, \dots)$ sont ensuite évaluées à partir de la
+formule ci-dessus.
+
+\begin{exercice}
+Établir l'algorithme de la méthode de tir.
+\end{exercice}
+
+\subsection{Méthode des fonctions complémentaires ou de superposition}
+
+C'est une méthode qui transforme une équation différentielle linéaire à
+valeurs aux limites en deux problèmes différentiels à valeurs initiales. Elle a
+plusieurs variantes que nous exposerons sur deux équations différentielles du
+second ordre.
+
+\subsubsection{Première variante}
+
+Considérons l'équation
+\[
+  \left\{
+  \begin{aligned}
+    &y'' = p(x)y' + q(x)y + r(x)\\
+    &y(a) = \eta_1 \quad\text{et}\quad y(b) = \eta_2
+  \end{aligned}
+  \right.
+\]
+Supposons que :
+\[
+  y(x) = y_1(x) + \mu y_2(x) \qquad (\mu = \text{cte} \neq 0).
+\]
+Il vient
+\[
+  \begin{aligned}
+    y''_1 &= p(x)y'_1 + q(x)y_1 + r(x)\\
+    y''_2 &= p(x)y'_2 + q(x)y_2
+  \end{aligned}
+\]
+En $x = a$, on a $y_1(a) + \mu y_2(a) = \eta_1$.
+
+Imposons que $y_1(a) = \eta_1 \Longrightarrow y_2(a) = 0$.
+
+En $x = b$, on a $y_1(b) + \mu y_2(b) = \eta_2$. D'où
+\[
+  \Longrightarrow\quad \mu = \frac{\eta_2 - y_1(b)}{y_2(b)} .
+\]
+Fixons
+\[
+  y'_1(a) = 0 \qquad\text{et}\qquad y'_2(a) = 1 .
+\]
+On obtient alors les deux problèmes différentiels à valeurs initiales
+suivants :
+\[
+  \left\{
+  \begin{aligned}
+    &\left\{
+    \begin{aligned}
+      &y''_1 = p(x)y'_1 + q(x)y_1 + r(x)\\
+      &y_1(a) = \eta_1, \quad y'_1(a) = 0
+    \end{aligned}
+    \right.\\[0.4em]
+    &\left\{
+    \begin{aligned}
+      &y''_2 = p(x)y'_2 + q(x)y_2\\
+      &y_2(a) = 0, \quad y'_2(a) = 1
+    \end{aligned}
+    \right.
+  \end{aligned}
+  \right.
+  \qquad x \in\, ]a, b]
+\]
+On résout alors numériquement ces deux problèmes à valeurs initiales. On
+obtient les valeurs de $y_1(b)$ et $y_2(b)$ et par conséquent la valeur de
+$\mu$ et les différentes valeurs de $y$ aux n\oe uds de discrétisation
+(puisque les valeurs de $y_1$ et $y_2$ sont connues en tout point de
+l'intervalle $]a,b]$).
+
+\subsubsection{Deuxième variante}
+
+Considérons le problème suivant
+\begin{align}
+  y'' &= p(x)y + q(x) \tag{a}\\
+  y'(a) &= \alpha_{00}y(a) + \alpha_{10} \tag{b}\\
+  y'(b) &= \beta_{00}y(b) + \beta_{10} \tag{c}
+\end{align}
+Considérons également l'équation
+\begin{equation}
+  y' = \alpha_0(x)y + \alpha_1(x) \tag{d}
+\end{equation}
+où nous avons choisi $\alpha_0(x)$ et $\alpha_1(x)$ tels que $y$ satisfait
+toujours l'équation (a). En différenciant l'équation (d) par rapport à $x$ et
+en identifiant à l'équation (a), on obtient
+\begin{align}
+  \alpha'_0 + \alpha_0^2 &= p(x) \tag{e}\\
+  \alpha'_1 + \alpha_0\alpha_1 &= q(x) \tag{f}
+\end{align}
+avec $\alpha_0(a) = \alpha_{00}$, $\alpha_1(a) = \alpha_{10}$.
+
+Les équations (e) et (f) sont des équations différentielles du
+1\textsuperscript{er} ordre que l'on peut résoudre analytiquement ou
+numériquement pour trouver les valeurs de $\alpha_0(x)$ et de $\alpha_1(x)$.
+
+De l'équation (d), on a
+$y'(b) = \alpha_0(b)y(b) + \alpha_1(b) = \beta_{00}y(b) + \beta_{10}$. On
+obtient alors
+\begin{align}
+  y(b) &= \frac{\beta_{10} - \alpha_1(b)}{\alpha_0(b) - \beta_{00}} \tag{g}\\
+  y'(b) &= \frac{\beta_{00}\alpha_1(b) - \beta_{10}\alpha_0(b)}{\beta_{00} - \alpha_0(b)} \tag{h}
+\end{align}
+L'équation (a) est ainsi transformée en un problème à valeurs initiales. On
+peut en effet résoudre le problème $y'' = p(x)y + q(x)$ avec les conditions
+initiales (g) et (h) ou résoudre le problème $y' = \alpha_0(x)y + \alpha_1(x)$
+avec la condition initiale (g).
+
+\subsection{Méthode des différences finies}
+
+Elle convertit le problème de résolution d'une équation différentielle à la
+résolution des équations algébriques.
+
+Soit le problème :
+\[
+  y'' = p(x)y' + q(x)y + r(x) \qquad\text{avec}\quad y(a) = \eta_1 \quad\text{et}\quad y(b) = \eta_2 .
+\]
+On a :
+\[
+  y'(x) = \frac{y(x+h) - y(x)}{h}
+  \qquad\text{et}\qquad
+  y''(x) = \frac{y(x+h) - 2y(x) + y(x-h)}{h^2} .
+\]
+Soit $x = x_k$, on posera
+\[
+  y(x_k) = y_k, \quad p(x_k) = p_k, \quad q(x_k) = q_k, \quad r(x_k) = r_k .
+\]
+Par substitution des expressions des dérivées dans l'équation différentielle,
+on aboutit à l'équation discrète
+\[
+  (1 - hp_k)\,y_{k+1} - \bigl(2 - hp_k + h^2q_k\bigr)\,y_k + y_{k-1} = h^2r_k
+\]
+pour $k = 1$ à $N-1$ et $h = \dfrac{b - a}{N}$.
+
+On aboutit ainsi à un système d'équations algébriques linéaires de la forme
+\[
+  \left\{
+  \begin{aligned}
+    &y_0 = \eta_1\\
+    &(1 - hp_1)\,y_2 - \bigl(2 - hp_1 + h^2q_1\bigr)\,y_1 + y_0 = h^2r_1\\
+    &(1 - hp_2)\,y_3 - \bigl(2 - hp_2 + h^2q_2\bigr)\,y_2 + y_1 = h^2r_2\\
+    &\qquad\vdots\\
+    &(1 - hp_{N-1})\,y_N - \bigl(2 - hp_{N-1} + h^2q_{N-1}\bigr)\,y_{N-1} + y_{N-2} = h^2r_{N-1}\\
+    &y_N = \eta_2
+  \end{aligned}
+  \right.
+\]
+Ce système algébrique peut être résolu par les méthodes itératives de Jacobi
+ou de Gauss-Seidel.
+
+\section{Les équations intégrales et intégro-différentielles}
+
+\subsection{Définition}
+
+On appelle équation intégrale une équation dont la fonction inconnue se trouve
+dans le symbole d'intégration.
+
+C'est l'exemple de l'équation suivante :
+\[
+  y(x) = e^x\sin x + 2\int_0^x \cos(x - t)\,y(t)\,\dd t .
+\]
+On a aussi les équations intégro-différentielles comme par exemple
+\[
+  y'(x) = 3y(x) + 2x + \int_0^x \sin w(x - t)\,y(t)\,\dd t .
+\]
+Une équation intégrale est dite linéaire lorsque la fonction inconnue $y$
+intervient avec un degré 1. Sous la forme générale, les équations intégrales
+linéaires se présentent de la manière suivante
+\[
+  y(x) = f(x) + \int_0^x k(x,t)\,y(t)\,\dd t .
+\]
+La fonction $k(x,t)$ est appelée \emph{noyau} de l'équation.
+
+Dans les cas simples, les équations intégrales peuvent se résoudre
+analytiquement en utilisant par exemple la méthode de la fonction de Gauss, de
+la transformée de Laplace, de la transformation de Mellin, ou par les
+approximations successives. Dans le cas contraire, il faut utiliser les
+méthodes numériques.
+
+\subsection{Résolution numérique des équations intégrales linéaires}
+
+Soit l'équation linéaire
+\begin{equation}
+  y(x) = f(x) + \int_a^b k(x,t)\,y(t)\,\dd t .
+  \tag{1}
+\end{equation}
+L'intégrale définie dans (1) peut être remplacée par les formules des trapèzes
+et de Simpson. On obtient alors
+\begin{equation}
+  y(x) = f(x) + (b - a)\bigl[c_1k(x,t_1)y(t_1) + c_2k(x,t_2)y(t_2) + \dots
+         + c_nk(x,t_n)y(t_n)\bigr]
+  \tag{2}
+\end{equation}
+où $t_1, t_2, \dots, t_n$ sont les n\oe uds de subdivision de l'intervalle
+$[a,b]$ et les coefficients $c_i$ dépendent de la formule d'intégration
+utilisée.
+
+Puisque l'équation (2) est vérifiée pour tout $x \in [a,b]$, elle est également
+vérifiée pour $x = t_1$, $x = t_2$, \dots, $x = t_n$. Par conséquent, à partir
+de l'équation (2), on obtient un système d'équations de la forme
+\begin{equation}
+  y(t_i) = f(t_i) + (b - a)\bigl[c_1k(t_i,t_1)y(t_1) + c_2k(t_i,t_2)y(t_2) + \dots
+           + c_nk(t_i,t_n)y(t_n)\bigr]
+  \tag{3}
+\end{equation}
+pour $i$ allant de $1$ à $n$ ($t_1 = a$, \dots, $t_i = a + (i-1)h$, \dots,
+$t_n = b$).
+
+Posons
+\[
+  y(t_i) = y_i \qquad\text{et}\qquad f(t_i) = f_i .
+\]
+Le système (3) devient alors
+\begin{equation}
+  \left\{
+  \begin{aligned}
+    y_1 &= f_1 + (b - a)\bigl[c_1k(t_1,t_1)y_1 + c_2k(t_1,t_2)y_2 + \dots + c_nk(t_1,t_n)y_n\bigr]\\
+    y_2 &= f_2 + (b - a)\bigl[c_1k(t_2,t_1)y_1 + c_2k(t_2,t_2)y_2 + \dots + c_nk(t_2,t_n)y_n\bigr]\\
+    &\;\;\vdots\\
+    y_n &= f_n + (b - a)\bigl[c_1k(t_n,t_1)y_1 + c_2k(t_n,t_2)y_2 + \dots + c_nk(t_n,t_n)y_n\bigr]
+  \end{aligned}
+  \right.
+  \tag{4}
+\end{equation}
+C'est un système de $n$ équations à $n$ inconnues que sont les $y_i$. La
+résolution de ce système permet de déterminer les $y_i$ et en les substituant
+dans l'équation (2), on obtient l'expression analytique de $y(x)$, solution de
+l'équation (1).
+
+\paragraph{Remarque} On peut transformer une équation différentielle
+ordinaire en une équation intégrale. En résolvant l'équation intégrale, on
+trouve alors une solution analytique de l'équation différentielle.
+
+\paragraph{Exemple} Soit l'équation
+\[
+  y(x) = \frac{5x}{6} - \frac{1}{9} + \frac{1}{3}\int_0^1 (t + x)\,y(t)\,\dd t .
+\]
+Ici, on a $f(x) = 5x/6 - 1/9$ et $k(x,t) = x + t$.
+
+Pour résoudre numériquement cette équation, utilisons la méthode de Simpson et
+considérons pour cela trois points : $t_1 = 0$, $t_2 = 0{,}5$ et $t_3 = 1$. Le
+système algébrique à résoudre est alors défini par :
+\[
+  y(x) = \frac{5x}{6} - \frac{1}{9}
+       + \frac{1}{3}\times\frac{1}{3}\times\frac{1}{2}
+         \Bigl[(t_1 + x)y(t_1) + 4(t_2 + x)y(t_2) + (t_3 + x)y(t_3)\Bigr]
+\]
+car $h = 1/2$.
+
+En remplaçant $x$ par $t_i$, on obtient
+\[
+  \left\{
+  \begin{aligned}
+    y_1 &= -\frac{1}{9} + \frac{1}{18}\bigl(2y_2 + y_3\bigr) && \text{en } t = 0\\
+    y_2 &= \frac{5}{12} - \frac{1}{9} + \frac{1}{18}\Bigl(\frac{y_1}{2} + 4y_2 + \frac{3}{2}y_3\Bigr) && \text{en } t = 0{,}5\\
+    y_3 &= \frac{5}{6} - \frac{1}{9} + \frac{1}{18}\bigl(y_1 + 6y_2 + 2y_3\bigr) && \text{en } t = 1
+  \end{aligned}
+  \right.
+\]
+On trouve $y_1 = 0$, $y_2 = \frac{1}{2}$ et $y_3 = 1$. En remplaçant
+$y_1 = y(t_1)$, $y_2 = y(t_2)$ et $y_3 = y(t_3)$ dans l'expression de $y(x)$,
+on obtient $y(x) = x$.
+
+\begin{exercice}
+Discrétiser l'équation intégro-différentielle suivante :
+\[
+  y'(x) = 2y(x) + f(x) + \int_0^x k(x,t)\,y(t)\,\dd t .
+\]
+\end{exercice}

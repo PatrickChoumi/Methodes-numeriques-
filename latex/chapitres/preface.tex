@@ -1,0 +1,90 @@
+\chapter*{Préface}
+\addcontentsline{toc}{chapter}{Préface}
+\markboth{Préface}{}
+
+Le but de ce document est de permettre aux scientifiques en général, aux
+étudiants physiciens et ingénieurs en particulier, d'élaborer des méthodes de
+calcul numérique utilisables par l'ordinateur pour résoudre les problèmes de
+recherche et de développement.
+
+Il s'agit d'une compilation des notes de cours dispensés par le Professeur
+WOAFO Paul de 1994 à 2016. C'est en effet en 1994 que cet enseignement a été
+introduit dans les programmes de formation des étudiants de Maîtrise de
+Physique au Cameroun (à l'Université de Yaoundé, seule université
+camerounaise en ce moment-là). Plus tard, un enseignement de méthodes
+numériques a été introduit en année de Licence de Physique. Et les travaux
+pratiques étaient effectués au Centre de Calcul (aujourd'hui Centre
+Universitaire des Technologies de l'Information).
+
+Année après année, l'enseignement s'est enrichi et a contribué à la formation
+des étudiants de Maîtrise, Master et Doctorat camerounais qui pour la plupart
+étaient engagés dans des travaux théoriques pouvant avoir une forte composante
+numérique. Certains de ces étudiants occupent actuellement des positions
+académiques au Cameroun et à l'étranger. Certains d'entre eux se sont inspirés
+des éléments de ce cours pour former d'autres étudiants dans les universités
+camerounaises. L'importance historique de cet enseignement dans la production
+scientifique des physiciens camerounais est donc incommensurable.
+
+Ces notes des cours ont bénéficié des contributions de nombreux
+collaborateurs, notamment, Professeur NANA NBENDJO Blaise (Faculté des
+Sciences, Université de Yaoundé~I), Dr.~NOUBISSIE Samuel (IUT Fotso-Victor de
+Bandjoun, Université de Dschang) et Dr.~FAUTSO Gaétan (École Normale
+Supérieure de Bambili, Université de Bamenda).
+
+Il faut noter que l'implémentation des méthodes numériques a beaucoup évolué
+ces dernières années avec la mise sur le marché des logiciels comme MATLAB
+contenant des codes pour les différentes méthodes numériques. Mais, la plupart
+des problèmes de recherche et de développement sont complexes et exigent une
+expertise en matière de méthodes numériques (schémas numériques et
+algorithmes). De plus, pour utiliser les logiciels existant sur le marché, on
+doit être capable de comprendre les différentes étapes afin de savoir comment
+et où fournir des informations aux logiciels. Il ne faut pas aussi oublier le
+prix d'achat des logiciels.
+
+Il nous a donc paru important de mettre ces notes de cours à la disposition
+des étudiants. Cette importance est renforcée par la croissance rapide des
+effectifs des étudiants ; ce qui a un effet négatif sur les conditions de
+formation.
+
+Le document présente les méthodes numériques de base qui sont dispensées en
+année de Licence et de Master de Physique et des études en sciences de
+l'ingénieur. Il comporte les méthodes numériques pour :
+\begin{itemize}[label=--]
+  \item le traitement numérique des mesures expérimentales,
+  \item le calcul des intégrales et des dérivées,
+  \item la résolution des systèmes d'équations algébriques linéaires et non
+        linéaires,
+  \item la résolution des équations différentielles et
+        intégro-différentielles,
+  \item la résolution des équations aux dérivées partielles.
+\end{itemize}
+
+Les méthodes de simulation numérique des équations issues des problèmes
+d'advection-diffusion, d'écoulement des fluides (équations de Navier-Stokes)
+et la dynamique des structures atomiques ne sont pas incluses dans ce
+document. Elles pourront éventuellement être présentées en séminaires ou de
+manière détaillée aux étudiants de 2\textsuperscript{e} année de Master ou de
+Doctorat. Il en est de même des approches Méthodes des Éléments Finis et des
+Volumes Finis.
+
+Chaque partie du cours fournit d'une part les développements théoriques des
+méthodes numériques, et d'autre part des algorithmes correspondants (prêts à
+être traduits dans un langage de programmation tels que le Pascal, le Fortran
+ou le C, que les étudiants sont supposés bien maîtriser). Une extension de
+l'utilisation de certaines méthodes numériques expliquées dans ce document est
+destinée à la programmation des microcontrôleurs qui sont susceptibles de
+convertir les instructions du programme en signaux électriques directement
+utilisables pour des applications en mécatronique ou dans les systèmes
+automatiques ou en électronique pour la génération des signaux.
+
+La synthèse présentée dans ce document a bénéficié des supports didactiques
+déjà disponibles pour l'enseignement des méthodes numériques, dont notamment
+les livres suivants : S.~Vandergraft, \og Introduction to Numerical
+Computations\fg{}, Academic Press (New York, 1978) ; R.L.~Burden,
+J.D.~Faires, A.C.~Reynolds, \og Numerical Analysis\fg{}, 2\textsuperscript{nd}
+edition, Weber and Schmidt (Boston, 1981) et D.~Euvrard, \og Résolution
+numérique des équations aux dérivées partielles\fg{}, Masson (Paris, 1987).
+
+\begin{flushright}
+  \textit{Woafo Paul, Professeur}
+\end{flushright}

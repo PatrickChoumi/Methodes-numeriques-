@@ -1,0 +1,178 @@
+% Méthodes numériques pour physiciens et ingénieurs
+% Woafo Paul -- transcription LaTeX du document scanné
+\documentclass[11pt,a4paper,oneside]{report}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[a4paper,margin=2.5cm,headheight=14pt]{geometry}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{array,multirow,booktabs}
+\usepackage{arydshln}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,calc,patterns,decorations.pathreplacing}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[most]{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage[titles]{tocloft}
+\setlength{\cftchapnumwidth}{2.6em}
+\setlength{\cftsecindent}{1.5em}
+\setlength{\cftsecnumwidth}{3.4em}
+\setlength{\cftsubsecindent}{4.9em}
+\setlength{\cftsubsecnumwidth}{4.4em}
+\usepackage[hidelinks]{hyperref}
+
+% ---------------------------------------------------------------
+% Numérotation à la manière du document original : I-1-, I-2-1-, ...
+% ---------------------------------------------------------------
+\renewcommand{\thechapter}{\Roman{chapter}}
+\renewcommand{\thesection}{\thechapter-\arabic{section}}
+\renewcommand{\thesubsection}{\thesection-\arabic{subsection}}
+\renewcommand{\thesubsubsection}{\thesubsection-\arabic{subsubsection}}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
+
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries\centering}
+  {\LARGE Chapitre \thechapter}{0.6em}{\Huge}
+\titlespacing*{\chapter}{0pt}{-20pt}{30pt}
+\titleformat{\section}{\normalfont\Large\bfseries}{\thesection-}{0.8em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection-}{0.6em}{}
+\titleformat{\subsubsection}{\normalfont\normalsize\bfseries}{\thesubsubsection-}{0.5em}{}
+\titleformat{\paragraph}[runin]{\normalfont\normalsize\bfseries\itshape}{}{0pt}{}[.]
+
+\numberwithin{equation}{chapter}
+\renewcommand{\theequation}{\thechapter.\arabic{equation}}
+
+% ---------------------------------------------------------------
+% Algorithmes en français
+% ---------------------------------------------------------------
+\floatname{algorithm}{Algorithme}
+\renewcommand{\listalgorithmname}{Liste des algorithmes}
+\algrenewcommand\algorithmicrequire{\textbf{Données :}}
+\algrenewcommand\algorithmicensure{\textbf{Résultat :}}
+\algrenewcommand\algorithmicfor{\textbf{Pour}}
+\algrenewcommand\algorithmicdo{\textbf{faire}}
+\algrenewcommand\algorithmicwhile{\textbf{Tant que}}
+\algrenewcommand\algorithmicif{\textbf{Si}}
+\algrenewcommand\algorithmicthen{\textbf{alors}}
+\algrenewcommand\algorithmicelse{\textbf{Sinon}}
+\algrenewcommand\algorithmicrepeat{\textbf{Répéter}}
+\algrenewcommand\algorithmicuntil{\textbf{Jusqu'à}}
+\algrenewcommand\algorithmicreturn{\textbf{Retourner}}
+\algrenewcommand\algorithmicend{\textbf{Fin}}
+\algrenewtext{EndFor}{\textbf{Fin pour}}
+\algrenewtext{EndWhile}{\textbf{Fin tant que}}
+\algrenewtext{EndIf}{\textbf{Fin si}}
+\algnewcommand\algorithmicprint{\textbf{Écrire}}
+\algnewcommand\Print{\State\algorithmicprint{} }
+\algnewcommand\algorithmicread{\textbf{Lire}}
+\algnewcommand\Read{\State\algorithmicread{} }
+\algnewcommand{\Goto}[1]{\State\textbf{Aller à} #1}
+\algnewcommand{\Stop}{\State\textbf{Arrêt}}
+\algrenewcommand\algorithmiccomment[1]{\hfill\textit{\{#1\}}}
+
+% Environnement pour les algorithmes non flottants
+\newenvironment{algo}[1][]
+  {\begin{tcolorbox}[enhanced,breakable,colback=gray!4,colframe=gray!60,
+     boxrule=0.4pt,arc=1mm,left=6pt,right=6pt,top=4pt,bottom=4pt,
+     title={#1},fonttitle=\bfseries\small,coltitle=black,colbacktitle=gray!15]
+   \setlength{\lineskip}{6pt}\setlength{\lineskiplimit}{3pt}%
+   \begin{algorithmic}[0]}
+  {\end{algorithmic}\end{tcolorbox}}
+
+% ---------------------------------------------------------------
+% Encadrés « Exercice(s) » et « Remarque »
+% ---------------------------------------------------------------
+\newtcolorbox{exercice}[1][Exercice]{enhanced,breakable,colback=blue!3,
+  colframe=blue!40!black,boxrule=0.4pt,arc=1mm,
+  title={#1},fonttitle=\bfseries,left=6pt,right=6pt}
+
+\newcommand{\NB}{\textbf{NB :}~}
+
+% ---------------------------------------------------------------
+% Macros mathématiques
+% ---------------------------------------------------------------
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\renewcommand{\Re}{\operatorname{Re}}
+\renewcommand{\Im}{\operatorname{Im}}
+\DeclareMathOperator{\signe}{signe}
+\newcommand{\abs}[1]{\left|#1\right|}
+
+\setlength{\parskip}{0.4em}
+\setlength{\parindent}{1.5em}
+\allowdisplaybreaks
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\itshape\leftmark}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\chaptermark}[1]{\markboth{Chapitre \thechapter~: #1}{}}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\thepage}\renewcommand{\headrulewidth}{0pt}}
+
+\hypersetup{
+  pdftitle={Méthodes numériques pour physiciens et ingénieurs},
+  pdfauthor={Woafo Paul},
+  pdfsubject={Méthodes numériques},
+  pdflang={fr},
+  hypertexnames=false
+}
+
+\begin{document}
+
+\pagenumbering{roman}
+% ---------------------------------------------------------------
+% Page de titre
+% ---------------------------------------------------------------
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+  \centering
+  \vspace*{2cm}
+  {\rule{\linewidth}{1.5pt}\par}
+  \vspace{0.8cm}
+  {\fontsize{34}{40}\selectfont\bfseries MÉTHODES NUMÉRIQUES\par}
+  \vspace{0.8cm}
+  {\rule{\linewidth}{1.5pt}\par}
+  \vspace{1.5cm}
+  {\LARGE\bfseries Pour physiciens\par}
+  \vspace{0.3cm}
+  {\Large et\par}
+  \vspace{0.3cm}
+  {\LARGE\bfseries Ingénieurs\par}
+  \vfill
+  {\Large\bfseries WOAFO Paul\par}
+  \vspace{0.3cm}
+  {\large Professeur, Université de Yaoundé I\par}
+  \vspace{1.2cm}
+  {\Large\bfseries Cameroun\par}
+  \vspace{2cm}
+\end{titlepage}
+\hypersetup{pageanchor=true}
+
+\include{chapitres/preface}
+
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+
+\include{chapitres/chapitre1}
+\include{chapitres/chapitre2}
+\include{chapitres/chapitre3}
+\include{chapitres/chapitre4}
+\include{chapitres/chapitre5}
+\include{chapitres/chapitre6}
+\include{chapitres/exercices}
+
+\end{document}

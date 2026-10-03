@@ -1,0 +1,713 @@
+\chapter{Équations aux dérivées partielles}
+
+Les équations aux dérivées partielles décrivent de nombreux problèmes de
+physique et de mécanique. Leur résolution numérique fait appel à des formules
+de discrétisation qui convertissent l'équation aux dérivées partielles en un
+système d'équations discrètes que l'on peut résoudre par des schémas
+itératifs.
+
+Ce chapitre présente les méthodes de base de discrétisation des équations aux
+dérivées partielles. En particulier, on s'intéresse ici aux équations de
+Poisson et de Laplace, à l'équation de la chaleur et à l'équation d'ondes.
+Pour que les schémas discrets conduisent à des solutions viables, ils doivent
+être stables, c'est-à-dire que les solutions numériques doivent être très peu
+sensibles au changement des pas de discrétisation. C'est pourquoi, ce chapitre
+s'intéresse aussi à l'établissement des conditions de stabilité des schémas
+discrets.
+
+\section{Notions générales}
+
+\subsection{Classification}
+
+Considérons une équation aux dérivées partielles d'ordre 2 de la forme
+\[
+  A\frac{\partial^2 U}{\partial x^2} + 2B\frac{\partial^2 U}{\partial x\,\partial y}
+  + C\frac{\partial^2 U}{\partial y^2}
+  + F\Bigl(x, y, U, \frac{\partial U}{\partial x}, \frac{\partial U}{\partial y}\Bigr) = 0
+\]
+où $A$, $B$ et $C$ sont des fonctions de $x$ et $y$ et sont de classe $C^2$.
+\begin{itemize}[label=$\blacklozenge$]
+  \item Si $B^2 - AC = 0 \;\Longrightarrow\;$ équation \emph{parabolique} ;
+  \item Si $B^2 - AC < 0 \;\Longrightarrow\;$ équation \emph{elliptique} ;
+  \item Si $B^2 - AC > 0 \;\Longrightarrow\;$ équation \emph{hyperbolique}.
+\end{itemize}
+
+Pour résoudre une équation aux dérivées partielles, il faut connaître les
+conditions aux limites ou aux frontières et les conditions initiales. La
+nature de ces conditions permet de définir les types de problèmes suivants :
+
+\textbf{Problème de DIRICHLET pur :} les valeurs de $U$ sur les frontières du
+domaine sont connues.
+
+\textbf{Problème de NEUMANN pur :} les valeurs des dérivées de $U$ sur les
+frontières sont connues.
+
+\textbf{Problème mixte DIRICHLET-NEUMANN :} les valeurs de $U$ sont connues
+sur une partie des frontières et celles des dérivées de $U$ sur la partie
+restante.
+
+\textbf{Problème de CAUCHY :} les valeurs de $U$ et de ses dérivées sont
+connues sur les frontières du domaine.
+
+\subsection{Quelques équations aux dérivées partielles en Physique}
+
+\subsubsection{Équation d'onde}
+
+Elle a la forme :
+\[
+  \frac{\partial^2 U}{\partial t^2} = a^2\Delta U
+  + f\Bigl(\frac{\partial U}{\partial t}, x, y, z, t\Bigr)
+\]
+où $a$ est la vitesse de l'onde et $f$ une action extérieure.
+
+\textbf{En dimension 1}, cette équation décrit :
+\begin{itemize}[label=--]
+  \item Les vibrations transversales d'une corde : l'équation générale dans ce
+        cas est
+        \[
+          \rho(x)\frac{\partial^2 U}{\partial t^2} + k\frac{\partial U}{\partial t}
+          = T\frac{\partial^2 U}{\partial x^2} + f(x,t)
+        \]
+        où $\rho$ est la masse volumique, $k$ le coefficient de dissipation,
+        $T$ la tension dans la corde. Ici la vitesse des ondes est
+        $a = \sqrt{T/\rho}$.
+  \item Les vibrations longitudinales dans une barre : $a = \sqrt{E/\rho}$ où
+        $E$ est le module d'élasticité.
+  \item Les vibrations de torsion d'une barre avec $a = \sqrt{\mu/\rho}$ où
+        $\mu = \dfrac{E}{2(1+\sigma)}$ et $\sigma$ est le coefficient de
+        Poisson.
+  \item La propagation d'ondes électromagnétiques ou électriques.
+\end{itemize}
+
+\textbf{En dimension 2}, elle peut décrire les vibrations d'une membrane
+plane.
+
+\textbf{En dimension 3}, elle décrit les ondes sonores en hydrodynamique, les
+ondes électromagnétiques (cas des cavités résonantes et du rayonnement des
+antennes).
+
+\subsubsection{Équation de Laplace et de Poisson}
+
+Elles s'écrivent sous la forme suivante
+\[
+  \begin{aligned}
+    \Delta U &= 0 && \text{(Laplace)}\\
+    \Delta U &= f(x, y, z) && \text{(Poisson)}
+  \end{aligned}
+\]
+Ce sont les prototypes des équations elliptiques. Elles décrivent les
+problèmes stationnaires suivants :
+\begin{itemize}[label=--]
+  \item répartition des charges électriques sur la surface d'un conducteur ;
+  \item équilibre thermique dans un corps homogène ;
+  \item distribution du potentiel des vitesses dans un fluide non visqueux,
+        incompressible et en écoulement irrotationnel.
+\end{itemize}
+
+\subsubsection{Équation de la chaleur}
+
+Sa forme générale est :
+\[
+  c\rho\frac{\partial U}{\partial t} = \operatorname{div}\bigl(k\,\overrightarrow{\operatorname{grad}}\,U\bigr)
+  + F(x, y, z, t)
+\]
+où $U$ est la température en un point $P(x, y, z)$ au temps $t$, $\rho$ la
+masse volumique, $c$ la chaleur spécifique, $k$ la conductivité interne et $F$
+l'apport des sources ou des puits de chaleur.
+
+Si $c$, $\rho$ et $k$ sont constantes, cette équation se réduit à :
+\[
+  \frac{\partial U}{\partial t} = a^2\Delta U + f(x, y, z, t) .
+\]
+Dans le cas où
+\[
+  \frac{\partial U}{\partial t} = 0,
+\]
+on est en présence d'un problème de transfert de chaleur en régime permanent
+(conduction et convection).
+
+Dans le cas général où $\dfrac{\partial U}{\partial t} \neq 0$, on est en
+présence d'un problème de diffusion de la chaleur.
+
+\section{Équation de Poisson dans le plan}
+
+\subsection{Discrétisation de l'équation de Poisson}
+
+Soit l'équation :
+\begin{equation}
+  \frac{\partial^2 U}{\partial x^2} + \frac{\partial^2 U}{\partial y^2} = f(x, y)
+  \tag{P}
+\end{equation}
+définie sur un domaine $D$ rectangulaire :
+$D = \{(x, y) \in \R^2 \,/\, a < x < b \text{ et } c < y < d\}$.
+
+Soit $(S)$ la frontière de $D$, la condition suivante :
+\[
+  U(x, y) = g(x, y)
+\]
+est imposée sur $(S)$.
+
+Nous considérons que les fonctions $f$ et $g$ sont continues sur le domaine
+$D$. Soient $h$ et $k$ les pas de calcul suivant $x$ et $y$ respectivement.
+Soient $n$ et $m$ les nombres entiers définis par
+\[
+  h = \frac{b - a}{n} \qquad\text{et}\qquad k = \frac{d - c}{m} .
+\]
+Un point du domaine $D$ est défini par les coordonnées suivantes :
+\[
+  \left\{
+  \begin{aligned}
+    x_i &= a + ih && \text{avec } i = 1, \dots, n-1\\
+    y_j &= c + jk && \text{avec } j = 1, \dots, m-1
+  \end{aligned}
+  \right.
+\]
+D'après les définitions des dérivées, on a :
+\begin{equation}
+  \frac{\partial^2 U}{\partial x^2}
+  = \frac{U_{i+1,j} - 2U_{i,j} + U_{i-1,j}}{h^2}
+  - \frac{h^2}{12}\frac{\partial^4 U}{\partial x^4}(\xi_{ij}, y_j)
+  \tag{P1}
+\end{equation}
+où $U_{ij} = U(x_i, y_j)$ ; $\xi \in\, ]x_{i-1}, x_{i+1}[$.
+
+En écrivant une équation similaire pour $\dfrac{\partial^2 U}{\partial y^2}$,
+l'équation (P) devient, avec une erreur de troncature d'ordre
+$O(h^2 + k^2)$, le système suivant :
+\begin{equation}
+  2\left[\Bigl(\frac{h}{k}\Bigr)^2 + 1\right]U_{i,j} - \bigl(U_{i+1,j} + U_{i-1,j}\bigr)
+  - \Bigl(\frac{h}{k}\Bigr)^2\bigl(U_{i,j+1} + U_{i,j-1}\bigr) = -h^2f_{i,j}
+  \tag{P2}
+\end{equation}
+où $f_{i,j} = f(x_i, y_j)$ ; avec $i = 1, 2, \dots, n-1$ et
+$j = 1, 2, \dots, m-1$.
+
+La discrétisation des conditions aux frontières est la suivante :
+\begin{equation}
+  \left\{
+  \begin{aligned}
+    U_{0,j} &= g(x_0, y_j)\\
+    U_{n,j} &= g(x_n, y_j)
+  \end{aligned}
+  \right.
+  \quad j = 0, 1, \dots, m
+  \qquad\qquad
+  \left\{
+  \begin{aligned}
+    U_{i,0} &= g(x_i, y_0)\\
+    U_{i,m} &= g(x_i, y_m)
+  \end{aligned}
+  \right.
+  \quad i = 0, 1, \dots, n
+  \tag{P3}
+\end{equation}
+En associant les équations (P2) et (P3), on obtient le système d'équations
+algébriques linéaires en $U_{ij}$ que l'on peut résoudre par la méthode
+d'élimination de Gauss.
+
+\begin{exercice}
+Écrire le schéma d'itération de Gauss-Seidel et de Jacobi pour résoudre
+l'équation de Poisson.
+\end{exercice}
+
+\subsection{Cas spécifiques}
+
+\subsubsection{Conditions aux limites de type Neumann}
+
+Lorsque les conditions aux limites sont de type Neumann, le schéma de
+discrétisation doit se faire avec beaucoup de précautions. Généralement, il
+est conseillé de combiner cette condition avec l'équation aux dérivées
+partielles de départ.
+
+Par exemple, si la condition de Neumann s'écrit
+$\left.\dfrac{\partial U}{\partial y}\right|_S = g(x, y)$, alors on utilise le
+schéma suivant. On développe $U(x_i, y_1)$ autour du point $(x_i, y_0)$ ;
+c'est-à-dire que l'on écrit :
+\[
+  U(x_i, y_1) = U(x_i, y_0) + k\frac{\partial U}{\partial y}(x_i, y_0)
+  + \frac{k^2}{2}\frac{\partial^2 U}{\partial y^2}(x_i, y_0) + O(k^3) .
+\]
+La quantité $\dfrac{\partial^2 U}{\partial y^2}$ en $(x_i, y_0)$ peut être
+remplacée par son équivalent à partir de l'équation aux dérivées partielles
+de départ. Par exemple, dans le cas de l'équation de Laplace, on a :
+$\dfrac{\partial^2 U}{\partial y^2} = -\dfrac{\partial^2 U}{\partial x^2}$.
+Il vient alors :
+\[
+  \begin{aligned}
+    U(x_i, y_1) &= U(x_i, y_0) + k\frac{\partial U}{\partial y}(x_i, y_0)
+                 - \frac{k^2}{2}\frac{\partial^2 U}{\partial x^2}(x_i, y_0)\\
+                &= U(x_i, y_0) + k\frac{\partial U}{\partial y}(x_i, y_0)
+                 - \frac{k^2}{2h^2}\bigl(U_{i+1,0} - 2U_{i,0} + U_{i-1,0}\bigr).
+  \end{aligned}
+\]
+Finalement la condition de Neumann donne :
+\begin{equation}
+  U_{i,1} - \Bigl(1 + \frac{k^2}{h^2}\Bigr)U_{i,0}
+  + \frac{k^2}{2h^2}\bigl(U_{i+1,0} + U_{i-1,0}\bigr) = kg(x_i, y_0) .
+  \tag{P4}
+\end{equation}
+On peut alors associer à (P4) l'équation (P2) pour avoir le système discret
+global à résoudre.
+
+\subsubsection{Théorème du maximum et du minimum discrets}
+
+Dans le cas de l'équation de Laplace, on a :
+\[
+  U_{i,j} = \frac{k^2}{2(k^2 + h^2)}\bigl(U_{i+1,j} + U_{i-1,j}\bigr)
+          + \frac{h^2}{2(k^2 + h^2)}\bigl(U_{i,j+1} + U_{i,j-1}\bigr).
+\]
+Donc $U_{ij}$ est le barycentre des nombres $U_{i+1,j}$, $U_{i-1,j}$,
+$U_{i,j+1}$ et $U_{i,j-1}$ affectés des poids respectifs :
+$\alpha = \dfrac{k^2}{2(k^2 + h^2)}$, $\alpha$,
+$\beta = \dfrac{h^2}{2(k^2 + h^2)}$ et $\beta$. Puisque ces poids sont tous
+positifs, $U_{ij}$ est donc compris entre la plus grande et la plus petite des
+quantités $U_{i+1,j}$, $U_{i-1,j}$, $U_{i,j+1}$ et $U_{i,j-1}$. D'où le
+théorème suivant :
+
+\paragraph{\underline{Théorème}} Dans le cas de l'équation de Laplace, il n'y
+a pas de maximum et de minimum stricts de $U$ à l'intérieur du domaine $D$. Le
+maximum et le minimum sont atteints sur les frontières de $D$.
+
+\paragraph{\underline{Remarque}} D'autres schémas de différences finies
+peuvent être établis à partir des formules de discrétisation des dérivées. Par
+exemple, on peut définir $\dfrac{\partial^2 U}{\partial x^2}$ par des schémas
+présentant des erreurs d'ordre $O(h^4 + k^4)$.
+
+\section{Équation de la chaleur}
+
+\subsection{Problème à une dimension d'espace}
+
+Nous nous limiterons au cas unidimensionnel. On a l'équation :
+\begin{equation}
+  \frac{\partial U}{\partial t} = a^2\frac{\partial^2 U}{\partial x^2}
+  \tag{C1}
+\end{equation}
+dans le domaine $D = T \times L$ ; où $T = \R_+$ et $L = \,]0, l[$.
+
+Les conditions aux limites sont : $U(0, t) = 0$, $U(l, t) = 0$.
+
+Et la condition initiale est
+\[
+  U(x, 0) = f(x) .
+\]
+Il s'agit par exemple d'une tige de longueur $l$ dont les extrémités $x = 0$
+et $x = l$ sont maintenues à la température $U = 0$. À l'instant initial, on
+la soumet à une distribution de température $U(x, 0) = f(x)$. Il est question
+de suivre l'évolution temporelle de la température dans la poutre.
+
+\subsection{Méthode des différences progressives ou schéma explicite}
+
+Soit $h$ le pas spatial et $k$ le pas temporel et soit $m$ le nombre défini
+par $mh = l$.
+
+On a
+\[
+  \frac{\partial U}{\partial t} = \frac{U_{i,j+1} - U_{i,j}}{k}
+  \qquad\text{et}\qquad
+  \frac{\partial^2 U}{\partial x^2} = \frac{U_{i+1,j} - 2U_{i,j} + U_{i-1,j}}{h^2} .
+\]
+Dans le domaine $D$, on obtient alors le système discret suivant :
+\begin{equation}
+  U_{i,j+1} = \Bigl(1 - \frac{2a^2k}{h^2}\Bigr)U_{i,j}
+            + \frac{a^2k}{h^2}\bigl(U_{i+1,j} + U_{i-1,j}\bigr) ;
+  \quad i = 1, 2, \dots, m-1 ; \quad j = 0, 1, 2, \dots
+  \tag{C2}
+\end{equation}
+Le schéma (C2) présente une erreur de troncature d'ordre $O(k + h^2)$.
+
+C'est un schéma explicite car pour calculer $U_{i,j+1}$, il suffit de
+remplacer les quantités figurant au second membre par leurs valeurs connues et
+stockées en mémoire.
+
+Les conditions initiales et aux limites se discrétisent de la manière
+suivante :
+\begin{equation}
+  U_{i,0} = f(x_i), \; i = 0, 1, \dots, m \,; \qquad
+  U_{0,j} = 0 \;\text{ et }\; U_{m,j} = 0, \; j = 0, 1, 2, \dots
+  \tag{C3}
+\end{equation}
+La première condition (C3) peut être substituée dans (C2) pour déterminer
+$U_{i,1}$ pour $i$ allant de $1$ jusqu'à $m-1$. La condition $U_{0,j} = 0$ et
+$U_{m,j} = 0 \Longrightarrow U_{0,1} = U_{m,1} = 0$. On a alors toutes les
+valeurs de $U_{i,1}$. En procédant de la même manière, on obtient les valeurs
+de $U_{i,2}$, $U_{i,3}$ et ainsi de suite.
+
+L'inconvénient de cette méthode est qu'elle est conditionnellement stable. Il
+faut donc avoir une contrainte entre les pas $h$ et $k$ et les coefficients de
+l'équation pour obtenir des résultats satisfaisants. C'est la condition de
+stabilité que nous établissons dans le paragraphe qui suit.
+
+\subsection{Condition de stabilité du schéma explicite}
+
+Considérons le schéma aux différences finies progressives de l'équation de la
+chaleur. Soit une perturbation $\varepsilon_{ij}$ de la solution numérique
+$U_{i,j}$. La solution numérique devient alors
+$U'_{i,j} = U_{i,j} + \varepsilon_{ij}$. En écrivant que $U'_{ij}$ vérifie le
+schéma discret, on obtient que la perturbation $\varepsilon_{ij}$ vérifie
+aussi l'équation discrète :
+\[
+  \frac{\varepsilon_{i,j+1} - \varepsilon_{i,j}}{k}
+  = a^2\frac{\varepsilon_{i+1,j} - 2\varepsilon_{i,j} + \varepsilon_{i-1,j}}{h^2} .
+\]
+Le schéma discret est stable si $\varepsilon_{ij}$ reste borné ou tend vers 0
+au fur et à mesure que le temps avance. Pour avoir la condition de stabilité,
+nous supposons que
+\[
+  \varepsilon_{i,j} = \sin(iph)\,e^{-rjk} .
+\]
+Cette expression est utilisée en tenant compte de sa dépendance suivant
+l'espace $x = ih$ et doit satisfaire aux conditions aux limites. En
+introduisant cette expression dans l'équation vérifiée par $\varepsilon_{ij}$,
+on obtient :
+\[
+  e^{-rk} = 1 - \frac{4ka^2}{h^2}\sin^2\frac{ph}{2} .
+\]
+Or $\varepsilon_{i,j+1} = \varepsilon_{i,j}\,e^{-rk}$.
+
+Donc $e^{-rk}$ est le \emph{facteur d'amplification}.
+
+Le schéma est stable si le facteur d'amplification est inférieur à 1 (en
+module). Dans le cas particulier analysé ici, cette condition implique que :
+\[
+  \abs{1 - \frac{4ka^2}{h^2}\sin^2\frac{ph}{2}} < 1
+  \;\Longrightarrow\;
+  \abs{1 - \frac{4ka^2}{h^2}} < 1
+  \;\Longrightarrow\;
+  \frac{ka^2}{h^2} < \frac{1}{2} .
+\]
+
+\subsection{Autres schémas}
+
+\subsubsection{Différences finies régressives ou schéma implicite}
+
+Afin d'éviter l'utilisation d'une condition de stabilité, on peut utiliser les
+différences finies régressives pour la dérivée temporelle ; c'est-à-dire
+\begin{equation}
+  \frac{\partial U}{\partial t} = \frac{U_{i,j} - U_{i,j-1}}{k} .
+  \tag{C4}
+\end{equation}
+L'équation de la chaleur (C1) donne alors le système discret suivant :
+\begin{equation}
+  (1 + 2\lambda)\,U_{i,j} - \lambda U_{i+1,j} - \lambda U_{i-1,j} = U_{i,j-1}
+  \qquad\text{pour}\quad 1 \le i \le m-1 \quad\text{et}\quad 1 \le j \le \infty
+  \tag{C5}
+\end{equation}
+où $\lambda = a^2k/h^2$.
+
+Compte tenu des conditions initiales et des conditions aux limites, on obtient
+un système matriciel tri-diagonal que l'on peut résoudre par les méthodes
+itératives ou la méthode d'élimination de Gauss.
+
+Pour déterminer la condition de stabilité, on procède de la même façon que
+précédemment. On trouve pour ce schéma implicite, que le facteur
+d'amplification est
+\[
+  e^{-rk} = \frac{1}{1 + \dfrac{4ka^2}{h^2}\sin^2\dfrac{ph}{2}} .
+\]
+On note qu'il est toujours inférieur à 1. Par conséquent, ce schéma est
+inconditionnellement stable.
+
+\subsubsection{Méthode de Richardson}
+
+Les méthodes ci-dessus ont une erreur de troncature d'ordre $O(k)$ en $k$. Si
+on veut obtenir une erreur d'ordre $O(k^2)$, on utilise la formule suivante :
+\begin{equation}
+  \frac{\partial U}{\partial t} = \frac{U_{i,j+1} - U_{i,j-1}}{2k} .
+  \tag{C6}
+\end{equation}
+Avec cette discrétisation de la dérivée temporelle, on aboutit à un schéma
+instable. Il n'est donc pas utilisé dans le cadre de l'équation de la
+chaleur.
+
+\subsubsection{Méthode de Crank-Nicolson}
+
+Cette méthode fait la somme du schéma des différences finies progressives et
+du schéma des différences régressives. Mais il faut au préalable écrire la
+formule des différences régressives à l'instant $j+1$. On obtient alors
+\[
+  \frac{U_{i,j+1} - U_{i,j}}{k}
+  - \frac{a^2}{2h^2}\bigl(U_{i+1,j} - 2U_{i,j} + U_{i-1,j}
+                         + U_{i+1,j+1} - 2U_{i,j+1} + U_{i-1,j+1}\bigr) = 0 .
+\]
+C'est une méthode plus précise qui présente une erreur d'ordre
+$O(h^2 + k^2)$.
+
+\subsubsection{Méthode de Dufort-Frankel}
+
+Pour résoudre le problème d'instabilité de la méthode de Richardson, la
+quantité $U_{ij}$ est remplacée par $\bigl(U_{i,j+1} + U_{i,j-1}\bigr)/2$ et
+on obtient
+\[
+  \frac{U_{i,j+1} - U_{i,j-1}}{2k}
+  - a^2\bigl(U_{i+1,j} - U_{i,j+1} - U_{i,j-1} + U_{i-1,j}\bigr)/h^2 = 0 .
+\]
+Ce schéma est inconditionnellement stable.
+
+\begin{exercice}[Exercices]
+\begin{enumerate}[label=\arabic*)]
+  \item Établir l'algorithme pour le schéma explicite.
+  \item Établir les conditions de stabilité des schémas de Crank-Nicolson et
+        de Dufort-Frankel.
+  \item Établir les algorithmes pour les méthodes des différences
+        régressives, de Crank-Nicolson et de Dufort-Frankel.
+\end{enumerate}
+\end{exercice}
+
+\section{Équation d'ondes}
+
+Nous considérons le problème suivant :
+\begin{equation}
+  \frac{\partial^2 U}{\partial t^2} - a^2\frac{\partial^2 U}{\partial x^2} = 0
+  \tag{O1}
+\end{equation}
+dans le domaine $D = T \times L$ et soumis aux conditions suivantes :
+\[
+  U(0, t) = U(l, t) = 0 \,; \qquad U(x, 0) = f(x) \,; \qquad
+  \frac{\partial U(x, 0)}{\partial t} = g(x) .
+\]
+Il s'agit par exemple d'une corde vibrante fixée à ses deux extrémités et
+excitée en une région par un déplacement transversal $U(x, 0) = f(x)$ et une
+vitesse de déplacement transversal $\dfrac{\partial U(x, 0)}{\partial t} = g(x)$.
+La question est de savoir comment cette perturbation va se propager le long de
+la corde.
+
+\subsection{Discrétisation directe}
+
+La discrétisation de (O1) par les différences finies donne :
+\begin{equation}
+  U_{i,j+1} = 2(1 - \lambda^2)\,U_{i,j} + \lambda^2\bigl(U_{i+1,j} + U_{i-1,j}\bigr) - U_{i,j-1}
+  \tag{O2}
+\end{equation}
+où $\lambda = ak/h$, $m = l/h$ et $i = 1, \dots, m-1$ ; $j = 1, \dots, \infty$.
+
+Les conditions aux limites donnent :
+\begin{equation}
+  U_{0,j} = U_{m,j} = 0 .
+  \tag{O3}
+\end{equation}
+La première condition initiale donne
+\begin{equation}
+  U_{i,0} = f(x_i) .
+  \tag{O4}
+\end{equation}
+La deuxième condition initiale permet d'écrire :
+\begin{equation}
+  U_{i,1} = U_{i,0} + k\,g(x_i) .
+  \tag{O5}
+\end{equation}
+Mais (O5) présente une erreur de troncature d'ordre $O(k)$. Pour avoir une
+erreur d'ordre $O(k^2)$ comme l'équation (O2), on procède de la manière
+suivante.
+\[
+  \frac{\partial U(x_i, 0)}{\partial t}
+  = \frac{U(x_i, t_1) - U(x_i, 0)}{k}
+  - \frac{k}{2}\frac{\partial^2 U(x_i, 0)}{\partial t^2} + O(k^2) .
+\]
+Or
+\[
+  \frac{\partial^2 U(x_i, 0)}{\partial t^2}
+  = a^2\frac{\partial^2 U(x_i, 0)}{\partial x^2}
+  = a^2\frac{\partial^2 f}{\partial x^2}
+  = a^2\frac{f_{i+1} - 2f_i + f_{i-1}}{h^2} .
+\]
+En utilisant la condition initiale, on obtient finalement :
+\begin{equation}
+  U_{i,1} = (1 - \lambda^2)\,f_i + \frac{\lambda^2}{2}\bigl(f_{i+1} + f_{i-1}\bigr) + kg_i
+  \tag{O6}
+\end{equation}
+avec $i = 1, \dots, m-1$.
+
+Il s'agit donc de résoudre le système discret formé des équations (O2) et
+(O6). La recherche des valeurs $U_{i,j+1}$ nécessite la connaissance des
+valeurs $U_{i,j}$ et $U_{i,j-1}$. Au début, il faut connaître $U_{i,0}$ et
+$U_{i,1}$. Les valeurs de $U_{i,0}$ découlent de (O4) et celles de $U_{i,1}$
+découlent de (O6). On peut ainsi lancer le processus itératif pour calculer
+toutes les valeurs de $U_{ij}$.
+
+Il faut noter que ce schéma de discrétisation directe a une condition de
+stabilité qui est
+\[
+  \lambda < 1 \,; \quad\text{c'est-à-dire}\quad ak/h < 1 .
+\]
+
+\begin{exercice}
+\begin{enumerate}[label=\alph*-]
+  \item Établir la condition de stabilité du schéma explicite ci-dessus.
+  \item Établir l'algorithme du schéma explicite ci-dessus.
+\end{enumerate}
+\end{exercice}
+
+\subsection{Décomposition en un système d'équations du premier ordre}
+
+Dans certains cas, il est avantageux de décomposer l'équation d'ondes en deux
+équations du premier ordre avant de discrétiser.
+
+Par exemple, en posant
+\[
+  V = \frac{\partial U}{\partial x} \qquad\text{et}\qquad
+  W = \frac{1}{a}\frac{\partial U}{\partial t},
+\]
+l'équation d'ondes devient le système d'équations suivant
+\[
+  \left\{
+  \begin{aligned}
+    \frac{\partial V}{\partial t} &= a\frac{\partial W}{\partial x}\\[0.4em]
+    \frac{\partial W}{\partial t} &= a\frac{\partial V}{\partial x}
+  \end{aligned}
+  \right.
+\]
+Ce système d'équations peut être discrétisé de manière explicite et de manière
+implicite.
+
+\subsubsection{Discrétisation explicite}
+
+Pour la discrétisation explicite, on peut utiliser la discrétisation par les
+différences finies progressives dans le temps et par les différences centrées
+dans l'espace. On obtient alors
+\[
+  \left\{
+  \begin{aligned}
+    V_{i,j+1} &= V_{i,j} + \frac{ak}{2h}\bigl(W_{i+1,j} - W_{i-1,j}\bigr)\\[0.3em]
+    W_{i,j+1} &= W_{i,j} + \frac{ak}{2h}\bigl(V_{i+1,j} - V_{i-1,j}\bigr)
+  \end{aligned}
+  \right.
+\]
+Pour établir la condition de stabilité, posons
+\[
+  \left\{
+  \begin{aligned}
+    V_{i,j} &= A_j\,e^{Ipih}\\
+    W_{i,j} &= B_j\,e^{Ipih}
+  \end{aligned}
+  \right.
+  \qquad\text{où } I^2 = -1 .
+\]
+En substituant dans le système discret, on obtient
+\[
+  \left\{
+  \begin{aligned}
+    V_{i,j+1} &= \Bigl[A_j + B_j\,\frac{Iak}{h}\sin ph\Bigr]e^{Ipih}\\[0.3em]
+    W_{i,j+1} &= \Bigl[B_j + A_j\,\frac{Iak}{h}\sin ph\Bigr]e^{Ipih}
+  \end{aligned}
+  \right.
+\]
+or
+\[
+  \left\{
+  \begin{aligned}
+    V_{i,j+1} &= A_{j+1}\,e^{Ipih}\\
+    W_{i,j+1} &= B_{j+1}\,e^{Ipih}
+  \end{aligned}
+  \right.
+\]
+En comparant ces expressions, on obtient
+\[
+  \begin{pmatrix} A_{j+1}\\ B_{j+1} \end{pmatrix}
+  = \begin{pmatrix} 1 & Ic\\ Ic & 1 \end{pmatrix}
+    \begin{pmatrix} A_{j}\\ B_{j} \end{pmatrix}
+  \qquad\text{où}\quad c = \frac{ak}{h}\sin ph .
+\]
+La matrice d'amplification est donc
+\[
+  A = \begin{pmatrix} 1 & Ic\\ Ic & 1 \end{pmatrix}.
+\]
+La stabilité du schéma exige que les valeurs propres de la matrice
+d'amplification $A$ aient des modules inférieurs à 1. Dans le cas présent, les
+modules des valeurs propres de $A$ sont tous supérieurs à 1. Donc le schéma
+est inconditionnellement instable.
+
+\subsubsection{Amélioration du schéma explicite}
+
+Compte tenu de cette instabilité inconditionnelle, on peut améliorer le schéma
+naturel ci-dessus. On peut trouver tous les $V_{i,j+1}$ de la première
+équation et les utiliser ensuite dans la deuxième équation. On obtient alors le
+schéma discret suivant :
+\[
+  \left\{
+  \begin{aligned}
+    V_{i,j+1} &= V_{i,j} + \frac{ak}{2h}\bigl(W_{i+1,j} - W_{i-1,j}\bigr)\\[0.3em]
+    W_{i,j+1} &= W_{i,j} + \frac{ak}{2h}\bigl(V_{i+1,j+1} - V_{i-1,j+1}\bigr)
+  \end{aligned}
+  \right.
+\]
+Pour un tel schéma, la matrice d'amplification est
+\[
+  A = \begin{pmatrix} 1 & Ic\\ Ic & 1 - c^2 \end{pmatrix}.
+\]
+On prouve que le schéma est stable si et seulement si $\dfrac{ak}{h} < 2$.
+
+\subsubsection{Schéma implicite}
+
+On peut avoir un schéma implicite en discrétisant les dérivées spatiales à
+l'instant $j+1$ et les dérivées temporelles par les différences progressives.
+On obtient alors
+\[
+  \left\{
+  \begin{aligned}
+    V_{i,j+1} &= V_{i,j} + \frac{ak}{2h}\bigl(W_{i+1,j+1} - W_{i-1,j+1}\bigr)\\[0.3em]
+    W_{i,j+1} &= W_{i,j} + \frac{ak}{2h}\bigl(V_{i+1,j+1} - V_{i-1,j+1}\bigr)
+  \end{aligned}
+  \right.
+\]
+Les valeurs propres de la matrice d'amplification sont dans ce cas
+$1/(1 + Ic)$, $1/(1 - Ic)$.
+
+Elles sont toutes de module $< 1$. Donc ce schéma implicite est
+inconditionnellement stable.
+
+\subsubsection{Schéma de Lax}
+
+Si dans le schéma explicite naturel (premier schéma), on remplace $V_{i,j}$ et
+$W_{i,j}$ par leurs valeurs moyennes respectives entre $i-1$ et $i+1$, alors
+on obtient le schéma de Lax qui s'écrit
+\[
+  \left\{
+  \begin{aligned}
+    V_{i,j+1} &= \frac{1}{2}\bigl(V_{i+1,j} + V_{i-1,j}\bigr)
+               + \frac{ak}{2h}\bigl(W_{i+1,j} - W_{i-1,j}\bigr)\\[0.3em]
+    W_{i,j+1} &= \frac{1}{2}\bigl(W_{i+1,j} + W_{i-1,j}\bigr)
+               + \frac{ak}{2h}\bigl(V_{i+1,j} - V_{i-1,j}\bigr)
+  \end{aligned}
+  \right.
+\]
+Dans ce cas la matrice d'amplification est
+\[
+  A = \begin{pmatrix} \cos ph & Ic\\ Ic & \cos ph \end{pmatrix}.
+\]
+La condition de stabilité est $ak/h < 1$.
+
+\subsubsection{Schéma de Lax-Wendroff}
+
+Pour ce schéma, on développe $V_{i,j+1}$ et $W_{i,j+1}$ jusqu'à l'ordre 2.
+Par exemple
+\[
+  V_{i,j+1} = V_{i,j} + k\frac{\partial V_{i,j}}{\partial t}
+            + \frac{k^2}{2}\frac{\partial^2 V_{i,j}}{\partial t^2}
+            = V_{i,j} + ka\frac{\partial W_{i,j}}{\partial x}
+            + \frac{k^2a^2}{2}\frac{\partial^2 V_{i,j}}{\partial x^2} .
+\]
+En faisant la même chose sur $W$, on obtient le schéma discret de
+Lax-Wendroff suivant :
+\[
+  \left\{
+  \begin{aligned}
+    V_{i,j+1} &= V_{i,j} + \frac{ak}{2h}\bigl(W_{i+1,j} - W_{i-1,j}\bigr)
+               + \frac{a^2k^2}{2h^2}\bigl(V_{i+1,j} - 2V_{i,j} + V_{i-1,j}\bigr)\\[0.3em]
+    W_{i,j+1} &= W_{i,j} + \frac{ak}{2h}\bigl(V_{i+1,j} - V_{i-1,j}\bigr)
+               + \frac{a^2k^2}{2h^2}\bigl(W_{i+1,j} - 2W_{i,j} + W_{i-1,j}\bigr)
+  \end{aligned}
+  \right.
+\]
+La matrice d'amplification est
+\[
+  A = \begin{pmatrix}
+    1 + \dfrac{a^2k^2}{h^2}(\cos ph - 1) & \dfrac{Iak}{h}\sin ph\\[1em]
+    \dfrac{Iak}{h}\sin ph & 1 + \dfrac{a^2k^2}{h^2}(\cos ph - 1)
+  \end{pmatrix}.
+\]
+La condition de stabilité : $\dfrac{ak}{h} < 1$.
+
+\paragraph{Remarque} Il faut noter cependant que lorsqu'une équation
+hyperbolique présente des conditions initiales discontinues, la méthode des
+différences finies n'est plus adaptée ; on doit faire appel à d'autres
+méthodes telle que la méthode des caractéristiques.

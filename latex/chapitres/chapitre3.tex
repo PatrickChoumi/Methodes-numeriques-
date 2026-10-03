@@ -1,0 +1,602 @@
+\chapter{Traitement numérique des mesures expérimentales}
+
+Ce chapitre est utile lorsque nous avons obtenu des mesures expérimentales et
+voulons les traiter. Les techniques numériques utilisées pour le traitement de
+ces données portent essentiellement sur l'interpolation et l'approximation des
+fonctions.
+
+\section{Généralités}
+
+\subsection{Position du problème}
+
+L'interpolation et l'approximation des fonctions sont des techniques
+numériques très utilisées en sciences expérimentales. Le problème est le
+suivant :
+
+Nous avons une grandeur $y$ qui dépend d'une variable $x$. Nous connaissons
+les valeurs $y_i$ de cette grandeur en un certain nombre de valeurs discrètes
+ou points discrets $x_1, x_2, \dots, x_n$. Nous voulons approximer $y$ par une
+fonction analytique $y = f(x)$ telle que
+\[
+  y_1 = f(x_1),\quad y_2 = f(x_2),\quad \dots,\quad y_n = f(x_n).
+\]
+L'expression de $f(x)$ pourra ainsi permettre de déterminer les valeurs de la
+fonction en des points autres que ceux de la suite discrète. On parle alors de
+l'art de lire entre les lignes d'une table ou d'\emph{interpolation}. Ces
+points où on cherche les nouvelles valeurs de $y$ peuvent être inaccessibles
+expérimentalement (soit parce qu'ils sont éloignés de la plage de mesure de
+l'appareil utilisé, soit parce que la précision de l'appareil de mesure ne
+permet pas d'atteindre ces points).
+
+Un tel problème n'admet pas de solution univoquement déterminée. Notons aussi
+que l'expression analytique écrite de $f(x)$ ne nous intéresse pas
+particulièrement puisqu'elle peut être gérée par l'ordinateur pour lire entre
+les lignes d'une table. Mais on peut avoir besoin d'une telle expression pour
+les besoins d'analyse des courbes.
+
+Le problème peut se poser dans des cas où la grandeur $y$ dépend d'une seule
+variable $x$, de deux ou de trois variables.
+
+\subsection{Type d'interpolation}
+
+La fonction $f(x)$ peut avoir plusieurs formes. Lorsqu'elle est un polynôme,
+on parle d'interpolation \textbf{polynomiale}. Lorsque $f(x)$ est une fonction
+trigonométrique, on parle d'interpolation \textbf{trigonométrique}. On peut
+aussi avoir une interpolation par les fonctions exponentielles, des polynômes
+de Legendre, les fonctions de Bessel, etc. Chacune de ces formes est choisie
+en fonction des prédictions dictées par la nature du problème et ce que l'on
+attend.
+
+Cependant en pratique, l'on choisit souvent la forme la plus simple pour
+$f(x)$, notamment la forme polynomiale. Dans le cas où l'on sait que la
+fonction est périodique, il est judicieux d'utiliser l'interpolation
+trigonométrique. La justification de l'un ou de l'autre type d'interpolation
+repose sur 2 théorèmes présentés par \textbf{Weierstrass} (en 1885).
+
+\paragraph{\underline{Théorème 1}} Toute fonction continue dans un intervalle
+$[a,b]$ peut être représentée dans cet intervalle et pour chaque degré de
+précision par un polynôme
+\[
+  f(x) = \sum_{n=0}^{N} a_n x^n .
+\]
+
+\paragraph{\underline{Théorème 2}} Toute fonction continue de période $2\pi$
+peut être représentée par une série trigonométrique limitée de la forme
+\[
+  f(x) = \sum_{n=0}^{N} \bigl(a_n\cos nx + b_n\sin nx\bigr).
+\]
+Les coefficients $a_n$ et $b_n$ sont déterminés par la connaissance des
+valeurs discrètes de la fonction sur l'intervalle $[a,b]$.
+
+\section{Interpolation polynomiale}
+
+Un polynôme de degré $n$ est défini par ses $(n+1)$ coefficients. Ainsi un
+polynôme d'interpolation de degré $n$ sera complètement déterminé par la
+connaissance de $(n+1)$ valeurs discrètes $y_i$. Il existe plusieurs formules
+pour déterminer l'interpolation polynomiale.
+
+\subsection{Formule d'interpolation de Lagrange}
+
+L'idée de base de la formule de Lagrange est de déterminer des polynômes
+$f_k(x)$ de degré $n$ qui prennent les valeurs 1 au point $x_k$ et 0 en tout
+point différent de $x_k$
+\[
+  \Longrightarrow\quad
+  f_k(x_{k'}) =
+  \begin{cases}
+    1 & \text{si } k' = k\\
+    0 & \text{si } k' \neq k
+  \end{cases}
+\]
+Le polynôme d'interpolation de Lagrange aura alors la forme
+\[
+  f(x) = y_1f_1(x) + y_2f_2(x) + \dots + y_{n+1}f_{n+1}(x)
+  \quad\Longrightarrow\quad
+  f(x) = \sum_{k=1}^{n+1} y_kf_k(x).
+\]
+
+\paragraph{Détermination de $f_k(x)$}
+
+Soit par exemple un ensemble de deux points $(x_1, y_1)$ et $(x_2, y_2)$. Les
+polynômes $f_k$ sont de degré 1, c'est-à-dire
+\[
+  f_1(x) = a_1 + b_1x\,; \qquad f_2(x) = a_2 + b_2x
+\]
+\[
+  \left\{
+  \begin{aligned}
+    f_1(x_1) &= 1\\
+    f_1(x_2) &= 0
+  \end{aligned}
+  \right.
+  \quad\text{et}\quad
+  \left\{
+  \begin{aligned}
+    f_2(x_1) &= 0\\
+    f_2(x_2) &= 1
+  \end{aligned}
+  \right.
+  \quad\Longrightarrow\quad
+  f_1(x) = \frac{x - x_2}{x_1 - x_2}, \qquad
+  f_2(x) = \frac{x - x_1}{x_2 - x_1}.
+\]
+Donc $y = y_1f_1(x) + y_2f_2(x)$.
+
+Si on avait un ensemble de trois points $(x_1, y_1)$, $(x_2, y_2)$,
+$(x_3, y_3)$, alors les polynômes seront de degré 2 et définis par :
+\[
+  f_1(x) = \frac{(x - x_2)(x - x_3)}{(x_1 - x_2)(x_1 - x_3)}, \quad
+  f_2(x) = \frac{(x - x_1)(x - x_3)}{(x_2 - x_1)(x_2 - x_3)}, \quad
+  f_3(x) = \frac{(x - x_1)(x - x_2)}{(x_3 - x_1)(x_3 - x_2)} .
+\]
+Dans ce cas, on a $y = y_1f_1(x) + y_2f_2(x) + y_3f_3(x)$. On parle alors
+d'\emph{interpolation quadratique}.
+
+En généralisant pour un ensemble de $n+1$ points, les polynômes de degré $n$
+tels que
+\[
+  f_k(x_{k'}) =
+  \begin{cases}
+    1 & \text{si } k' = k\\
+    0 & \text{si } k' \neq k
+  \end{cases}
+\]
+sont définis par
+\[
+  f_k(x) = \frac{\displaystyle\prod_{\substack{i=1\\ i\neq k}}^{n+1}(x - x_i)}
+                {\displaystyle\prod_{\substack{i=1\\ i\neq k}}^{n+1}(x_k - x_i)}
+  \qquad\text{et}\qquad
+  f(x) = \sum_{k=1}^{n+1} f_k(x)\,y_k .
+\]
+Le polynôme $f(x)$ est unique pour un ensemble de points $x_i$.
+
+\paragraph{Exemple} On donne le tableau suivant :
+\begin{center}
+  \begin{tabular}{|c|c|c|c|}
+    \hline
+    $x$ & $-1$ & $0$ & $1$\\ \hline
+    $y$ & $4$ & $1$ & $2$\\ \hline
+  \end{tabular}
+\end{center}
+$(x_1 = -1,\ x_2 = 0,\ x_3 = 1)$. D'après la formule de Lagrange, on a :
+\[
+  \begin{aligned}
+    f_1(x) &= \frac{(x - x_2)(x - x_3)}{(x_1 - x_2)(x_1 - x_3)} = \frac{x(x-1)}{2}, &
+    f_2(x) &= \frac{(x - x_1)(x - x_3)}{(x_2 - x_1)(x_2 - x_3)} = -(x^2 - 1),\\
+    f_3(x) &= \frac{(x - x_1)(x - x_2)}{(x_3 - x_1)(x_3 - x_2)} = \frac{(x+1)x}{2}
+  \end{aligned}
+\]
+d'où
+\[
+  \begin{aligned}
+    f(x) &= y_1f_1(x) + y_2f_2(x) + y_3f_3(x)\\
+    f(x) &= 2x(x-1) - (x^2 - 1) + x(x+1).
+  \end{aligned}
+\]
+
+À partir de l'expression de la fonction de Lagrange, on peut évaluer les
+valeurs $y_p$ pour toute valeur $x_p$ comprise entre deux points $x_k$
+(interpolation) ou en dehors des points $x_k$ (extrapolation). Pour ce faire,
+on utilise l'algorithme suivant :
+
+\begin{algo}
+  \State 1- Entrer les données $(x_k, y_k, x_p)$ avec $k = 1, 2, \dots, n+1$
+  \State 2- $y_p \leftarrow 0$
+  \State 3- \textbf{Pour} $k$ allant de $1$ jusqu'à $n+1$, \textbf{faire}
+  \State \hspace{2.2em} $y_s \leftarrow 1$
+  \State \hspace{2.2em} \textbf{Pour} $i$ allant de $1$ jusqu'à $n+1$, \textbf{faire}
+  \State \hspace{4.4em} \textbf{si} $i \neq k$
+  \State \hspace{5.5em} $y_s \leftarrow y_s\,\dfrac{(x_p - x_i)}{(x_k - x_i)}$
+  \State \hspace{2.2em} \textbf{Fin pour}
+  \State \hspace{2.2em} $y_p \leftarrow y_p + y_k\,y_s$
+  \State \hspace{1em} \textbf{Fin pour}
+  \State 4- \textbf{Écrire} $x_p$ et $y_p$
+  \State \textbf{Fin}
+\end{algo}
+
+\begin{exercice}
+Traduire cet algorithme dans un des langages de programmation de votre choix
+(Pascal, Fortran, C).
+\end{exercice}
+
+\subsection{Formule d'interpolation de Newton}
+
+\subsubsection{Par les différences divisées}
+
+On appelle différence divisée première des variables $x_i$ et $x_j$
+correspondant aux valeurs $y_i$ et $y_j$ la quantité $\delta(x_i, x_j)$
+\[
+  \delta(x_i, x_j) = \frac{y_i - y_j}{x_i - x_j} .
+\]
+La différence divisée seconde est
+\[
+  \delta(x_i, x_j, x_k) = \frac{\delta(x_i, x_j) - \delta(x_i, x_k)}{x_j - x_k} .
+\]
+La différence divisée d'ordre $m$ est
+\[
+  \delta(x_1, \dots, x_m) =
+  \frac{\delta(x_1, \dots, x_{m-1}) - \delta(x_1, \dots, x_{m-2}, x_m)}{x_{m-1} - x_m} .
+\]
+Le polynôme d'interpolation de Newton se met sous la forme
+\[
+  \begin{aligned}
+    y = y_1 &+ \delta(x_1, x_2)(x - x_1) + \delta(x_1, x_2, x_3)(x - x_1)(x - x_2) + \dots\\
+            &\dots + \delta(x_1, x_2, \dots, x_{k+1})(x - x_1)(x - x_2)\cdots(x - x_k) .
+  \end{aligned}
+\]
+
+\subsubsection{Par les différences progressives et régressives}
+
+La quantité $\Delta y_k = y_{k+1} - y_k$ est appelée différence première
+progressive. La différence seconde progressive est
+$\Delta^2 y_k = \Delta y_{k+1} - \Delta y_k$ et la différence progressive
+d'ordre $\alpha$ est définie par
+\[
+  \Delta^{\alpha} y_k = \Delta^{\alpha-1} y_{k+1} - \Delta^{\alpha-1} y_k .
+\]
+On définit également la différence régressive d'ordre $\alpha$ de la manière
+suivante
+\[
+  \nabla^{\alpha} y_k = \nabla^{\alpha-1} y_k - \nabla^{\alpha-1} y_{k-1}
+  \qquad (\nabla y_k = y_k - y_{k-1}).
+\]
+Lorsque l'on a $x_{k+1} = x_k + h = x_1 + kh$, la formule d'interpolation par
+les différences divisées se réduit à :
+\[
+  f(x) = y_1 + \frac{\Delta y_1}{h}(x - x_1)
+             + \frac{\Delta^2 y_1}{h^2\,2!}(x - x_1)(x - x_2) + \dots
+             + \frac{\Delta^{k} y_1}{h^{k}\,k!}(x - x_1)(x - x_2)\cdots(x - x_k) .
+\]
+Cette dernière formule est souvent appelée \textbf{formule de
+Newton-Gregory}.
+
+Si par contre on a $x_{k+1} = x_k - h = x_1 - kh$, alors on peut utiliser la
+formule de Newton-Gregory régressive en remplaçant dans la formule précédente
+$\Delta$ par $\nabla$.
+
+\subsection{Erreurs d'interpolation polynomiale}
+
+Dans la méthode de Lagrange, en remplaçant la valeur exacte $y_{\exp}$ (que
+l'on aurait obtenue expérimentalement) par $y_p$, on commet une erreur de
+troncature qui peut être déterminée par le théorème suivant :
+
+\paragraph{\underline{Théorème}} Soit $f(x)$ le polynôme de degré $n$ qui
+satisfait la condition $f(x_k) = y_k$ $(k = 1, \dots, n+1)$ et définie dans
+l'intervalle $[a,b]$ qui contient les points $x_k$. Si $f$ est de classe
+$C^{n+1}$ sur $[a,b]$ ($n+1$ fois dérivable), alors pour toute valeur
+$x_p \in [a,b]$, il existe une valeur $\xi \in [a,b]$ telle que :
+\[
+  y_{\exp} - y_p = \Bigl[f^{(n+1)}(\xi)\big/(n+1)!\Bigr]
+                   (x_p - x_1)(x_p - x_2)\cdots(x_p - x_{n+1}) .
+\]
+Cette différence représente l'\textbf{erreur de troncature}.
+
+En supposant que les dérivées de la fonction $f$ sont uniformément bornées sur
+$[a,b]$, l'erreur de troncature \textbf{décroît lorsque $n$ croît}.
+
+\subsection{Interpolation Spline}
+
+\subsubsection{Problème et propriétés}
+
+L'interpolation Spline a originellement une formulation en mécanique. Elle est
+utilisée (en méthodes des éléments finis) pour résoudre numériquement les
+équations aux dérivées partielles. Son importance relève des inconvénients de
+l'interpolation de Lagrange.
+
+Le problème associé à l'interpolation Spline est le suivant :
+
+Soit $x_1, x_2, \dots, x_n$ points distincts compris dans un intervalle
+$[a,b]$ et soit $f_1, f_2, \dots, f_n$ $(y_i = f_i)$ les valeurs de la fonction
+en ces points, l'interpolation Spline est une interpolation cubique qui passe
+par les points $(x_i, f_i)$. C'est une fonction $S$ qui admet les propriétés
+suivantes :
+\begin{enumerate}[label=(\alph*)]
+  \item $S(x_i) = f_i$,
+  \item $S(x)$, $S'(x)$, $S''(x)$ sont continues sur $[a,b]$,
+  \item dans chaque intervalle $[x_i, x_{i+1}]$ pour $i = 1, \dots, n-1$,
+        $S(x)$ est un polynôme cubique (qui peut avoir des coefficients
+        différents dans chaque sous-intervalle),
+  \item si $g(x)$ est une autre fonction qui satisfait les conditions (a), (b)
+        et (c), alors on doit avoir
+        \[
+          \int_a^b \bigl(S''(x)\bigr)^2\,\dd x \;\le\; \int_a^b \bigl(g''(x)\bigr)^2\,\dd x .
+        \]
+\end{enumerate}
+Dans la terminologie de la mécanique, ces propriétés peuvent s'énoncer de la
+manière suivante :
+\begin{enumerate}[label=(\alph*)]
+  \item la courbe Spline doit passer par tous les n\oe uds ;
+  \item la courbe Spline n'est pas brisée ou ne se courbe pas suivant un angle
+        pointu ;
+  \item entre deux n\oe uds, la courbe Spline est un polynôme de degré 3 ;
+  \item la courbe Spline minimise l'énergie potentielle du système. Cette
+        propriété implique que
+        \[
+          S''(a) = S''(b) = 0 .
+        \]
+\end{enumerate}
+
+\subsubsection{Forme de l'interpolation Spline}
+
+Puisque $S$ est un polynôme cubique pour $x_i \le x \le x_{i+1}$, $S''(x)$ est
+alors linéaire et la formule d'interpolation de $S''(x)$ est :
+\[
+  S''(x) = S''(x_i) + \frac{x - x_i}{x_{i+1} - x_i}\bigl[S''(x_{i+1}) - S''(x_i)\bigr].
+\]
+Après intégration, on obtient
+\[
+  S'(x) = S'(x_i) + S''(x_i)(x - x_i)
+        + \frac{S''(x_{i+1}) - S''(x_i)}{2(x_{i+1} - x_i)}(x - x_i)^2 .
+\]
+Une deuxième intégration donne :
+\begin{equation}
+  S(x) = f_i + S'(x_i)(x - x_i) + \frac{S''(x_i)}{2}(x - x_i)^2
+       + \frac{S''(x_{i+1}) - S''(x_i)}{6(x_{i+1} - x_i)}(x - x_i)^3 .
+  \tag{a}
+\end{equation}
+À partir de ces définitions, on peut établir les relations suivantes :
+\begin{equation}
+  S''_{i-1}h_{i-1} + 2(h_i + h_{i-1})S''_i + S''_{i+1}h_i
+  = 6\left[\frac{f_{i+1} - f_i}{h_i} - \frac{f_i - f_{i-1}}{h_{i-1}}\right]
+  \qquad (i = 2, \dots, n-1)
+  \tag{b}
+\end{equation}
+où $h_i = x_{i+1} - x_i$, $S''_i = S''(x_i)$.
+
+On a aussi pour $i = 2, \dots, n-1$
+\[
+  S'_i = \frac{f_{i+1} - f_i}{h_i} - S''_{i+1}\frac{h_i}{6} - S''_i\frac{h_i}{3} .
+\]
+Les valeurs $S''_1$ et $S''_n$ sont déterminées par la quatrième propriété de
+l'interpolation Spline à savoir
+\[
+  S''(a) = S''(b) = 0 \quad\Longrightarrow\quad S''_1 = S''_n = 0 .
+\]
+L'équation (b) donne un système algébrique linéaire dont la résolution permet
+de trouver tous les $S''_i$. On les substitue dans (a) pour avoir les
+fonctions $S(x)$ dans les intervalles $(x_i\,;\,x_{i+1})$.
+
+\subsection{Autres types d'interpolation polynomiale}
+
+Dans les applications, d'autres renseignements peuvent être connus sur la
+fonction $f$. Par exemple, si la parité est connue, alors le polynôme est écrit
+sous la forme d'une somme de puissances paires de $x$ si la fonction est paire
+ou de puissances impaires si la fonction est impaire. Les coefficients du
+polynôme peuvent être déterminés comme dans le cas général.
+
+De plus il peut aussi arriver qu'en plus des valeurs $y_k = f(x_k)$, nous
+disposons des valeurs des dérivées $y'_k = f'(x_k)$. Dans ces cas on utilise
+la formule d'interpolation de \textbf{Hermite}. Il existe également d'autres
+types d'interpolation polynomiale telle que celle de \textbf{Stirling} définie
+à partir des différences centrées sur base entière, et celle de
+\textbf{Bessel} définie à partir des différences centrées sur base demi
+entière.
+
+La formule de Stirling s'utilise surtout lorsque $x_p$ est proche d'un n\oe ud
+$x_k$ tandis que celle de Bessel est adaptée au cas où $x_p$ est proche de
+\[
+  x_{k+1/2} = \frac{x_k + x_{k+1}}{2} .
+\]
+
+\paragraph{Remarque} L'opérateur de différence centrée sur base entière est
+défini par :
+\[
+  \delta f(x) = f\Bigl(x + \frac{h}{2}\Bigr) - f\Bigl(x - \frac{h}{2}\Bigr)
+  \;\longrightarrow\;
+  \delta f_k = f_{k+1/2} - f_{k-1/2} .
+\]
+
+\section{Interpolation trigonométrique, double et inverse}
+
+\subsection{Interpolation trigonométrique}
+
+Quand la fonction recherchée est périodique, on utilise l'interpolation
+trigonométrique. Ce problème a été d'abord analysé par Gauss et ensuite par
+Hermite.
+
+La formule d'interpolation de Hermite est la suivante :
+\[
+  f_k(x) = \prod_{\substack{i=1\\ i\neq k}}^{n+1}\sin(x - x_i)
+           \Bigg/ \prod_{\substack{i=1\\ i\neq k}}^{n+1}\sin(x_k - x_i)
+  \qquad\text{et}\qquad
+  f(x) = \sum_{k=1}^{n+1} f_k(x)\,y_k .
+\]
+La différence entre la formule de Gauss et celle de Hermite réside dans le
+fait que chez Gauss les arguments de la fonction sinus sont divisés par deux.
+
+\subsection{Interpolation double}
+
+\subsubsection{Problème}
+
+Au cours de certaines études, l'on peut être confronté à un problème
+d'interpolation à deux arguments, notamment dans le cas des problèmes plans où
+une grandeur physique $z$ dépend des coordonnées $x$ et $y$. Ce type de
+problème peut se résoudre de deux manières :
+\begin{enumerate}[label=(\roman*)]
+  \item on peut d'abord interpoler par rapport à une variable, ensuite par
+        rapport aux autres ;
+  \item on peut aussi trouver une formule d'interpolation qui utilise les
+        différences doubles.
+\end{enumerate}
+
+\subsubsection{Différences doubles ou à deux voies}
+
+Soit la fonction $Z = z(x,y)$ dont la valeur en un point $(x_m, y_e)$ est
+$z_{me}$. On note
+\[
+  \begin{aligned}
+    \Delta^{10} z_{me} &= \Delta_x z_{me} = z_{m+1,e} - z_{m,e}\\
+    \Delta^{01} z_{me} &= \Delta_y z_{me} = z_{m,e+1} - z_{me}
+  \end{aligned}
+\]
+Par exemple
+\[
+  \begin{aligned}
+    \Delta^{10} z_{11} &= z_{21} - z_{11}\\
+    \Delta^{11} z_{11} &= \Delta^2_{xy} z_{11} = \Delta^{10}(z_{12} - z_{11})
+                        = \Delta^{01} z_{21} - \Delta^{01} z_{11} .
+  \end{aligned}
+\]
+De façon générale
+\[
+  \Delta^{\alpha\beta} z_{11} = \Delta^{\alpha 0} z_{1,\beta+1}
+    - \beta\,\Delta^{\alpha 0} z_{1,\beta}
+    + \frac{\beta(\beta-1)}{2}\,\Delta^{\alpha 0} z_{1,\beta-1}
+    - \dots + (-1)^{\beta}\,\Delta^{\alpha 0} z_{11} .
+\]
+
+\subsubsection{Formule d'interpolation double}
+
+Elle est donnée par
+\[
+  \begin{aligned}
+    &z(x,y) = f(x,y) = z_{11}
+      + \frac{x - x_1}{h}\Delta^{10} z_{11} + \frac{y - y_1}{l}\Delta^{01} z_{11}\\
+    &\quad + \frac{1}{2!}\left[\frac{(x - x_1)(x - x_2)}{h^2}\Delta^{20} z_{11}
+        + \frac{2(x - x_1)(y - y_1)}{hl}\Delta^{11} z_{11}
+        + \frac{(y - y_1)(y - y_2)}{l^2}\Delta^{02} z_{11}\right]\\
+    &\quad + \dots\\
+    &\quad + \frac{1}{m!}\Biggl[\frac{(x - x_1)(x - x_2)\cdots(x - x_m)}{h^m}\Delta^{m0} z_{11}
+        + \frac{m(x - x_1)\cdots(x - x_{m-1})(y - y_1)}{h^{m-1}l}\Delta^{(m-1)1} z_{11}\\
+    &\qquad\quad + \frac{m(m-1)}{2}\,\frac{(x - x_1)\cdots(x - x_{m-2})(y - y_1)(y - y_2)}{h^{m-2}l^2}
+                \Delta^{(m-2)2} z_{11} + \dots\\
+    &\qquad\quad + \frac{(y - y_1)(y - y_2)\cdots(y - y_m)}{l^m}\Delta^{0m} z_{11}\Biggr]
+  \end{aligned}
+\]
+où $h$ et $l$ sont les pas suivant $x$ et suivant $y$.
+
+\subsection{Interpolation inverse}
+
+Elle consiste à déterminer $x_p$ connaissant $y_p$. On peut dans ce cas
+utiliser les formules d'interpolation décrites précédemment. Il suffira de
+remplacer $y$ par $x$.
+
+\section{Approximation par la méthode des moindres carrés}
+
+\subsection{Position du problème}
+
+La méthode d'approximation par les moindres carrés est utilisée dans de
+nombreuses applications sous des noms différents : optimisation linéaire,
+méthode de régression, lissage des courbes.
+
+Les expériences en physique peuvent contenir des milliers de mesures.
+L'utilisation des méthodes d'interpolation va alors conduire à des grandes
+erreurs d'arrondi et des calculs assez longs. La méthode des moindres carrés
+nous permet d'utiliser plusieurs fonctions pour obtenir une approximation
+simple.
+
+Par exemple, soit $f_1, f_2, \dots, f_m$ les valeurs correspondantes aux
+points $x_1, x_2, \dots, x_m$ et soit
+\[
+  f(x) = a_0 + a_1x + a_2x^2 + \dots + a_nx^n
+\]
+un polynôme d'approximation de degré $n$ avec $n \ll m$.
+
+Il est clair que puisque $n \ll m$, il n'est pas possible d'avoir $f$ telle
+que $\forall k$, $f(x_k) = f_k$. Mais on peut choisir $f$ telle que
+$f(x_k) \approx f_k$. La fonction $f$ sera bonne si la quantité (reste)
+\[
+  R = \bigl[f_1 - f(x_1)\bigr]^2 + \bigl[f_2 - f(x_2)\bigr]^2 + \dots
+      + \bigl[f_m - f(x_m)\bigr]^2
+\]
+est la plus petite possible. Il s'agit donc de trouver la fonction $f$ qui
+minimise le reste $R$.
+
+\subsection{Résolution du problème de l'approximation par les moindres
+carrés}
+
+Pour résoudre ce problème, on doit établir un système d'équations linéaires de
+la forme :
+\[
+  \frac{\partial R}{\partial a_k} = 0 \qquad\text{avec } k = 0, \dots, n .
+\]
+La solution de ce système permet alors de déterminer les coefficients $a_i$
+de $f$.
+
+Par exemple, considérons le cas polynomial de premier degré $(n = 1)$ où
+\[
+  f(x) = a_0 + a_1x .
+\]
+Le reste est
+\[
+  R = \sum_{k=1}^{m}\bigl[f_k - (a_0 + a_1x_k)\bigr]^2 .
+\]
+Pour que $R$ soit minimal, il faut que
+$\dfrac{\partial R}{\partial a_0} = 0$ et
+$\dfrac{\partial R}{\partial a_1} = 0$.
+
+On trouve alors
+\[
+  a_0 = \frac{\sum x_k^2\sum f_k - \sum x_k\sum x_kf_k}{m\sum x_k^2 - \left(\sum x_k\right)^2}
+  \qquad\text{et}\qquad
+  a_1 = \frac{m\sum x_kf_k - \sum x_k\sum f_k}{m\sum x_k^2 - \left(\sum x_k\right)^2}
+\]
+(établir en exercice).
+
+En général, on choisit $f(x)$ sous la forme
+\[
+  f(x) = a_0g_0(x) + a_1g_1(x) + \dots + a_ng_n(x)
+\]
+où les fonctions $g_k(x)$ peuvent être de natures différentes (polynôme,
+fonction rationnelle, logarithme, exponentielle, etc.).
+
+Le système d'équations à résoudre est alors défini de la manière suivante :
+\[
+  \left\{
+  \begin{aligned}
+    A_{00}a_0 + A_{01}a_1 + \dots + A_{0n}a_n &= b_0\\
+    A_{10}a_0 + A_{11}a_1 + \dots + A_{1n}a_n &= b_1\\
+    &\;\;\vdots\\
+    A_{n0}a_0 + A_{n1}a_1 + \dots + A_{nn}a_n &= b_n
+  \end{aligned}
+  \right.
+\]
+où
+\[
+  b_k = \sum_{i=1}^{m} g_k(x_i)\,f_i, \qquad
+  A_{kj} = \sum_{i=1}^{m} g_k(x_i)\,g_j(x_i)
+  \qquad\text{avec}\quad
+  \left\{
+  \begin{aligned}
+    j &= 0, 1, \dots, n\\
+    k &= 0, 1, \dots, n
+  \end{aligned}
+  \right.
+\]
+
+\begin{exercice}[Exercice 1]
+Écrire les algorithmes de calculs des coefficients $b_k$ et $A_{kj}$.
+\end{exercice}
+
+\begin{exercice}[Exercice 2]
+Les résultats d'une expérience sont donnés dans le tableau suivant :
+\begin{center}
+  \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+    $x$ & 1 & 2 & 3 & 4 & 5\\ \hline
+    $y$ & 1,6 & 2 & 2,3 & 2,4 & 2,5\\ \hline
+  \end{tabular}
+\end{center}
+On se propose de déterminer l'expression $y = f(x)$. Pour cela, on choisit
+\[
+  \text{a)}\quad y = a_0 + \frac{a_1}{x}
+  \qquad\text{et}\qquad
+  \text{b)}\quad y = a_0 + \frac{a_1}{x} + a_2e^{x} .
+\]
+En utilisant la méthode des moindres carrés, calculer les coefficients $a_0$,
+$a_1$ et $a_2$.
+\end{exercice}
+
+\begin{exercice}[Exercice 3]
+Du tableau suivant utiliser la formule d'interpolation de Lagrange pour
+déterminer $y_p$ pour $x_p = 102$ et $x_p$ pour $y_p = 13{,}5$.
+\begin{center}
+  \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+    $x$ & 93,0 & 96,2 & 100,0 & 104,2 & 108,7\\ \hline
+    $y$ & 11,38 & 12,80 & 14,70 & 17,07 & 19,91\\ \hline
+  \end{tabular}
+\end{center}
+\textit{Réponse :} $(x_p = 102$ et $y_p = 15{,}79)$, $(x_p = 97{,}65$ et
+$y_p = 13{,}5)$.
+\end{exercice}
