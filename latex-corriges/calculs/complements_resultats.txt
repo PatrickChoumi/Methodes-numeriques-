@@ -1,0 +1,53 @@
+=== III, ex. 2 : sommes intermediaires
+ S(1/x) = 2.283333333333333  S(1/x^2) = 1.4636111111111112  S(y) = 10.8  S(y/x) = 4.466666666666667
+ det = 2.1044444444444452  numerateur a0 = 5.608111111111114  numerateur a1 = -2.3266666666666644
+ residus a) : [0.040707, -0.112091, 0.003643, 0.01151, 0.05623]
+ S(e^x) = 233.2041839862982  S(e^x/x) = 56.44015818112164  S(e^2x) = 25472.839781473256  S(y e^x) = 567.3925558827151
+ conditionnement de la matrice normale b) : 143649.7533255221
+ residus b) : [0.020762, -0.079229, 0.043371, 0.027529, -0.012433]
+=== III, ex. 3 : poids de Lagrange
+ L_k(102) = [0.04341, -0.218191, 0.791622, 0.413053, -0.029894]  somme = 1.0  y_p = 15.793629329693662
+ L_k(13,5) (interpolation inverse) = [-0.084007, 0.710729, 0.435996, -0.069802, 0.007084]  x_p = 97.65575030563706
+=== IV, ex. 3 : valeurs et Romberg
+ h=0.2: f = [1.0, 0.833333, 0.714286, 0.625, 0.555556, 0.5]  somme interieure = 2.728174603174603
+ h=0.1: f = [1.0, 0.909091, 0.833333, 0.769231, 0.714286, 0.666667, 0.625, 0.588235, 0.555556, 0.526316, 0.5]  somme interieure = 6.187714031754279
+ Richardson (4 T_0.1 - T_0.2)/3 = 0.6931502306889303  erreur = 3.050128985049305e-06
+=== IV, ex. 6 : test de la formule (b-a)/18 [f(a) + 8 f(c) + 8 f(d) + f(b)] sur e^x, [0,1]
+ formule : 1.7181380719367985  erreur exact-formule = 0.00014375652224662971  prevision (b-a)^5 f''''/11520 ~ 0.00014311816585938614
+ Simpson 3/8 : erreur = -0.0002583249011225419
+=== IV, ex. 7 : sommes et borne
+ f = [4.0, 3.960396, 3.846154, 3.669725, 3.448276, 3.2, 2.941176, 2.684564, 2.439024, 2.209945, 2.0]
+ somme impairs = 15.724629320016637  somme pairs interieurs = 12.67463056905495
+ crochet = 94.24777841817645
+ max |f''''| sur [0,1] = 96.0  borne h^4/180 max = 5.333333333333334e-05
+=== IV, ex. 2 : differences
+ differences = [0.0846, 0.0888, 0.0934, 0.0983, 0.1032]
+=== V, ex. 6 : version trapezes (ordre 2) du schema integro-differentiel
+ N=10: erreur Euler = -2.077e-01   erreur trapezes = 5.853e-03
+ N=20: erreur Euler = -1.167e-01   erreur trapezes = 1.447e-03
+ N=40: erreur Euler = -6.216e-02   erreur trapezes = 3.609e-04
+ N=80: erreur Euler = -3.213e-02   erreur trapezes = 9.015e-05
+=== Ex. 1 : constante de Wien
+ hc/(k x_m) = 0.0028977719551851727 m.K ; g(0) = 0
+=== Ex. 2 : racines du polynome de Van der Waals (CO2, T = 300 K)
+ P=10.0: racines = [(2.354688+0j), (0.074891+0.030008j), (0.074891-0.030008j)]
+ P=50.0: racines = [(0.358484+0j), (0.088273+0.027548j), (0.088273-0.027548j)]
+=== Ex. 3 : depart y0 = (z-1)/4
+ y0 = 0.743440 -> y = 0.2999999984 en 8 iterations
+ z(0.3) = 3.973760932944608
+=== Ex. 4 : point d'equilibre de y' = -y - 0.5 y^4 + 2
+ y* = [np.float64(1.1439011119493803)]
+=== Ex. 5 : y(1, gamma) en fonction de gamma (a=b=c=1) et seconde solution (a=1, b=1, c=0.5)
+ a=b=c=1 : max_gamma y(1,gamma) = 0.693041519877515 atteint pour gamma ~ 2.1000000000000005
+ lambda = b c e^c (forme de Gelfand) : a=b=c=1 -> 2.718281828459045  ; a=b=1, c=0.5 -> 0.8243606353500641
+ a=b=1, c=0.5 : racines gamma = [1.49614872, 9.59420617]
+=== Ex. 6, 2) : monotonie de V(l, gamma)
+ V(1,gamma) pour gamma = 0.01, 0.1, 0.5, 1, 2 : [np.float64(1.717259), np.float64(1.723268), np.float64(1.842898), np.float64(2.122254), np.float64(2.874562)]
+=== Ex. 7 : tir + predicteur-correcteur sur y''' = 2x - y', y(0)=0, y'(0)=1, y(1)=sin 1 + 1 (exact y''(0)=2)
+ n=20: gamma = y''(0) = 2.00025923 (exact 2), erreur = 2.59e-04
+ n=40: gamma = y''(0) = 2.00006339 (exact 2), erreur = 6.34e-05
+ n=80: gamma = y''(0) = 2.00001560 (exact 2), erreur = 1.56e-05
+=== Ex. 13, 5) : bissection sur phi obtenue par Nystrom (exact phi = x - 1/2, zero en 0,5)
+ n=5: zero = 0.49471831 (exact 0,5)
+ n=9: zero = 0.49867958 (exact 0,5)
+ n=17: zero = 0.49966989 (exact 0,5)

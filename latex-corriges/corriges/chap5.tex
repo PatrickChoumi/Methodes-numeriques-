@@ -1,0 +1,319 @@
+\chapter{Chapitre V : équations différentielles et intégro-différentielles}
+
+Dans tout ce chapitre, les algorithmes ont été testés sur
+$y' = -2xy$, $y(0) = 1$, de solution exacte $y = e^{-x^2}$, en calculant
+$y(1)$ avec $n$ pas ($h = 1/n$).
+
+% ------------------------------------------------------------------
+\section{Exercice V.1 : algorithme de Runge-Kutta d'ordre 2}
+
+\Enonce{Écrire l'algorithme de la méthode de Runge-Kutta d'ordre 2.}
+
+\Pourquoi On a $y_{k+1} = y_k + \int_{x_k}^{x_{k+1}} f(x,y)\,\dd x$. La
+méthode des trapèzes donnerait
+$y_{k+1} = y_k + \tfrac h2\bigl[f(x_k,y_k) + f(x_{k+1},y_{k+1})\bigr]$, mais
+$y_{k+1}$ est inconnu dans le second membre. On le remplace par la prévision
+d'Euler $y_k + hf(x_k,y_k)$ : la formule devient explicite et reste d'ordre 2
+(erreur locale $O(h^3)$, erreur globale $O(h^2)$). Il faut deux évaluations
+de $f$ par pas ; on stocke la première dans une variable pour ne pas la
+recalculer.
+
+\Etapes
+\Etape{1} $L_1 = hf(x_k, y_k)$ (pente au début du pas).
+
+\Etape{2} $L_2 = hf(x_k + h, y_k + L_1)$ (pente au point prévu par Euler).
+
+\Etape{3} $y_{k+1} = y_k + (L_1 + L_2)/2$, puis $x_{k+1} = x_k + h$.
+
+\begin{algo}[ : Runge-Kutta d'ordre 2]
+  \Require $f$, $x_0$, $y_0$, $h$, $n$
+  \State $x \leftarrow x_0$ ; $y \leftarrow y_0$
+  \For{$k$ allant de $1$ à $n$}
+    \State $L_1 \leftarrow h\,f(x, y)$
+    \State $L_2 \leftarrow h\,f(x + h, y + L_1)$
+    \State $y \leftarrow y + (L_1 + L_2)/2$
+    \State $x \leftarrow x + h$
+    \Print $x$, $y$
+  \EndFor
+\end{algo}
+
+\Verif Erreurs sur $y(1)$ : $1{,}17\times 10^{-3}$ ($n = 10$),
+$3{,}01\times 10^{-4}$ ($n = 20$), $7{,}60\times 10^{-5}$ ($n = 40$). Chaque
+division de $h$ par 2 divise l'erreur par $3{,}9$ puis $4{,}0$ : ordre 2
+global.
+
+\Refs \BF{méthode d'Euler modifiée, p.~286}.
+
+% ------------------------------------------------------------------
+\section{Exercice V.2 : algorithme de Runge d'ordre 4}
+
+\Enonce{Établir l'algorithme de la méthode de Runge d'ordre 4.}
+
+\Pourquoi La méthode applique la formule de Simpson à l'intégrale
+$L = \int_{x_k}^{x_k+h} f\,\dd x$ ; les valeurs inconnues de $y$ au milieu et
+à la fin du pas sont remplacées par des prévisions. Le cours donne les quatre
+quantités $L_1, \dots, L_4$ à calculer dans un ordre précis, car chacune
+utilise les précédentes.
+
+\Etapes
+\Etape{1} $L_1 = hf(x_k, y_k)$.
+
+\Etape{2} $L_2 = hf(x_k + h, y_k + L_1)$ (prévision d'Euler en fin de pas).
+
+\Etape{3} $L_3 = hf(x_k + h, y_k + L_2)$ (prévision améliorée en fin de pas).
+
+\Etape{4} $L_4 = hf(x_k + h/2, y_k + L_1/2)$ (prévision au milieu du pas).
+
+\Etape{5} $y_{k+1} = y_k + (L_1 + 4L_4 + L_3)/6$ : ce sont les poids
+$1, 4, 1$ de Simpson.
+
+\begin{algo}[ : Runge d'ordre 4 (formules du cours)]
+  \Require $f$, $x_0$, $y_0$, $h$, $n$
+  \State $x \leftarrow x_0$ ; $y \leftarrow y_0$
+  \For{$k$ allant de $1$ à $n$}
+    \State $L_1 \leftarrow h\,f(x, y)$
+    \State $L_2 \leftarrow h\,f(x + h, y + L_1)$
+    \State $L_3 \leftarrow h\,f(x + h, y + L_2)$
+    \State $L_4 \leftarrow h\,f(x + h/2, y + L_1/2)$
+    \State $y \leftarrow y + (L_1 + 4L_4 + L_3)/6$
+    \State $x \leftarrow x + h$
+    \Print $x$, $y$
+  \EndFor
+\end{algo}
+
+\Verif et \textbf{remarque sur l'ordre.} Le cours annonce une erreur
+$O(h^5)$. Les essais numériques montrent un ordre plus faible pour ces
+formules précises : en divisant $h$ par 2, l'erreur globale est divisée par
+environ 8 (et non 16), soit une erreur globale $O(h^3)$ et une erreur locale
+$O(h^4)$.
+\begin{center}
+\begin{tabular}{lccc}
+  \toprule
+  & $n = 10$ & $n = 20$ & $n = 40$\\ \midrule
+  $y' = y$ : Runge (cours) & $-1{,}05\times 10^{-4}$ & $-1{,}36\times 10^{-5}$ & $-1{,}74\times 10^{-6}$\\
+  $y' = y$ : Runge-Kutta classique & $-2{,}08\times 10^{-6}$ & $-1{,}36\times 10^{-7}$ & $-8{,}67\times 10^{-9}$\\
+  $y' = -2xy$ : Runge (cours) & $-7{,}48\times 10^{-5}$ & $-9{,}06\times 10^{-6}$ & $-1{,}11\times 10^{-6}$\\
+  $y' = -2xy$ : Runge-Kutta classique & $1{,}63\times 10^{-6}$ & $1{,}03\times 10^{-7}$ & $6{,}41\times 10^{-9}$\\
+  \bottomrule
+\end{tabular}
+\end{center}
+La méthode de Runge-Kutta classique (dite de Kutta-Simpson dans le cours,
+$y_{k+1} = y_k + (L_1 + 2L_2 + 2L_3 + L_4)/6$) a bien une erreur divisée par 16 :
+c'est elle qu'il faut utiliser quand on veut l'ordre 4 \BF{alg.~5.2, p.~288}.
+
+\Refs \BF{alg.~5.2, p.~288} ; calculs du tableau :
+\fichier{tests_algorithmes.py} (fonctions \fichier{runge_cours} et
+\texttt{rk4}).
+
+% ------------------------------------------------------------------
+\section{Exercice V.3 : algorithme d'Adams-Bashforth d'ordre 2}
+
+\Enonce{Écrire l'algorithme de la méthode d'Adams-Bashforth du second ordre.}
+
+\Pourquoi La formule $y_{k+1} = y_k + \tfrac h2\bigl[3f(x_k,y_k) -
+f(x_{k-1},y_{k-1})\bigr]$ réutilise la pente du pas précédent : une seule
+nouvelle évaluation de $f$ par pas (au lieu de deux pour RK2). C'est une
+méthode \emph{à deux pas} : elle ne peut pas démarrer seule, il faut d'abord
+$y_1$, calculé par une méthode à un pas du même ordre (RK2, comme le propose le
+cours).
+
+\Etapes
+\Etape{1} Démarrage : $y_1$ par RK2 ; garder $f_0 = f(x_0, y_0)$ dans la variable
+$f_{\text{prec}}$.
+
+\Etape{2} Pour $k = 1, \dots, n-1$ : $f_k = f(x_k, y_k)$, puis
+$y_{k+1} = y_k + \tfrac h2(3f_k - f_{\text{prec}})$.
+
+\Etape{3} Décaler : $f_{\text{prec}} \leftarrow f_k$.
+
+\begin{algo}[ : Adams-Bashforth d'ordre 2]
+  \Require $f$, $x_0$, $y_0$, $h$, $n$
+  \State $x \leftarrow x_0$ ; $y \leftarrow y_0$
+  \State $f_{\text{prec}} \leftarrow f(x, y)$
+  \State $y \leftarrow y + \frac h2\bigl(f_{\text{prec}} + f(x + h, y + h f_{\text{prec}})\bigr)$ \Comment{démarrage RK2}
+  \State $x \leftarrow x + h$
+  \For{$k$ allant de $1$ à $n-1$}
+    \State $f_k \leftarrow f(x, y)$
+    \State $y \leftarrow y + \frac h2(3f_k - f_{\text{prec}})$
+    \State $f_{\text{prec}} \leftarrow f_k$
+    \State $x \leftarrow x + h$
+    \Print $x$, $y$
+  \EndFor
+\end{algo}
+
+\Verif Erreurs sur $y(1)$ : $-6{,}15\times 10^{-3}$, $-1{,}54\times 10^{-3}$,
+$-3{,}84\times 10^{-4}$ pour $n = 10, 20, 40$ : rapport 4, ordre 2.
+
+\Refs \BF{méthode d'Adams-Bashforth à deux pas, p.~307}.
+
+% ------------------------------------------------------------------
+\section{Exercice V.4 : prédicteur-correcteur AB2 -- RK2 et programme}
+
+\Enonce{Établir l'algorithme de la méthode de prédicteur-correcteur, utilisant
+comme prédicteur la formule d'Adams-Bashforth du second ordre et comme
+correcteur la formule de RK2, et le traduire en Pascal, Fortran ou C.}
+
+\Pourquoi La formule des trapèzes
+$y_{k+1} = y_k + \tfrac h2\bigl[f(x_k,y_k) + f(x_{k+1},y_{k+1})\bigr]$ est plus
+précise qu'Adams-Bashforth, mais implicite. On \emph{prédit} donc $y_{k+1}$ par
+Adams-Bashforth (explicite), puis on \emph{corrige} en mettant cette prévision
+dans le second membre de la formule des trapèzes. On gagne en précision pour
+deux évaluations de $f$ par pas.
+
+\Etapes
+\Etape{1} Démarrage : $y_1$ par RK2.
+
+\Etape{2} Prédiction : $p = y_k + \tfrac h2(3f_k - f_{k-1})$.
+
+\Etape{3} Correction : $y_{k+1} = y_k + \tfrac h2\bigl(f_k + f(x_{k+1}, p)\bigr)$.
+
+\Etape{4} On peut répéter la correction (en remplaçant $p$ par la valeur
+corrigée) pour se rapprocher de la solution de la formule implicite ; une seule
+correction suffit à garder l'ordre 2.
+
+\begin{algo}[ : prédicteur AB2 -- correcteur RK2]
+  \Require $f$, $x_0$, $y_0$, $h$, $n$
+  \State $x \leftarrow x_0$ ; $y \leftarrow y_0$ ; $f_{\text{prec}} \leftarrow f(x, y)$
+  \State $y \leftarrow y + \frac h2\bigl(f_{\text{prec}} + f(x + h, y + h f_{\text{prec}})\bigr)$ ; $x \leftarrow x + h$
+  \For{$k$ allant de $1$ à $n-1$}
+    \State $f_k \leftarrow f(x, y)$
+    \State $p \leftarrow y + \frac h2(3f_k - f_{\text{prec}})$ \Comment{prédicteur}
+    \State $y \leftarrow y + \frac h2\bigl(f_k + f(x + h, p)\bigr)$ \Comment{correcteur}
+    \State $f_{\text{prec}} \leftarrow f_k$ ; $x \leftarrow x + h$
+    \Print $x$, $y$
+  \EndFor
+\end{algo}
+
+\programme{C}{en C}{pc_ab2.c}
+
+\Verif Le programme donne $y(1) = 0{,}36961867$ pour $n = 10$, au lieu de
+$e^{-1} = 0{,}36787944$ : erreur $1{,}74\times 10^{-3}$, à comparer à
+$6{,}15\times 10^{-3}$ pour Adams-Bashforth seul. Avec $n = 20$ et $40$ :
+$3{,}66\times 10^{-4}$ et $8{,}38\times 10^{-5}$ (ordre 2).
+
+\Refs \BF{principe des méthodes prédicteur-correcteur, p.~310--311 ;
+alg.~5.4, p.~311} (version d'ordre 4).
+
+% ------------------------------------------------------------------
+\section{Exercice V.5 : algorithme de la méthode de tir}
+
+\Enonce{Établir l'algorithme de la méthode de tir.}
+
+\Pourquoi Les méthodes des sections précédentes avancent à partir de
+conditions \emph{initiales} ; elles ne savent pas imposer la valeur
+$y(b) = \eta_2$. On remplace la condition manquante $y'(a)$ par un paramètre
+$\gamma$, on résout le problème à valeurs initiales, et on ajuste $\gamma$
+pour que $F(\gamma) = y(b, \gamma) - \eta_2$ s'annule. La dérivée
+$F'(\gamma)$ n'étant pas connue, le cours la remplace par un quotient de
+différences entre deux tirs : c'est la méthode de la sécante. Il faut donc
+deux valeurs de départ, $\gamma_0$ et $\gamma_1$.
+
+\Etapes
+\Etape{1} Écrire l'équation du second ordre comme un système : $y' = z$,
+$z' = f(x, y, z)$, avec $y(a) = \eta_1$, $z(a) = \gamma$.
+
+\Etape{2} Tirer avec $\gamma_0$ et $\gamma_1$ (intégration par Runge-Kutta
+d'ordre 4 pour systèmes) et noter $y(b, \gamma_0)$, $y(b, \gamma_1)$.
+
+\Etape{3} Nouvelle valeur par la formule du cours :
+$\gamma_{n+1} = \gamma_n - (\gamma_n - \gamma_{n-1})\bigl(y(b,\gamma_n) - \eta_2\bigr)
+\big/\bigl(y(b,\gamma_n) - y(b,\gamma_{n-1})\bigr)$.
+
+\Etape{4} Arrêter quand $\abs{y(b,\gamma_n) - \eta_2} < \varepsilon$ ; garder la
+dernière trajectoire calculée, qui est la solution approchée.
+
+\begin{algo}[ : tir avec la sécante]
+  \Require $f$, $a$, $b$, $\eta_1$, $\eta_2$, $\gamma_0$, $\gamma_1$, $N$ (pas), $\varepsilon$, $k_{\max}$
+  \State $Y_0 \leftarrow y(b)$ obtenu par RK4 depuis $y(a) = \eta_1$, $z(a) = \gamma_0$
+  \For{$k$ allant de $1$ à $k_{\max}$}
+    \State $Y_1 \leftarrow y(b)$ obtenu par RK4 depuis $y(a) = \eta_1$, $z(a) = \gamma_1$
+    \If{$\abs{Y_1 - \eta_2} < \varepsilon$}
+      \Print $\gamma_1$ et la trajectoire $(x_i, y_i)$ \Stop
+    \EndIf
+    \State $\gamma \leftarrow \gamma_1 - (\gamma_1 - \gamma_0)(Y_1 - \eta_2)/(Y_1 - Y_0)$
+    \State $\gamma_0 \leftarrow \gamma_1$ ; $Y_0 \leftarrow Y_1$ ; $\gamma_1 \leftarrow \gamma$
+  \EndFor
+  \Print \og pas de convergence \fg{}
+\end{algo}
+La procédure \og RK4 pour un système \fg{} est détaillée à l'exercice 5 de la fin
+du document.
+
+\Verif Pour $y'' = -y$, $y(0) = 0$, $y(\pi/2) = 1$ (solution $\sin x$, donc
+$\gamma = 1$), avec $\gamma_0 = 0{,}5$, $\gamma_1 = 2$ : $\gamma = 1{,}0000000003$
+après 2 itérations. Pour un problème linéaire, $y(b,\gamma)$ est une fonction
+affine de $\gamma$ et la sécante trouve la valeur exacte (aux erreurs de RK4
+près) dès la première correction.
+
+\Refs \BF{§~11.2, sécante pour le tir p.~694 ; alg.~11.2, p.~696}
+(version avec Newton).
+
+% ------------------------------------------------------------------
+\section{Exercice V.6 : discrétisation de l'équation intégro-différentielle}
+
+\Enonce{Discrétiser l'équation intégro-différentielle
+$y'(x) = 2y(x) + f(x) + \int_0^x k(x,t)\,y(t)\,\dd t$.}
+
+\Attention Il faut une condition initiale $y(0) = y_0$, que l'énoncé ne donne
+pas ; on la suppose connue.
+
+\Pourquoi L'équation mélange une dérivée et une intégrale dont la borne
+supérieure est $x$ (type Volterra). Sur une grille $x_i = ih$, l'intégrale au
+point $x_i$ ne fait intervenir que $y_0, \dots, y_i$, c'est-à-dire des valeurs
+déjà calculées quand on avance de $x_i$ à $x_{i+1}$. On peut donc combiner une
+formule d'intégration (trapèzes) et un schéma pour la dérivée (Euler, puis
+trapèzes pour monter en ordre).
+
+\Etapes
+\Etape{1} Intégrale au nœud $x_i$ par les trapèzes composites :
+\[
+  I_i = h\Bigl[\tfrac12k(x_i,x_0)y_0 + \sum_{j=1}^{i-1} k(x_i,x_j)y_j
+        + \tfrac12k(x_i,x_i)y_i\Bigr], \qquad I_0 = 0 .
+\]
+
+\Etape{2} Second membre au nœud $x_i$ : $F_i = 2y_i + f(x_i) + I_i$.
+
+\Etape{3} Schéma d'Euler : $y_{i+1} = y_i + hF_i$, pour $i = 0, 1, \dots, N-1$.
+Il est explicite, d'ordre 1.
+
+\Etape{4} Variante d'ordre 2 (trapèzes en $x$) :
+$y_{i+1} = y_i + \tfrac h2(F_i + F_{i+1})$. Comme $F_{i+1}$ dépend
+\emph{linéairement} de $y_{i+1}$ (par $2y_{i+1}$ et par le dernier terme
+$\tfrac h2k(x_{i+1},x_{i+1})y_{i+1}$ de $I_{i+1}$), on isole $y_{i+1}$ :
+\[
+  y_{i+1}\Bigl[1 - \frac h2\Bigl(2 + \frac h2k(x_{i+1},x_{i+1})\Bigr)\Bigr]
+  = y_i + \frac h2\Bigl[F_i + f(x_{i+1})
+    + h\Bigl(\tfrac12k(x_{i+1},x_0)y_0 + \sum_{j=1}^{i}k(x_{i+1},x_j)y_j\Bigr)\Bigr].
+\]
+
+\begin{algo}[ : schéma d'Euler pour l'équation intégro-différentielle]
+  \Require $f$, $k$, $y_0$, $h$, $N$
+  \For{$i$ allant de $0$ à $N-1$}
+    \State $I \leftarrow 0$
+    \If{$i > 0$}
+      \State $I \leftarrow \frac12k(x_i,x_0)y_0 + \frac12k(x_i,x_i)y_i$
+      \For{$j$ allant de $1$ à $i-1$} \State $I \leftarrow I + k(x_i,x_j)\,y_j$ \EndFor
+      \State $I \leftarrow h\,I$
+    \EndIf
+    \State $y_{i+1} \leftarrow y_i + h\bigl(2y_i + f(x_i) + I\bigr)$
+  \EndFor
+\end{algo}
+(Il faut garder toutes les valeurs $y_j$ en mémoire, car l'intégrale les
+utilise toutes.)
+
+\Verif Test construit pour avoir une solution connue : $k = 1$,
+$f(x) = 1 - 2e^{x}$, $y(0) = 1$ ; alors $y = e^{x}$ convient (car
+$2e^{x} + 1 - 2e^{x} + (e^{x} - 1) = e^{x}$). Erreurs sur $y(1)$ :
+\begin{center}
+\begin{tabular}{lcccc}
+  \toprule
+  $N$ & 10 & 20 & 40 & 80\\ \midrule
+  Euler & $-2{,}08\times 10^{-1}$ & $-1{,}17\times 10^{-1}$ & $-6{,}22\times 10^{-2}$ & $-3{,}21\times 10^{-2}$\\
+  Trapèzes & $5{,}85\times 10^{-3}$ & $1{,}45\times 10^{-3}$ & $3{,}61\times 10^{-4}$ & $9{,}02\times 10^{-5}$\\
+  \bottomrule
+\end{tabular}
+\end{center}
+Les rapports successifs (environ 2 pour Euler, 4 pour les trapèzes)
+confirment les ordres 1 et 2.
+
+\Refs Formule des trapèzes : \BF{th.~4.5, p.~205} ; principe de l'intégration
+pas à pas : chapitre V du cours.

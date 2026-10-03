@@ -1,0 +1,370 @@
+\chapter{Chapitre VI : équations aux dérivées partielles}
+
+\paragraph{Outil commun : l'analyse de stabilité de von Neumann.}
+Plusieurs exercices demandent une condition de stabilité. On suit la démarche
+du cours. \emph{Pourquoi} : une erreur commise à un instant (arrondi, donnée)
+se propage par le schéma lui-même ; si elle est amplifiée à chaque pas, elle
+finit par détruire la solution. Pour un schéma linéaire à coefficients
+constants, on décompose la perturbation en modes de Fourier
+$\varepsilon_{i,j} = \xi^{\,j}e^{Ipih}$ ($I^2 = -1$) ; chaque mode est
+multiplié par le \emph{facteur d'amplification} $\xi$ à chaque pas de temps.
+\emph{Comment} : on remplace $\varepsilon_{i,j}$ dans le schéma, on simplifie
+par $\xi^{\,j}e^{Ipih}$, on obtient $\xi$ en fonction de $\theta = ph$, et le
+schéma est stable si $\abs{\xi} \le 1$ pour tous les $\theta$. Les identités
+utiles sont
+\[
+  e^{I\theta} + e^{-I\theta} - 2 = 2\cos\theta - 2 = -4\sin^2\frac{\theta}{2},
+  \qquad e^{I\theta} - e^{-I\theta} = 2I\sin\theta .
+\]
+Le cours utilise $\sin(iph)\,e^{-rjk}$, ce qui revient au même ($e^{-rk} = \xi$).
+On note $s = \sin^2(\theta/2) \in [0,1]$.
+
+% ------------------------------------------------------------------
+\section{Exercice VI.1 : Gauss-Seidel et Jacobi pour l'équation de Poisson}
+
+\Enonce{Écrire le schéma d'itération de Gauss-Seidel et de Jacobi pour
+résoudre l'équation de Poisson.}
+
+\Pourquoi Le système (P2)--(P3) a $(n-1)(m-1)$ inconnues mais chaque équation
+n'en contient que cinq. L'élimination de Gauss détruirait cette structure
+creuse (remplissage) et coûterait cher ; les méthodes itératives n'utilisent
+que les cinq voisins et ne stockent que la grille. C'est la méthode de
+Gauss-Seidel que Burden et Faires utilisent pour ce système dans leur
+algorithme 12.1 \BF{p.~738--739}.
+
+\Etapes
+\Etape{1} On isole $U_{i,j}$ dans (P2). Avec $r = h/k$ :
+\[
+  U_{i,j} = \frac{U_{i+1,j} + U_{i-1,j} + r^2\bigl(U_{i,j+1} + U_{i,j-1}\bigr) - h^2f_{i,j}}{2(1 + r^2)} .
+\]
+
+\Etape{2} Jacobi : tout le second membre est pris à l'itération $q$ ; il faut
+une deuxième grille $V$ pour les nouvelles valeurs.
+
+\Etape{3} Gauss-Seidel : on parcourt la grille ($i$ croissant, puis $j$
+croissant) et on écrase les valeurs ; $U_{i-1,j}$ et $U_{i,j-1}$ sont alors
+déjà à l'itération $q+1$ :
+\[
+  U^{(q+1)}_{i,j} = \frac{U^{(q)}_{i+1,j} + U^{(q+1)}_{i-1,j}
+     + r^2\bigl(U^{(q)}_{i,j+1} + U^{(q+1)}_{i,j-1}\bigr) - h^2f_{i,j}}{2(1 + r^2)} .
+\]
+
+\Etape{4} Les valeurs au bord, fixées par (P3), ne sont jamais modifiées. Test
+d'arrêt du chapitre I sur la somme des variations.
+
+\begin{algo}[ : Gauss-Seidel pour (P2)--(P3)]
+  \Require $a, b, c, d$, $n$, $m$, $f$, $g$, $\varepsilon$, $q_{\max}$
+  \State $h \leftarrow (b-a)/n$ ; $k \leftarrow (d-c)/m$ ; $r^2 \leftarrow (h/k)^2$
+  \State $U_{i,j} \leftarrow g(x_i, y_j)$ sur le bord ; $U_{i,j} \leftarrow 0$ à l'intérieur
+  \For{$q$ allant de $1$ à $q_{\max}$}
+    \State $\mathit{num} \leftarrow 0$ ; $\mathit{den} \leftarrow 0$
+    \For{$i$ allant de $1$ à $n-1$}
+      \For{$j$ allant de $1$ à $m-1$}
+        \State $t \leftarrow \bigl[U_{i+1,j} + U_{i-1,j} + r^2(U_{i,j+1} + U_{i,j-1}) - h^2f(x_i,y_j)\bigr]/\bigl(2(1+r^2)\bigr)$
+        \State $\mathit{num} \leftarrow \mathit{num} + \abs{t - U_{i,j}}$ ; $\mathit{den} \leftarrow \mathit{den} + \abs{t}$
+        \State $U_{i,j} \leftarrow t$
+      \EndFor
+    \EndFor
+    \If{$\mathit{num}/\mathit{den} < \varepsilon$} \Print $q$ et la grille $U$ \Stop \EndIf
+  \EndFor
+\end{algo}
+Pour Jacobi, on écrit $t$ dans une grille $V$ ($V_{i,j} \leftarrow t$), et on
+recopie $V$ dans $U$ à la fin de chaque itération.
+
+\Verif Le schéma à cinq points est exact quand les dérivées quatrièmes de la
+solution sont nulles \BF{p.~738}. Les algorithmes ont donc été testés sur des
+solutions polynomiales : $u = x^2 - y^2$ (Laplace, exercice 17) et
+$u = x^2 + y^2$ avec $f = 4$ (exercice 18) ; la solution discrète obtenue
+coïncide avec la solution exacte à $10^{-11}$ près.
+
+\Refs \BF{§~12.1, alg.~12.1, p.~738--739}.
+
+% ------------------------------------------------------------------
+\section{Exercice VI.2 : algorithme du schéma explicite (chaleur)}
+
+\Enonce{Établir l'algorithme pour le schéma explicite.}
+
+\Pourquoi Le schéma (C2) donne directement chaque $U_{i,j+1}$ à partir de la
+ligne de temps $j$ : on avance ligne par ligne. Il faut deux tableaux (ancien et
+nouveau temps), sinon $U_{i-1,j}$ serait écrasé par $U_{i-1,j+1}$ avant
+d'être utilisé. Le schéma n'est stable que si $\lambda = a^2k/h^2 \le 1/2$
+\BF{p.~746--747} : l'algorithme doit le vérifier avant de calculer.
+
+\Etapes
+\Etape{1} Lire $l$, $a$, $m$, $k$, le nombre de pas $N$ ; calculer $h = l/m$ et
+$\lambda$ ; refuser si $\lambda > 1/2$.
+
+\Etape{2} Condition initiale (C3) : $U_i = f(x_i)$, $U_0 = U_m = 0$.
+
+\Etape{3} Pour chaque pas de temps : appliquer (C2) aux points intérieurs dans
+le tableau $V$, imposer les conditions aux limites, recopier $V$ dans $U$.
+
+\begin{algo}[ : schéma explicite]
+  \Require $l$, $a$, $f$, $m$, $k$, $N$
+  \State $h \leftarrow l/m$ ; $\lambda \leftarrow a^2k/h^2$
+  \If{$\lambda > 1/2$} \Print \og schéma instable : diminuer $k$ \fg{} \Stop \EndIf
+  \For{$i$ allant de $0$ à $m$} \State $U_i \leftarrow f(ih)$ \EndFor
+  \State $U_0 \leftarrow 0$ ; $U_m \leftarrow 0$
+  \For{$j$ allant de $1$ à $N$}
+    \For{$i$ allant de $1$ à $m-1$}
+      \State $V_i \leftarrow (1 - 2\lambda)U_i + \lambda(U_{i+1} + U_{i-1})$
+    \EndFor
+    \State $V_0 \leftarrow 0$ ; $V_m \leftarrow 0$
+    \For{$i$ allant de $0$ à $m$} \State $U_i \leftarrow V_i$ \EndFor
+    \Print $jk$, $U_0, \dots, U_m$
+  \EndFor
+\end{algo}
+
+\Verif Programmé (avec d'autres conditions aux limites) dans
+\fichier{ex14_explicite.pas} : exercice 14 de la fin du document.
+
+\Refs \BF{§~12.2, méthode des différences progressives, p.~743--747}.
+
+% ------------------------------------------------------------------
+\section{Exercice VI.3 : stabilité de Crank-Nicolson et de Dufort-Frankel}
+
+\Enonce{Établir les conditions de stabilité des schémas de Crank-Nicolson et de
+Dufort-Frankel.}
+
+\Question{Crank-Nicolson.}
+\Pourquoi Le schéma moyenne les schémas progressif et régressif ; on s'attend à
+une stabilité aussi bonne que celle du schéma régressif.
+
+\Etape{1} Avec $\lambda = a^2k/h^2$, le schéma du cours s'écrit
+$\varepsilon_{i,j+1} - \varepsilon_{i,j} = \frac\lambda2\bigl[\delta^2\varepsilon_{i,j}
++ \delta^2\varepsilon_{i,j+1}\bigr]$, où
+$\delta^2\varepsilon_i = \varepsilon_{i+1} - 2\varepsilon_i + \varepsilon_{i-1}$.
+
+\Etape{2} Pour un mode de Fourier, $\delta^2$ devient la multiplication par
+$-4s$. D'où $\xi - 1 = \frac\lambda2(-4s)(1 + \xi)$, soit
+\[
+  \xi = \frac{1 - 2\lambda s}{1 + 2\lambda s} .
+\]
+
+\Etape{3} Pour $\lambda > 0$ et $s \in [0,1]$, le numérateur est toujours de
+valeur absolue inférieure ou égale au dénominateur : $\abs{\xi} \le 1$. Le
+schéma de Crank-Nicolson est \textbf{inconditionnellement stable}, sans
+condition sur $\lambda$.
+
+\Question{Dufort-Frankel.}
+\Pourquoi Le schéma de Richardson est instable ; Dufort et Frankel remplacent
+$U_{i,j}$ par la moyenne $(U_{i,j+1} + U_{i,j-1})/2$ dans le terme de
+diffusion pour le stabiliser. Il y a trois niveaux de temps : on obtient une
+équation du second degré en $\xi$.
+
+\Etape{1} Le schéma s'écrit
+$\varepsilon_{i,j+1} - \varepsilon_{i,j-1} = 2\lambda\bigl(\varepsilon_{i+1,j}
++ \varepsilon_{i-1,j} - \varepsilon_{i,j+1} - \varepsilon_{i,j-1}\bigr)$.
+
+\Etape{2} Avec $\varepsilon_{i,j} = \xi^{\,j}e^{Ii\theta}$ et division par
+$\xi^{\,j-1}e^{Ii\theta}$ :
+$\xi^2 - 1 = 2\lambda(2\xi\cos\theta - \xi^2 - 1)$, c'est-à-dire
+\[
+  (1 + 2\lambda)\,\xi^2 - 4\lambda\cos\theta\,\xi - (1 - 2\lambda) = 0 .
+\]
+
+\Etape{3} Racines :
+$\xi = \bigl[2\lambda\cos\theta \pm \sqrt{1 - 4\lambda^2\sin^2\theta}\,\bigr]/(1 + 2\lambda)$.
+\begin{itemize}
+  \item Si $4\lambda^2\sin^2\theta \le 1$, les racines sont réelles et
+        $\abs{\xi} \le (2\lambda\abs{\cos\theta} + 1)/(1 + 2\lambda) \le 1$.
+  \item Sinon, elles sont complexes conjuguées et
+        $\abs{\xi}^2 = \abs{\text{produit des racines}} =
+        (2\lambda - 1)/(2\lambda + 1) < 1$.
+\end{itemize}
+Dans tous les cas $\abs{\xi} \le 1$ : le schéma de Dufort-Frankel est
+\textbf{inconditionnellement stable}, comme l'affirme le cours.
+
+\Verif Le calcul numérique de $\max_\theta\abs{\xi}$ pour
+$\lambda = 0{,}1$ ; $0{,}5$ ; $1$ ; $5$ ; $50$ donne $1$ dans tous les cas, pour
+les deux schémas (le maximum $1$ est atteint pour $\theta = 0$).
+
+\paragraph{Remarque importante (consistance de Dufort-Frankel).} La stabilité ne
+suffit pas : l'erreur de troncature du schéma de Dufort-Frankel est
+$O(k^2 + h^2 + k^2/h^2)$. Le schéma ne converge vers la solution de
+l'équation de la chaleur que si $k/h \to 0$ [DF2]. Le test numérique le
+confirme sur $u_t = u_{xx}$, $u(x,0) = \sin\pi x$ (solution
+$e^{-\pi^2t}\sin\pi x$), erreur maximale à $t = 0{,}5$ :
+\begin{center}
+\begin{tabular}{lccc}
+  \toprule
+  & $h = 0{,}1$ & $h = 0{,}05$ & $h = 0{,}025$\\ \midrule
+  $k/h = 0{,}1$ fixé & $2{,}96\times 10^{-3}$ & $3{,}17\times 10^{-3}$ & $3{,}23\times 10^{-3}$\\
+  $\lambda = k/h^2 = 1$ fixé & $2{,}96\times 10^{-3}$ & $7{,}87\times 10^{-4}$ & $2{,}00\times 10^{-4}$\\
+  \bottomrule
+\end{tabular}
+\end{center}
+Avec $k/h$ constant, l'erreur ne diminue pas ; avec $k = h^2$, elle est
+divisée par 4 à chaque fois.
+
+\Refs Crank-Nicolson : \BF{p.~751--752} (inconditionnellement stable, ordre
+$O(k^2 + h^2)$). Dufort-Frankel : [VN] et [DF2] (bibliographie).
+
+% ------------------------------------------------------------------
+\section{Exercice VI.4 : algorithmes régressif, Crank-Nicolson, Dufort-Frankel}
+
+\Enonce{Établir les algorithmes pour les méthodes des différences régressives,
+de Crank-Nicolson et de Dufort-Frankel.}
+
+\Pourquoi Les deux premiers schémas sont implicites : à chaque pas, il faut
+résoudre un système linéaire. Ce système est \emph{tridiagonal} (chaque
+équation ne lie que $U_{i-1}$, $U_i$, $U_{i+1}$) et à diagonale strictement
+dominante ; on le résout par la factorisation de Crout pour matrices
+tridiagonales, en $O(m)$ opérations au lieu de $O(m^3)$. Comme la matrice ne
+change pas d'un pas à l'autre, on pourrait même la factoriser une seule fois.
+Le troisième schéma est explicite mais à trois niveaux : il lui faut
+$U^{(0)}$ et $U^{(1)}$ pour démarrer.
+
+\Question{Résolution d'un système tridiagonal (Crout).}
+Système $\ell_iU_{i-1} + d_iU_i + u_iU_{i+1} = r_i$, $i = 1, \dots, M$
+($\ell_1 = u_M = 0$). On factorise en une matrice bidiagonale inférieure (de
+diagonale $L_i$) fois une bidiagonale supérieure à diagonale unité (de
+sur-diagonale $S_i$), puis descente et remontée.
+
+\begin{algo}[ : Crout tridiagonal]
+  \State $L_1 \leftarrow d_1$ ; $S_1 \leftarrow u_1/L_1$ ; $z_1 \leftarrow r_1/L_1$
+  \For{$i$ allant de $2$ à $M$}
+    \State $L_i \leftarrow d_i - \ell_i\,S_{i-1}$
+    \If{$i < M$} \State $S_i \leftarrow u_i/L_i$ \EndIf
+    \State $z_i \leftarrow (r_i - \ell_i\,z_{i-1})/L_i$
+  \EndFor
+  \State $U_M \leftarrow z_M$
+  \For{$i$ allant de $M-1$ à $1$} \State $U_i \leftarrow z_i - S_i\,U_{i+1}$ \EndFor
+\end{algo}
+
+\Question{Différences régressives.}
+\Etape{1} (C5) aux points $i = 1, \dots, m-1$ : $\ell_i = u_i = -\lambda$,
+$d_i = 1 + 2\lambda$, $r_i = U_i^{(j-1)}$ (les termes de bord sont nuls ici
+car $U_0 = U_m = 0$).
+\Etape{2} À chaque pas : résoudre le système tridiagonal, la solution devient
+la nouvelle ligne.
+
+\Question{Crank-Nicolson.}
+\Etape{1} En multipliant le schéma du cours par $k$ :
+$(1 + \lambda)U_i^{(j+1)} - \frac\lambda2\bigl(U_{i+1}^{(j+1)} + U_{i-1}^{(j+1)}\bigr)
+ = (1 - \lambda)U_i^{(j)} + \frac\lambda2\bigl(U_{i+1}^{(j)} + U_{i-1}^{(j)}\bigr)$.
+\Etape{2} Donc $\ell_i = u_i = -\lambda/2$, $d_i = 1 + \lambda$, et $r_i$ égal au
+second membre calculé avec l'ancienne ligne.
+
+\Question{Dufort-Frankel.}
+\Etape{1} En multipliant le schéma du cours par $2k$ et en regroupant les
+termes en $U_i^{(j+1)}$ :
+$U_i^{(j+1)} = \bigl[(1 - 2\lambda)U_i^{(j-1)} + 2\lambda\bigl(U_{i+1}^{(j)} + U_{i-1}^{(j)}\bigr)\bigr]
+\big/(1 + 2\lambda)$.
+\Etape{2} Démarrage : $U^{(0)} = f$, puis $U^{(1)}$ par un pas de Crank-Nicolson
+(un schéma à un pas d'ordre 2).
+\Etape{3} Trois tableaux : ancien ($j-1$), courant ($j$) et nouveau ($j+1$).
+
+\begin{algo}[ : différences régressives et Crank-Nicolson]
+  \Require $l$, $a$, $f$, $m$, $k$, $N$, choix du schéma
+  \State $h \leftarrow l/m$ ; $\lambda \leftarrow a^2k/h^2$
+  \For{$i$ allant de $0$ à $m$} \State $U_i \leftarrow f(ih)$ \EndFor
+  \State $U_0 \leftarrow 0$ ; $U_m \leftarrow 0$
+  \For{$j$ allant de $1$ à $N$}
+    \For{$i$ allant de $1$ à $m-1$}
+      \If{régressif}
+        \State $\ell_i \leftarrow -\lambda$ ; $d_i \leftarrow 1 + 2\lambda$ ; $u_i \leftarrow -\lambda$ ; $r_i \leftarrow U_i$
+      \Else \Comment{Crank-Nicolson}
+        \State $\ell_i \leftarrow -\lambda/2$ ; $d_i \leftarrow 1 + \lambda$ ; $u_i \leftarrow -\lambda/2$
+        \State $r_i \leftarrow (1-\lambda)U_i + \frac\lambda2(U_{i+1} + U_{i-1})$
+      \EndIf
+    \EndFor
+    \State résoudre le système tridiagonal (Crout) ; ranger la solution dans $U_1, \dots, U_{m-1}$
+    \Print $jk$, $U$
+  \EndFor
+\end{algo}
+
+\begin{algo}[ : Dufort-Frankel]
+  \State $U^{\text{anc}}_i \leftarrow f(ih)$ ; $U^{\text{cour}} \leftarrow$ un pas de Crank-Nicolson depuis $U^{\text{anc}}$
+  \For{$j$ allant de $2$ à $N$}
+    \For{$i$ allant de $1$ à $m-1$}
+      \State $U^{\text{nouv}}_i \leftarrow \bigl[(1 - 2\lambda)U^{\text{anc}}_i
+         + 2\lambda(U^{\text{cour}}_{i+1} + U^{\text{cour}}_{i-1})\bigr]/(1 + 2\lambda)$
+    \EndFor
+    \State $U^{\text{nouv}}_0 \leftarrow 0$ ; $U^{\text{nouv}}_m \leftarrow 0$
+    \State $U^{\text{anc}} \leftarrow U^{\text{cour}}$ ; $U^{\text{cour}} \leftarrow U^{\text{nouv}}$
+  \EndFor
+\end{algo}
+
+\Verif Sur $u_t = u_{xx}$, $u(x,0) = \sin\pi x$, erreur maximale à $t = 0{,}5$
+pour $(h, k) = (0{,}1 ; 0{,}01)$, $(0{,}05 ; 0{,}005)$, $(0{,}025 ; 0{,}0025)$
+(donc $\lambda = 1, 2, 4$, valeurs pour lesquelles le schéma explicite serait
+instable) : régressif $2{,}19\times 10^{-3}$ ; $9{,}78\times 10^{-4}$ ;
+$4{,}63\times 10^{-4}$ (ordre 1 en $k$) ; Crank-Nicolson $2{,}68\times 10^{-4}$ ;
+$6{,}61\times 10^{-5}$ ; $1{,}65\times 10^{-5}$ (ordre 2). Aucun des deux ne
+diverge. Pour Dufort-Frankel, voir la remarque de l'exercice VI.3.
+
+\Refs \BF{alg.~6.7, p.~427 (Crout tridiagonal) ; alg.~12.2, p.~749 (régressif) ;
+alg.~12.3, p.~753 (Crank-Nicolson)}.
+
+% ------------------------------------------------------------------
+\section{Exercice VI.5 : équation d'ondes, stabilité et algorithme}
+
+\Enonce{a) Établir la condition de stabilité du schéma explicite (O2).
+b) Établir l'algorithme de ce schéma.}
+
+\Question{a) Stabilité.}
+\Pourquoi Le schéma (O2) a trois niveaux de temps : comme pour Dufort-Frankel,
+le facteur d'amplification est racine d'une équation du second degré.
+
+\Etape{1} Avec $\varepsilon_{i,j} = \xi^{\,j}e^{Ii\theta}$ et $\lambda = ak/h$,
+(O2) donne
+$\xi = 2(1 - \lambda^2) + \lambda^2(2\cos\theta) - \xi^{-1}$, soit
+\[
+  \xi^2 - 2\bigl(1 - 2\lambda^2s\bigr)\xi + 1 = 0, \qquad s = \sin^2\frac\theta2 .
+\]
+
+\Etape{2} Le produit des racines vaut $1$. Si les racines sont réelles et
+distinctes, l'une est de module $> 1$ : instabilité. Il faut donc des racines
+complexes conjuguées (ou une racine double), c'est-à-dire un discriminant
+négatif ou nul : $\bigl(1 - 2\lambda^2s\bigr)^2 \le 1$, soit
+$0 \le \lambda^2s \le 1$. Alors $\abs{\xi} = 1$.
+
+\Etape{3} Cette condition doit être vraie pour tous les modes, donc pour
+$s = 1$ : $\lambda^2 \le 1$, c'est-à-dire
+\[
+  \lambda = \frac{ak}{h} \le 1 .
+\]
+C'est la condition du cours (condition de Courant-Friedrichs-Lewy) ; Burden et
+Faires donnent $\lambda \le 1$ \BF{p.~762}. Le cas limite $\lambda = 1$
+est admis par le livre ; le cours écrit $\lambda < 1$.
+
+\Verif $\max_\theta\abs{\xi} = 1$ pour $\lambda = 0{,}9$ et $\lambda = 1$, mais
+$1{,}33$ pour $\lambda = 1{,}01$.
+
+\Question{b) Algorithme.}
+\Pourquoi Pour calculer la ligne $j+1$, il faut les lignes $j$ et $j-1$ : on
+initialise avec (O4) et (O6), puis on applique (O2). La formule (O6) est
+utilisée plutôt que (O5) pour que le démarrage soit du même ordre ($k^2$) que le
+schéma.
+
+\begin{algo}[ : équation d'ondes, schéma explicite]
+  \Require $l$, $a$, $f$, $g$, $m$, $k$, $N$
+  \State $h \leftarrow l/m$ ; $\lambda \leftarrow ak/h$
+  \If{$\lambda > 1$} \Print \og schéma instable \fg{} \Stop \EndIf
+  \For{$i$ allant de $0$ à $m$} \State $U^{\text{anc}}_i \leftarrow f(ih)$ \EndFor
+  \State $U^{\text{anc}}_0 \leftarrow 0$ ; $U^{\text{anc}}_m \leftarrow 0$ \Comment{(O3), (O4)}
+  \For{$i$ allant de $1$ à $m-1$}
+    \State $U^{\text{cour}}_i \leftarrow (1 - \lambda^2)U^{\text{anc}}_i
+      + \frac{\lambda^2}{2}(U^{\text{anc}}_{i+1} + U^{\text{anc}}_{i-1}) + k\,g(ih)$ \Comment{(O6)}
+  \EndFor
+  \State $U^{\text{cour}}_0 \leftarrow 0$ ; $U^{\text{cour}}_m \leftarrow 0$
+  \For{$j$ allant de $1$ à $N-1$}
+    \For{$i$ allant de $1$ à $m-1$}
+      \State $U^{\text{nouv}}_i \leftarrow 2(1 - \lambda^2)U^{\text{cour}}_i
+        + \lambda^2(U^{\text{cour}}_{i+1} + U^{\text{cour}}_{i-1}) - U^{\text{anc}}_i$ \Comment{(O2)}
+    \EndFor
+    \State $U^{\text{nouv}}_0 \leftarrow 0$ ; $U^{\text{nouv}}_m \leftarrow 0$
+    \State $U^{\text{anc}} \leftarrow U^{\text{cour}}$ ; $U^{\text{cour}} \leftarrow U^{\text{nouv}}$
+    \Print $(j+1)k$, $U^{\text{cour}}$
+  \EndFor
+\end{algo}
+
+\Verif Ce schéma est le cas $a = d = 0$ du programme \fichier{ex16_onde.c}
+(exercice 16 de la fin du document). Pour $f = \sin\pi x$, $g = 0$, $l = 1$,
+vitesse $1$ (solution exacte $\sin\pi x\cos\pi t$), $h = 0{,}02$, $k = 0{,}01$
+($\lambda = 0{,}5$) : en $x = 0{,}5$, $t = 1{,}5$, on obtient $-5{,}8\times
+10^{-4}$ pour une valeur exacte nulle.
+
+\Refs \BF{(12.19)--(12.25), p.~758--760 ; alg.~12.4, p.~761 ; stabilité
+p.~762}.

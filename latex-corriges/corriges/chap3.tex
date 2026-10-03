@@ -1,0 +1,219 @@
+\chapter{Chapitre III : interpolation et moindres carrés}
+
+% ------------------------------------------------------------------
+\section{Exercice III.1 : programme d'interpolation de Lagrange}
+
+\Enonce{Traduire cet algorithme dans un des langages de programmation de votre
+choix (Pascal, Fortran, C).}
+
+\Pourquoi Le polynôme de Lagrange s'écrit
+$f(x_p) = \sum_k y_k\,f_k(x_p)$ avec
+$f_k(x_p) = \prod_{i \ne k}(x_p - x_i)/(x_k - x_i)$. L'algorithme du cours
+calcule chaque produit $f_k(x_p)$ dans la variable $y_s$ (boucle intérieure),
+puis l'ajoute, multiplié par $y_k$, à la somme $y_p$ (boucle extérieure). On
+n'a jamais besoin des coefficients du polynôme : on évalue directement sa
+valeur en $x_p$.
+
+\Etapes
+\Etape{1} Lire le nombre de points $n+1$, les couples $(x_k, y_k)$ et $x_p$.
+
+\Etape{2} Traduire les deux boucles imbriquées ; le test $i \ne k$ évite le
+facteur nul $(x_k - x_k)$ au dénominateur.
+
+\Etape{3} En C, les tableaux commencent à l'indice 0 : les boucles vont de $0$ à
+$n$ au lieu de $1$ à $n+1$.
+
+\programme{C}{en C}{lagrange.c}
+
+\Verif Avec les données de l'exercice III.4 ci-dessous, le programme affiche
+$y_p = 15{,}793629$ pour $x_p = 102$.
+
+\Refs \BF{§~3.1, p.~106--108} pour la formule de Lagrange ; une alternative
+programmable est l'algorithme de Neville \BF{alg.~3.1, p.~120}.
+
+% ------------------------------------------------------------------
+\section{\texorpdfstring{Complément : formules de $a_0$ et $a_1$ pour la droite des moindres
+carrés}{Complément : formules de a0 et a1 pour la droite des moindres carrés}}
+
+\Enonce{Le cours demande d'établir en exercice les formules de $a_0$ et $a_1$
+pour $f(x) = a_0 + a_1x$.}
+
+\Pourquoi Le reste $R(a_0, a_1) = \sum_k\bigl[f_k - (a_0 + a_1x_k)\bigr]^2$ est
+une fonction du second degré des deux inconnues, positive : son minimum est
+atteint là où ses deux dérivées partielles s'annulent. On obtient deux
+équations linéaires (les \og équations normales \fg).
+
+\Etapes
+\Etape{1} Dérivées partielles :
+\[
+  \frac{\partial R}{\partial a_0} = -2\sum_k\bigl(f_k - a_0 - a_1x_k\bigr) = 0,
+  \qquad
+  \frac{\partial R}{\partial a_1} = -2\sum_k x_k\bigl(f_k - a_0 - a_1x_k\bigr) = 0 .
+\]
+
+\Etape{2} En développant :
+\[
+  m\,a_0 + \Bigl(\sum x_k\Bigr)a_1 = \sum f_k, \qquad
+  \Bigl(\sum x_k\Bigr)a_0 + \Bigl(\sum x_k^2\Bigr)a_1 = \sum x_kf_k .
+\]
+
+\Etape{3} Par la règle de Cramer, avec $D = m\sum x_k^2 - \bigl(\sum x_k\bigr)^2$
+(non nul dès que deux $x_k$ sont distincts) :
+\[
+  a_0 = \frac{\sum x_k^2\sum f_k - \sum x_k\sum x_kf_k}{D}, \qquad
+  a_1 = \frac{m\sum x_kf_k - \sum x_k\sum f_k}{D} ,
+\]
+ce sont les formules du cours.
+
+\Refs \BF{§~8.1, p.~507--508}.
+
+% ------------------------------------------------------------------
+\section{\texorpdfstring{Exercice III.2 : calcul des coefficients $b_k$ et $A_{kj}$}{Exercice III.2 : calcul des coefficients bk et Akj}}
+
+\Enonce{Écrire les algorithmes de calculs des coefficients $b_k$ et $A_{kj}$.}
+
+\Pourquoi Les équations normales $\sum_j A_{kj}a_j = b_k$ viennent de
+$\partial R/\partial a_k = 0$ pour
+$R = \sum_i\bigl[f_i - \sum_j a_jg_j(x_i)\bigr]^2$. Chaque coefficient est une
+somme sur les $m$ mesures : une boucle sur $i$ suffit. Deux remarques rendent
+le calcul plus économique :
+\begin{itemize}
+  \item $A_{kj} = A_{jk}$ (la matrice est symétrique) : on ne calcule que
+        $j \ge k$ et on recopie ;
+  \item les valeurs $g_k(x_i)$ servent plusieurs fois : on les calcule une seule
+        fois et on les range dans un tableau $G_{ik} = g_k(x_i)$.
+\end{itemize}
+Une fois $A$ et $b$ calculés, le système se résout par la méthode de Gauss
+avec pivot (exercice I.3).
+
+\Etapes
+\Etape{1} Remplir $G_{ik} = g_k(x_i)$ pour $i = 1, \dots, m$ et
+$k = 0, \dots, n$.
+
+\Etape{2} Pour chaque $k$ : $b_k = \sum_i G_{ik}f_i$, puis pour $j \ge k$ :
+$A_{kj} = \sum_i G_{ik}G_{ij}$ et $A_{jk} = A_{kj}$.
+
+\Etape{3} Résoudre $A\,a = b$ par Gauss.
+
+\begin{algo}[ : équations normales]
+  \Require $m$, $(x_i, f_i)$, $n$, les fonctions $g_0, \dots, g_n$
+  \For{$i$ allant de $1$ à $m$}
+    \For{$k$ allant de $0$ à $n$} \State $G_{ik} \leftarrow g_k(x_i)$ \EndFor
+  \EndFor
+  \For{$k$ allant de $0$ à $n$}
+    \State $b_k \leftarrow 0$
+    \For{$i$ allant de $1$ à $m$} \State $b_k \leftarrow b_k + G_{ik}\,f_i$ \EndFor
+    \For{$j$ allant de $k$ à $n$}
+      \State $A_{kj} \leftarrow 0$
+      \For{$i$ allant de $1$ à $m$} \State $A_{kj} \leftarrow A_{kj} + G_{ik}\,G_{ij}$ \EndFor
+      \State $A_{jk} \leftarrow A_{kj}$
+    \EndFor
+  \EndFor
+  \State résoudre $A\,a = b$ par la méthode de Gauss avec pivot \Comment{exercice I.3}
+  \Print $a_0, \dots, a_n$
+\end{algo}
+
+\Refs \BF{§~8.1, équations normales, p.~508--510}.
+
+% ------------------------------------------------------------------
+\section{Exercice III.3 : moindres carrés sur un tableau de mesures}
+
+\Enonce{$x = 1, 2, 3, 4, 5$ ; $y = 1{,}6$ ; $2$ ; $2{,}3$ ; $2{,}4$ ; $2{,}5$.
+Déterminer par les moindres carrés a) $y = a_0 + a_1/x$ ;
+b) $y = a_0 + a_1/x + a_2e^{x}$.}
+
+\Pourquoi On applique l'exercice précédent avec $g_0 = 1$, $g_1 = 1/x$
+(et $g_2 = e^{x}$ en b). Les modèles sont non linéaires en $x$ mais
+\emph{linéaires en les coefficients} : les équations normales restent un
+système linéaire. Le choix $1/x$ est naturel car les mesures croissent de moins
+en moins vite.
+
+\Etapes
+\Etape{1} Cas a). Sommes nécessaires ($m = 5$) :
+\[
+  \sum\tfrac1{x_i} = \tfrac{137}{60} = 2{,}283333, \quad
+  \sum\tfrac1{x_i^2} = 1{,}463611, \quad
+  \sum y_i = 10{,}8, \quad
+  \sum\tfrac{y_i}{x_i} = 4{,}466667 .
+\]
+
+\Etape{2} Système normal :
+\[
+  \begin{pmatrix} 5 & 2{,}283333\\ 2{,}283333 & 1{,}463611 \end{pmatrix}
+  \begin{pmatrix} a_0\\ a_1 \end{pmatrix}
+  = \begin{pmatrix} 10{,}8\\ 4{,}466667 \end{pmatrix}.
+\]
+Déterminant $D = 5 \times 1{,}463611 - 2{,}283333^2 = 2{,}104444$ ; Cramer :
+\[
+  a_0 = \frac{1{,}463611 \times 10{,}8 - 2{,}283333 \times 4{,}466667}{D}
+      = \frac{5{,}608111}{2{,}104444} = 2{,}664889,
+\]
+\[
+  a_1 = \frac{5 \times 4{,}466667 - 2{,}283333 \times 10{,}8}{D}
+      = \frac{-2{,}326667}{2{,}104444} = -1{,}105597 .
+\]
+Donc $y \approx 2{,}664889 - 1{,}105597/x$, avec un reste $R = 0{,}017529$
+(écarts aux mesures : $0{,}0407$ ; $-0{,}1121$ ; $0{,}0036$ ; $0{,}0115$ ;
+$0{,}0562$).
+
+\Etape{3} Cas b). Sommes supplémentaires :
+$\sum e^{x_i} = 233{,}204184$, $\sum e^{x_i}/x_i = 56{,}440158$,
+$\sum e^{2x_i} = 25472{,}839781$, $\sum y_ie^{x_i} = 567{,}392556$. Le système
+$3\times 3$
+\[
+  \begin{pmatrix}
+    5 & 2{,}283333 & 233{,}204184\\
+    2{,}283333 & 1{,}463611 & 56{,}440158\\
+    233{,}204184 & 56{,}440158 & 25472{,}839781
+  \end{pmatrix}
+  \begin{pmatrix} a_0\\ a_1\\ a_2 \end{pmatrix}
+  = \begin{pmatrix} 10{,}8\\ 4{,}466667\\ 567{,}392556 \end{pmatrix}
+\]
+résolu par Gauss avec pivot donne
+\[
+  a_0 = 2{,}567598, \qquad a_1 = -0{,}990980, \qquad a_2 = 0{,}000964,
+\]
+avec $R = 0{,}009502$.
+
+\Etape{4} Interprétation. Ajouter une fonction ne peut que diminuer $R$ (le
+modèle a contient le modèle b avec $a_2 = 0$) : $R$ passe de $0{,}0175$ à
+$0{,}0095$. Le coefficient $a_2$ est petit parce que $e^{x}$ est très grand
+($e^5 \approx 148$). Les nombres de la matrice sont d'ordres de grandeur très
+différents (de $1{,}46$ à $25\,473$) : son conditionnement vaut environ
+$1{,}4\times 10^{5}$, ce qui justifie le pivot et la double précision.
+
+\Verif Valeurs obtenues par \fichier{calculs.py} et \fichier{complements.py}.
+
+\Refs \BF{§~8.1, p.~506--513}.
+
+% ------------------------------------------------------------------
+\section{Exercice III.4 : interpolation de Lagrange directe et inverse}
+
+\Enonce{Du tableau $x$ : $93{,}0$ ; $96{,}2$ ; $100{,}0$ ; $104{,}2$ ; $108{,}7$,
+$y$ : $11{,}38$ ; $12{,}80$ ; $14{,}70$ ; $17{,}07$ ; $19{,}91$, déterminer $y_p$
+pour $x_p = 102$ et $x_p$ pour $y_p = 13{,}5$.}
+
+\Pourquoi Avec 5 points, on utilise le polynôme de Lagrange de degré 4. Pour la
+question inverse (trouver $x$ connaissant $y$), le cours indique d'échanger les
+rôles de $x$ et de $y$ : on interpole $x$ comme fonction de $y$. C'est possible
+parce que $y$ est strictement croissante sur le tableau (la fonction réciproque
+existe).
+
+\Etapes
+\Etape{1} Poids de Lagrange en $x_p = 102$ :
+$f_k(102) = 0{,}043410$ ; $-0{,}218191$ ; $0{,}791622$ ; $0{,}413053$ ;
+$-0{,}029894$ (leur somme vaut 1, ce qui est un bon contrôle : le polynôme
+d'interpolation de la fonction constante $1$ est $1$).
+
+\Etape{2} $y_p = \sum_k y_kf_k(102) = 15{,}793629$, soit $y_p \approx 15{,}79$.
+
+\Etape{3} Interpolation inverse : les nœuds sont maintenant les $y_k$ et les
+valeurs les $x_k$. Poids en $13{,}5$ : $-0{,}084007$ ; $0{,}710729$ ;
+$0{,}435996$ ; $-0{,}069802$ ; $0{,}007084$, d'où $x_p = 97{,}655750$.
+
+\Verif Le programme \fichier{lagrange.c} donne $y_p = 15{,}793629$ et (en lui
+donnant les colonnes échangées) $x_p = 97{,}655750$. La réponse du cours
+($15{,}79$ et $97{,}65$) est retrouvée ; arrondi au centième, $x_p$ vaut
+plutôt $97{,}66$ ($97{,}65$ est la valeur tronquée).
+
+\Refs \BF{§~3.1, p.~106--108} ; interpolation inverse itérée : \BF{p.~122}.

@@ -1,0 +1,53 @@
+\chapter*{Avant-propos}
+\addcontentsline{toc}{chapter}{Avant-propos}
+
+Ce document rassemble les corrigés de tous les exercices du cours
+\og Méthodes numériques pour physiciens et ingénieurs \fg{} : les exercices
+placés dans les chapitres I à VI, puis les dix-neuf exercices de la fin du
+document.
+
+\section{Comment chaque corrigé est construit}
+
+Chaque corrigé suit le même plan, dans cet ordre :
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Pourquoi ?} On explique d'abord l'idée : quel est le
+        problème, pourquoi la méthode choisie convient, quelle difficulté
+        elle résout et à quelles conditions elle marche.
+  \item \textbf{Comment ? (étapes)} On déroule ensuite la solution étape par
+        étape : mise en équations, calculs intermédiaires, puis algorithme et,
+        quand l'énoncé le demande, programme.
+  \item \textbf{Vérification numérique.} Chaque résultat chiffré et chaque
+        algorithme ont été réellement calculés ou exécutés. Les valeurs
+        données sont celles que ces calculs ont produites.
+  \item \textbf{Références.} On indique où trouver la méthode dans le livre de
+        référence ou dans une source publique.
+\end{enumerate}
+Lorsqu'un énoncé est incomplet, ambigu ou semble contenir une erreur, on le
+dit dans un paragraphe \og Remarque sur l'énoncé \fg{}, et on précise
+l'interprétation retenue. Rien n'est supposé sans être signalé.
+
+\section{Références utilisées}
+
+La référence principale est le livre
+R. L. Burden, J. D. Faires et A. M. Burden, \textit{Numerical Analysis},
+10\textsuperscript{e} édition, Cengage Learning, 2016, noté \textbf{[BF]}.
+Les renvois du type \BF{alg.~6.1, p.~368} donnent le numéro de l'algorithme ou
+du théorème et la page imprimée du livre. Les autres sources (articles,
+encyclopédies en ligne) sont listées dans la bibliographie à la fin du
+document.
+
+\section{Programmes et calculs}
+
+Les programmes demandés par les énoncés se trouvent dans le dossier
+\fichier{latex-corriges/programmes/} (langages C, Fortran 90 et Pascal). Ils ont
+été compilés avec \texttt{gcc}, \texttt{gfortran} et Free Pascal
+(\texttt{fpc}) ; le script \fichier{tester.sh} les compile et les exécute
+tous avec les données utilisées dans ce document (résultats dans
+\fichier{calculs/programmes_resultats.txt}). Les calculs numériques et les
+tests d'algorithmes sont dans \fichier{latex-corriges/calculs/} (Python avec
+NumPy et SciPy) : \fichier{calculs.py}, \fichier{complements.py} et
+\fichier{tests_algorithmes.py}, avec leurs sorties dans les fichiers
+\fichier{*_resultats.txt} et \fichier{resultats.txt}.
+
+Dans les algorithmes, la flèche $\leftarrow$ désigne l'affectation, et les
+notations sont celles du cours.

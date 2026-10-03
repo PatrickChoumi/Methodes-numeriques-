@@ -1,0 +1,150 @@
+% Corrigés des exercices du cours « Méthodes numériques pour physiciens et
+% ingénieurs » (P. Woafo), rédigés à partir du cours, de Burden & Faires,
+% Numerical Analysis (10e éd.), et de sources publiques citées.
+\documentclass[11pt,a4paper,oneside]{report}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{array,booktabs}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{needspace}
+\usepackage{algpseudocode}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,patterns}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+
+% ---------------------------------------------------------------
+% Numérotation et titres
+% ---------------------------------------------------------------
+\renewcommand{\thechapter}{\Roman{chapter}}
+\setcounter{secnumdepth}{-1}
+\setcounter{tocdepth}{1}
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries\centering}{}{0pt}{\LARGE}
+\titlespacing*{\chapter}{0pt}{-20pt}{24pt}
+\titleformat{\section}{\normalfont\large\bfseries\needspace{8\baselineskip}}{}{0pt}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{}{0pt}{}
+
+% ---------------------------------------------------------------
+% Structure de chaque corrigé : pourquoi, puis comment, puis vérification
+% ---------------------------------------------------------------
+\newcommand{\Enonce}[1]{\par\noindent\textit{Énoncé.}~\textit{#1}\par}
+\newcommand{\Pourquoi}{\par\medskip\needspace{4\baselineskip}\noindent\textbf{Pourquoi ?}\quad}
+\newcommand{\Etapes}{\par\medskip\needspace{4\baselineskip}\noindent\textbf{Comment ? (étapes)}\par}
+\newcommand{\Etape}[1]{\par\smallskip\noindent\textit{Étape #1.}\quad}
+\newcommand{\Verif}{\par\medskip\needspace{3\baselineskip}\noindent\textbf{Vérification numérique.}\quad}
+\newcommand{\Refs}{\par\medskip\noindent\textbf{Références.}\quad}
+\newcommand{\Attention}{\par\medskip\noindent\textbf{Remarque sur l'énoncé.}\quad}
+\newcommand{\Question}[1]{\par\bigskip\needspace{8\baselineskip}\noindent\textbf{#1}\quad}
+
+% ---------------------------------------------------------------
+% Algorithmes en français (sans cadre)
+% ---------------------------------------------------------------
+\algrenewcommand\algorithmicrequire{\textbf{Données :}}
+\algrenewcommand\algorithmicensure{\textbf{Résultat :}}
+\algrenewcommand\algorithmicfor{\textbf{Pour}}
+\algrenewcommand\algorithmicdo{\textbf{faire}}
+\algrenewcommand\algorithmicwhile{\textbf{Tant que}}
+\algrenewcommand\algorithmicif{\textbf{Si}}
+\algrenewcommand\algorithmicthen{\textbf{alors}}
+\algrenewcommand\algorithmicelse{\textbf{Sinon}}
+\algrenewcommand\algorithmicrepeat{\textbf{Répéter}}
+\algrenewcommand\algorithmicuntil{\textbf{Jusqu'à}}
+\algrenewcommand\algorithmicreturn{\textbf{Retourner}}
+\algrenewcommand\algorithmicend{\textbf{Fin}}
+\algrenewtext{EndFor}{\textbf{Fin pour}}
+\algrenewtext{EndWhile}{\textbf{Fin tant que}}
+\algrenewtext{EndIf}{\textbf{Fin si}}
+\algnewcommand\algorithmicprint{\textbf{Écrire}}
+\algnewcommand\Print{\State\algorithmicprint{} }
+\algnewcommand\algorithmicread{\textbf{Lire}}
+\algnewcommand\Read{\State\algorithmicread{} }
+\algnewcommand{\Stop}{\State\textbf{Arrêt}}
+\algrenewcommand\algorithmiccomment[1]{\hfill\textit{\{#1\}}}
+\newenvironment{algo}[1][]
+  {\par\smallskip\needspace{5\baselineskip}\noindent\textbf{Algorithme#1}\par\nopagebreak
+   \begin{algorithmic}[0]}
+  {\end{algorithmic}\par\smallskip}
+
+% ---------------------------------------------------------------
+% Programmes
+% ---------------------------------------------------------------
+\lstset{
+  basicstyle=\ttfamily\small,
+  columns=fullflexible,
+  keepspaces=true,
+  frame=lines,
+  framesep=4pt,
+  xleftmargin=1em,
+  breaklines=true,
+  showstringspaces=false,
+  inputencoding=utf8,
+  extendedchars=true,
+  literate={é}{{\'e}}1 {è}{{\`e}}1 {à}{{\`a}}1 {ê}{{\^e}}1 {ç}{{\c c}}1
+           {É}{{\'E}}1 {ô}{{\^o}}1 {î}{{\^i}}1 {ù}{{\`u}}1
+}
+\newcommand{\programme}[3]{%
+  \par\smallskip\noindent\textit{Programme #2} (fichier \fichier{programmes/#3}) :
+  \lstinputlisting[language={#1}]{programmes/#3}}
+
+% ---------------------------------------------------------------
+% Macros mathématiques
+% ---------------------------------------------------------------
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\BF}[1]{[BF, #1]}
+\newcommand{\fichier}[1]{\nolinkurl{#1}}
+
+\setlength{\parskip}{0.35em}
+\setlength{\parindent}{0pt}
+\allowdisplaybreaks
+
+\hypersetup{
+  pdftitle={Corrigés des exercices -- Méthodes numériques pour physiciens et ingénieurs},
+  pdfsubject={Méthodes numériques},
+  pdflang={fr},
+  hypertexnames=false
+}
+
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  \vspace*{3cm}
+  {\Huge\bfseries Corrigés des exercices\par}
+  \vspace{1cm}
+  {\Large Méthodes numériques pour physiciens et ingénieurs\par}
+  \vspace{0.3cm}
+  {\large cours de P. Woafo (Université de Yaoundé I)\par}
+  \vfill
+  {\normalsize Corrigés rédigés à partir du cours et de\par
+   R. L. Burden, J. D. Faires, A. M. Burden, \textit{Numerical Analysis},\par
+   10\textsuperscript{e} édition, Cengage Learning, 2016.\par}
+  \vspace{2cm}
+\end{titlepage}
+
+\include{corriges/avantpropos}
+
+\tableofcontents
+
+\include{corriges/chap1}
+\include{corriges/chap2}
+\include{corriges/chap3}
+\include{corriges/chap4}
+\include{corriges/chap5}
+\include{corriges/chap6}
+\include{corriges/fin1}
+\include{corriges/fin2}
+\include{corriges/fin3}
+\include{corriges/biblio}
+
+\end{document}

@@ -1,0 +1,58 @@
+=== I : remontee, pivot partiel, LU (Crout), L^-1 b, inverse, Cholesky
+ Gauss + pivot (a11 = 0) : erreur max = 9.992007221626409e-16
+ Crout : max|LS - A| = 8.881784197001252e-16  ; resolution LSx=b : erreur = 5.551115123125783e-17
+ inverse : max|A A^-1 - I| = 2.220446049250313e-16
+ Cholesky (exemple B&F p. 424) : M = [[2.0, -0.5, 0.5], [0.0, 2.0, 1.5], [0.0, 0.0, 1.0]]  max|M^t M - A| = 0.0
+=== I : Jacobi et Gauss-Seidel avec test d'arret (systeme de B&F, ex. 1 p. 456)
+ Jacobi      : 10 iterations, x = [1.0001, 1.9998, -0.9998, 0.9998]
+ Gauss-Seidel: 5 iterations, x = [1.0001, 2.0, -1.0, 1.0]
+=== II : Newton avec test |f(x_n)|/m < E, bissection, Lin
+ Newton (Planck) : x = 4.965114231744 en 4 iterations, m = 120.861
+ Bissection (Planck) sur [4.9 ; 5] : x = 4.9651142317 en 30 iterations
+ Lin sur x^3-6x^2+11x-6, x0 = 0.0 : x = 0.9999999998 (53 it.)
+ Lin sur x^3-6x^2+11x-6, x0 = 1.5 : x = 1.0000000002 (56 it.)
+ Lin sur x^3-6x^2+11x-6, x0 = 2.5 : x = 3.0000000000 (7 it.)
+ Lin sur x^3-6x^2+11x-6, x0 = 3.5 : x = 3.0000000000 (7 it.)
+=== IV, ex. 6 : noyau de Peano de la formule a 4 points (0, 1/4, 3/4, 1)
+ min K = -1.072e-05, max K = 2.894e-04, integrale |K| = 9.132160e-05, integrale K = 8.680556e-05 (1/11520 = 8.680556e-05)
+=== V : algorithmes RK2, AB2 sur y' = -2xy, y(0) = 1 (exact e^{-x^2})
+ n=10: err RK2 = 1.174e-03   err AB2 = -6.152e-03
+ n=20: err RK2 = 3.011e-04   err AB2 = -1.538e-03
+ n=40: err RK2 = 7.601e-05   err AB2 = -3.841e-04
+=== V : ordre de la methode 'de Runge d'ordre 4' du cours (L1, L2, L3, L4) et RK4 classique
+ y' = y : Runge (cours) erreurs ['-1.046e-04', '-1.360e-05', '-1.735e-06', '-2.190e-07'] rapports [7.69, 7.84, 7.92]
+ y' = y : RK4 classique erreurs ['-2.084e-06', '-1.358e-07', '-8.666e-09', '-5.473e-10'] rapports [15.35, 15.67, 15.83]
+ y' = -2xy : Runge (cours) erreurs ['-7.479e-05', '-9.060e-06', '-1.110e-06', '-1.373e-07'] rapports [8.26, 8.16, 8.09]
+ y' = -2xy : RK4 classique erreurs ['1.625e-06', '1.025e-07', '6.407e-09', '3.999e-10'] rapports [15.85, 16.0, 16.02]
+=== V : methode de tir (secante du cours) sur y'' = -y, y(0)=0, y(pi/2)=1 (exact sin x)
+ gamma = y'(0) = 1.0000000003 (exact 1) en 2 iterations
+=== Ex. 2 : Van der Waals, CO2 (a = 3.592 L^2 atm/mol^2, b = 0.04267 L/mol)
+ T = 300.0 K, P = 10.0 atm : V = 2.354688 L (gaz parfait 2.461800 L), 5 iterations, verif (P+a/V^2)(V-b)-RT = 3.55e-15
+ T = 300.0 K, P = 50.0 atm : V = 0.358484 L (gaz parfait 0.492360 L), 7 iterations, verif (P+a/V^2)(V-b)-RT = -3.55e-15
+=== Ex. 5 : tir + Newton (equation variationnelle) sur y'' + (a/x)y' + b e^{cy} = 0
+ a=1.0, b=1.0, c=0.0 : gamma = y(0) = 1.2500000000 (2 it.), y(1) = 1.000000000000
+ a=1.0, b=1.0, c=0.5 : gamma = y(0) = 1.4961487192 (5 it.), y(1) = 1.000000000000
+ a=2.0, b=0.5, c=1.0 : gamma = y(0) = 1.2739793373 (5 it.), y(1) = 1.000000000000
+ (cas c = 0 : exact gamma = 1 + b/(2(1+a)) = 1.25 )
+=== Ex. 6, question 2 : tir sur gamma = V'(0) pour V(l) = V0 (a = 1, l = 1)
+ valeur de Child-Langmuir (gamma = 0) : V(1) = 1.717071
+ V0 = 2.5 : gamma = 1.52966495, V(1) = 2.50000000
+=== Ex. 9 : Duffing adimensionne, RK4 puis moindres carres de Fourier
+ a_n = [2.07476, 0.0, -0.042008, 0.0, -0.00091]
+ b_n = [2.123807, 0.0, 0.044846, 0.0, -0.000829]
+ ecart equations normales / formules d'orthogonalite : 2.6355098659003318e-12
+ residu R = 1.955881628926312e-08  ; moyenne des y_i = 1.169872358708357e-12
+=== Ex. 17 : Gauss-Seidel sur le cadre (verification avec u = x^2 - y^2, harmonique)
+ test harmonique : 124 iterations, erreur max = 4.41e-12
+ probleme physique (u = 1 dedans, 0 dehors) : 102 iterations, min = 0.000, max = 1.000, u au milieu du bord gauche du cadre (i=2,j=8) = 0.378379
+=== Ex. 17, 4) : u'' + u'/r = 0, u(R1) = 1, u(R2) = 0 (exact ln(r/R2)/ln(R1/R2))
+ N = 40 : erreur max = 4.75e-06
+=== Ex. 18 : Jacobi sur la plaque entaillee (test u = x^2 + y^2, f = 4)
+ 154 iterations, erreur max = 6.13e-12
+=== Ex. 19 : triangle, Neumann par points fictifs (test l = h, exact u = a(l - x - y))
+ Gauss-Seidel : 543 iterations, erreur max = 3.68e-12
+=== VI : regressif, Crank-Nicolson, Dufort-Frankel sur u_t = u_xx, u = e^{-pi^2 t} sin(pi x)
+ regressif : ['2.19e-03', '9.78e-04', '4.63e-04']  (lambda = 1, 2, 4)
+ CN : ['2.68e-04', '6.61e-05', '1.65e-05']  (lambda = 1, 2, 4)
+ DF : ['2.96e-03', '3.17e-03', '3.23e-03']  (lambda = 1, 2, 4)
+ DF avec lambda = 1 fixe (k/h -> 0) : ['2.96e-03', '7.87e-04', '2.00e-04']

@@ -1,0 +1,433 @@
+\chapter{Chapitre I : systèmes d'équations algébriques linéaires}
+
+% ------------------------------------------------------------------
+\section{Exercice I.1 : résolution du système triangulaire}
+
+\Enonce{Écrire l'algorithme de résolution du système algébrique triangulaire.}
+
+\Pourquoi Après la triangularisation de Gauss, la dernière équation ne
+contient plus qu'une seule inconnue, $x_n$. L'avant-dernière contient $x_{n-1}$
+et $x_n$, et ainsi de suite : l'équation $k$ ne fait intervenir que
+$x_k, x_{k+1}, \dots, x_n$. Si l'on résout les équations \emph{de bas en
+haut}, chaque équation n'a donc plus qu'une seule inconnue nouvelle, $x_k$, car
+$x_{k+1}, \dots, x_n$ ont déjà été calculés. C'est la \og remontée \fg{}
+(substitution arrière). Elle exige $a_{kk} \neq 0$ pour tout $k$, ce que la
+triangularisation avec pivot garantit lorsque la matrice est régulière.
+
+\Etapes
+\Etape{1} La dernière équation $a_{nn}x_n = b_n$ donne directement
+$x_n = b_n/a_{nn}$.
+
+\Etape{2} Pour $k = n-1$, puis $n-2$, \dots, jusqu'à $1$ (ordre décroissant,
+c'est indispensable), l'équation $k$ s'écrit
+\[
+  a_{kk}x_k + \sum_{l=k+1}^{n} a_{kl}x_l = b_k ,
+\]
+où toutes les $x_l$ de la somme sont déjà connues. On calcule d'abord la somme
+$s = b_k - \sum_{l=k+1}^{n} a_{kl}x_l$, puis $x_k = s/a_{kk}$. C'est
+exactement la forme condensée du cours.
+
+\Etape{3} Coût : l'étape $k$ demande $n-k$ multiplications et une division, soit
+au total $1 + \sum_{k=1}^{n-1}(n-k+1) = (n^2+n)/2$ multiplications ou divisions
+\BF{p.~371}. C'est négligeable devant le coût de la triangularisation (de
+l'ordre de $n^3/3$).
+
+\begin{algo}[ : remontée]
+  \Require $n$, la matrice triangulaire supérieure $(a_{kl})$, le second membre $(b_k)$
+  \State $x_n \leftarrow b_n / a_{nn}$
+  \For{$k$ allant de $n-1$ à $1$ (pas $-1$)}
+    \State $s \leftarrow b_k$
+    \For{$l$ allant de $k+1$ à $n$}
+      \State $s \leftarrow s - a_{kl}\,x_l$
+    \EndFor
+    \State $x_k \leftarrow s / a_{kk}$
+  \EndFor
+  \Print $x_1, \dots, x_n$
+\end{algo}
+
+\Verif Cet algorithme est la procédure \texttt{remontee} des programmes
+\fichier{gauss.pas} et \fichier{gauss.f90} (exercice 10 de la fin du document).
+Sur un système $6\times 6$ aléatoire dont on connaît la solution, l'erreur
+maximale obtenue est $4{,}4\times 10^{-11}$.
+
+\Refs \BF{alg.~6.1, étapes 8 et 9, p.~368 ; décompte des opérations
+p.~370--371}.
+
+% ------------------------------------------------------------------
+\section{Exercice I.2 : échange de lignes (pivot maximal)}
+
+\Enonce{Écrire l'algorithme qui permet d'interchanger les lignes des systèmes
+algébriques dû à la règle de pivot maximal.}
+
+\Pourquoi À l'étape $k$ de la triangularisation, on divise par $a_{kk}$
+(multiplicateur $a_{lk}/a_{kk}$). Deux problèmes peuvent survenir :
+\begin{itemize}
+  \item si $a_{kk} = 0$, la méthode s'arrête (division par zéro) alors que le
+        système peut très bien avoir une solution ;
+  \item si $\abs{a_{kk}}$ est petit devant les autres coefficients de la
+        colonne, les multiplicateurs sont grands et amplifient les erreurs
+        d'arrondi. Burden et Faires montrent sur le système
+        $0{,}003000\,x_1 + 59{,}14\,x_2 = 59{,}17$,
+        $5{,}291\,x_1 - 6{,}130\,x_2 = 46{,}78$ (solution exacte $x_1 = 10$,
+        $x_2 = 1$) qu'en arithmétique à quatre chiffres on obtient
+        $x_1 \approx -10{,}00$ sans échange de lignes \BF{ex.~1, p.~376}.
+\end{itemize}
+La règle du pivot maximal (pivot partiel) choisit comme équation pivotale,
+parmi les lignes $k$ à $n$, celle dont le coefficient de $x_k$ est le plus
+grand en valeur absolue. Les multiplicateurs vérifient alors
+$\abs{a_{lk}/a_{kk}} \le 1$ : les erreurs ne sont plus amplifiées. Échanger deux
+équations ne change pas la solution du système.
+
+\Etapes
+\Etape{1} À l'étape $k$, chercher l'indice $p \ge k$ tel que
+$\abs{a_{pk}} = \max_{k \le i \le n}\abs{a_{ik}}$.
+
+\Etape{2} Si $a_{pk} = 0$, toute la colonne sous la diagonale est nulle : la
+matrice est singulière, on arrête.
+
+\Etape{3} Si $p \neq k$, échanger les lignes $k$ et $p$ de la matrice (il suffit
+de le faire pour les colonnes $k$ à $n$, les colonnes précédentes étant déjà
+nulles) \emph{et} les composantes $b_k$ et $b_p$ du second membre. L'échange
+utilise une variable auxiliaire $t$.
+
+\begin{algo}[ : recherche du pivot et échange (étape $k$)]
+  \State $p \leftarrow k$
+  \For{$i$ allant de $k+1$ à $n$}
+    \If{$\abs{a_{ik}} > \abs{a_{pk}}$} \State $p \leftarrow i$ \EndIf
+  \EndFor
+  \If{$a_{pk} = 0$} \Print \og matrice singulière \fg{} \Stop \EndIf
+  \If{$p \neq k$}
+    \For{$j$ allant de $k$ à $n$}
+      \State $t \leftarrow a_{kj}$ ; $a_{kj} \leftarrow a_{pj}$ ; $a_{pj} \leftarrow t$
+    \EndFor
+    \State $t \leftarrow b_k$ ; $b_k \leftarrow b_p$ ; $b_p \leftarrow t$
+  \EndIf
+\end{algo}
+
+\Refs \BF{§~6.2, pivot partiel, alg.~6.2, p.~378--379}.
+
+% ------------------------------------------------------------------
+\section{Exercice I.3 : méthode de Gauss complète avec pivot maximal}
+
+\Enonce{Écrire l'algorithme complet de la méthode de Gauss (triangularisation
+et résolution du système triangulaire) en prenant soin de faire jouer la règle
+du pivot maximal.}
+
+\Pourquoi On assemble les deux morceaux précédents : pour chaque étape $k$, on
+choisit d'abord le pivot (exercice I.2), puis on élimine $x_k$ des lignes
+$k+1$ à $n$ avec l'algorithme de l'étape $k$ du cours ; une fois le système
+triangulaire obtenu, on fait la remontée (exercice I.1). Le pivot doit être
+choisi \emph{à chaque étape}, car les coefficients changent d'une étape à
+l'autre.
+
+\Etapes
+\Etape{1} Pour $k = 1, \dots, n-1$ : choix du pivot et échange éventuel.
+
+\Etape{2} Toujours à l'étape $k$, pour chaque ligne $l > k$ : calcul du
+multiplicateur $m = a_{lk}/a_{kk}$ (calculé une seule fois, ce qui évite de
+refaire la division pour chaque colonne), puis $b_l \leftarrow b_l - m\,b_k$ et
+$a_{lj} \leftarrow a_{lj} - m\,a_{kj}$ pour $j = k+1, \dots, n$.
+
+\Etape{3} Après la boucle, vérifier $a_{nn} \neq 0$, puis remontée.
+
+\begin{algo}[ : Gauss avec pivot maximal]
+  \Require $n$, $A = (a_{ij})$, $b = (b_i)$
+  \For{$k$ allant de $1$ à $n-1$}
+    \State recherche du pivot $p$ et échange des lignes $k$ et $p$ \Comment{exercice I.2}
+    \For{$l$ allant de $k+1$ à $n$}
+      \State $m \leftarrow a_{lk}/a_{kk}$
+      \State $b_l \leftarrow b_l - m\,b_k$
+      \For{$j$ allant de $k+1$ à $n$}
+        \State $a_{lj} \leftarrow a_{lj} - m\,a_{kj}$
+      \EndFor
+      \State $a_{lk} \leftarrow 0$
+    \EndFor
+  \EndFor
+  \If{$a_{nn} = 0$} \Print \og matrice singulière \fg{} \Stop \EndIf
+  \State remontée \Comment{exercice I.1}
+\end{algo}
+
+Le coût total est de $n^3/3 + n^2 - n/3$ multiplications ou divisions
+\BF{p.~371} ; la recherche du pivot n'ajoute que des comparaisons.
+
+\Verif Exemple traité à la main (et par les programmes \fichier{gauss.pas} et
+\fichier{gauss.f90}) : le système
+\[
+  2x_2 + x_3 = 5, \qquad x_1 + x_2 + x_3 = 6, \qquad 2x_1 + x_2 + 3x_3 = 13
+\]
+ne peut pas être traité sans échange car $a_{11} = 0$.
+\begin{itemize}
+  \item $k = 1$ : le plus grand $\abs{a_{i1}}$ est $2$ (ligne 3). On échange
+        les lignes 1 et 3 : $(2\ 1\ 3 \mid 13)$, $(1\ 1\ 1 \mid 6)$,
+        $(0\ 2\ 1 \mid 5)$. Multiplicateurs $1/2$ et $0$ : la ligne 2 devient
+        $(0\ \tfrac12\ {-\tfrac12} \mid -\tfrac12)$.
+  \item $k = 2$ : entre $\tfrac12$ (ligne 2) et $2$ (ligne 3), le pivot est
+        $2$ ; on échange les lignes 2 et 3. Multiplicateur
+        $\tfrac12/2 = \tfrac14$ : la ligne 3 devient
+        $(0\ 0\ {-\tfrac34} \mid -\tfrac74)$.
+  \item Remontée : $x_3 = 7/3$, $x_2 = (5 - 7/3)/2 = 4/3$,
+        $x_1 = (13 - 4/3 - 3\cdot 7/3)/2 = 7/3$.
+\end{itemize}
+Les programmes affichent bien $x_1 = 2{,}3333333333$, $x_2 = 1{,}3333333333$,
+$x_3 = 2{,}3333333333$. Un test sur une matrice $5\times 5$ aléatoire avec
+$a_{11} = 0$ donne une erreur de $10^{-15}$ (\fichier{tests_algorithmes.py}).
+
+\Refs \BF{alg.~6.1, p.~368, et alg.~6.2, p.~378--379}.
+
+% ------------------------------------------------------------------
+\section{\texorpdfstring{Exercice I.4 : calcul des $l_{ij}$ et des $s_{ij}$}{Exercice I.4 : calcul des lij et des sij}}
+
+\Enonce{Écrire l'algorithme permettant de calculer les $l_{ij}$ et $s_{ij}$.}
+
+\Pourquoi Une fois $A = LS$ connue, résoudre $AX = b$ revient à résoudre deux
+systèmes triangulaires ($LY = b$, puis $SX = Y$), soit environ $n^2$
+opérations, au lieu de refaire toute l'élimination (environ $n^3/3$). C'est
+très avantageux quand on doit résoudre plusieurs systèmes de même matrice $A$
+et de seconds membres différents. Il faut organiser le calcul dans un ordre
+où chaque élément ne dépend que d'éléments déjà calculés : c'est pourquoi le
+cours calcule alternativement une colonne de $L$ puis une ligne de $S$.
+
+\Etapes
+\Etape{1} Écrire le produit $LS$ terme à terme. Comme $l_{jk} = 0$ pour $k > j$,
+$s_{kp} = 0$ pour $k > p$ et $s_{pp} = 1$ :
+\[
+  a_{jp} = \sum_{k=1}^{p-1} l_{jk}s_{kp} + l_{jp} \quad (j \ge p), \qquad
+  a_{pj} = \sum_{k=1}^{p-1} l_{pk}s_{kj} + l_{pp}s_{pj} \quad (j > p).
+\]
+
+\Etape{2} En isolant l'élément inconnu, on obtient les formules générales qui
+contiennent toutes celles du cours (pour $p = 1$, les sommes sont vides) :
+\[
+  l_{jp} = a_{jp} - \sum_{k=1}^{p-1} l_{jk}s_{kp} \quad (j = p, \dots, n), \qquad
+  s_{pj} = \frac{1}{l_{pp}}\Bigl(a_{pj} - \sum_{k=1}^{p-1} l_{pk}s_{kj}\Bigr)
+  \quad (j = p+1, \dots, n).
+\]
+
+\Etape{3} Ordre du calcul : pour $p = 1, 2, \dots, n$, d'abord la colonne $p$ de
+$L$ (elle utilise les colonnes $1$ à $p-1$ de $L$ et les lignes $1$ à $p-1$ de
+$S$, déjà connues), puis la ligne $p$ de $S$ (elle utilise en plus $l_{pp}$, que
+l'on vient de calculer). Il faut $l_{pp} \neq 0$ ; sinon la décomposition sans
+échange de lignes est impossible.
+
+\begin{algo}[ : décomposition $A = LS$ (Crout)]
+  \Require $n$, $A = (a_{ij})$
+  \For{$p$ allant de $1$ à $n$}
+    \For{$j$ allant de $p$ à $n$} \Comment{colonne $p$ de $L$}
+      \State $l_{jp} \leftarrow a_{jp}$
+      \For{$k$ allant de $1$ à $p-1$}
+        \State $l_{jp} \leftarrow l_{jp} - l_{jk}\,s_{kp}$
+      \EndFor
+    \EndFor
+    \If{$l_{pp} = 0$} \Print \og décomposition impossible \fg{} \Stop \EndIf
+    \State $s_{pp} \leftarrow 1$
+    \For{$j$ allant de $p+1$ à $n$} \Comment{ligne $p$ de $S$}
+      \State $s_{pj} \leftarrow a_{pj}$
+      \For{$k$ allant de $1$ à $p-1$}
+        \State $s_{pj} \leftarrow s_{pj} - l_{pk}\,s_{kj}$
+      \EndFor
+      \State $s_{pj} \leftarrow s_{pj}/l_{pp}$
+    \EndFor
+  \EndFor
+\end{algo}
+
+\Verif Sur une matrice $5\times 5$ aléatoire à diagonale dominante, on
+obtient $\max\abs{LS - A} = 9\times 10^{-16}$ (programme
+\fichier{tests_algorithmes.py}).
+
+\Refs \BF{alg.~6.4, p.~410} avec le choix $u_{ii} = 1$ : c'est la
+décomposition de Crout \BF{p.~410}.
+
+% ------------------------------------------------------------------
+\section{\texorpdfstring{Exercice I.5 : inversion d'une matrice et produit $L^{-1}b$}{Exercice I.5 : inversion d'une matrice et produit L\textasciicircum -1 b}}
+
+\Enonce{Trouver dans la littérature l'algorithme d'inversion d'une matrice et de
+calcul des éléments du produit $L^{-1}b$.}
+
+\Pourquoi Le système $SX = L^{-1}b$ du cours demande le vecteur $Y = L^{-1}b$.
+On ne calcule jamais la matrice $L^{-1}$ elle-même : $Y$ est la solution de
+$LY = b$, système triangulaire \emph{inférieur} que l'on résout de haut en bas
+(\og descente \fg{}), comme la remontée mais dans l'autre sens. C'est moins
+coûteux et plus précis que de former $L^{-1}$. De même, Burden et Faires
+rappellent qu'il n'est pas efficace de calculer $A^{-1}$ pour résoudre
+$AX = b$ \BF{p.~392} ; l'inverse n'est utile que si on en a besoin pour
+elle-même.
+
+\Etapes
+\Etape{1} \emph{Produit $Y = L^{-1}b$.} La première équation de $LY = b$ donne
+$y_1 = b_1/l_{11}$ ; la ligne $i$ ne contient que $y_1, \dots, y_i$, d'où
+\[
+  y_i = \frac{1}{l_{ii}}\Bigl(b_i - \sum_{j=1}^{i-1} l_{ij}\,y_j\Bigr),
+  \qquad i = 2, \dots, n \quad \BF{p.~411}.
+\]
+
+\Etape{2} \emph{Inverse.} Si $B = A^{-1}$, alors $AB = I$ : la colonne $j$ de
+$B$, notée $B_j$, est la solution de $AB_j = e_j$, où $e_j$ est la colonne $j$
+de la matrice identité \BF{p.~392--393}. On résout donc $n$ systèmes de même
+matrice $A$. Avec la décomposition $A = LS$ faite une seule fois, chaque
+colonne coûte une descente ($LY = e_j$) et une remontée ($SB_j = Y$).
+Burden et Faires procèdent de façon équivalente par élimination de Gauss sur la
+matrice augmentée $[A \mid I]$ \BF{p.~393} ; la méthode de Jordan du cours
+transforme directement $[A \mid I]$ en $[I \mid A^{-1}]$.
+
+\begin{algo}[ : descente $Y = L^{-1}b$]
+  \State $y_1 \leftarrow b_1/l_{11}$
+  \For{$i$ allant de $2$ à $n$}
+    \State $s \leftarrow b_i$
+    \For{$j$ allant de $1$ à $i-1$} \State $s \leftarrow s - l_{ij}\,y_j$ \EndFor
+    \State $y_i \leftarrow s/l_{ii}$
+  \EndFor
+\end{algo}
+
+\begin{algo}[ : inverse de $A$]
+  \State décomposer $A = LS$ \Comment{exercice I.4}
+  \For{$j$ allant de $1$ à $n$}
+    \State $e \leftarrow$ colonne $j$ de l'identité ($e_i = 0$ pour $i \ne j$, $e_j = 1$)
+    \State résoudre $LY = e$ par descente
+    \State résoudre $SX = Y$ par remontée \Comment{exercice I.1}
+    \For{$i$ allant de $1$ à $n$} \State $b_{ij} \leftarrow x_i$ \EndFor
+  \EndFor
+  \Print la matrice $B = A^{-1}$
+\end{algo}
+
+\Verif Sur la même matrice $5\times 5$ : erreur de résolution de $LSX = b$
+égale à $6\times 10^{-17}$, et $\max\abs{AA^{-1} - I} = 2\times 10^{-16}$.
+
+\Refs \BF{§~6.3, p.~391--393 (inverse) ; §~6.5, p.~411 (descente et
+remontée)}.
+
+% ------------------------------------------------------------------
+\section{\texorpdfstring{Exercice I.6 : coefficients $m_{pp}$ et $m_{pj}$ de Cholesky}{Exercice I.6 : coefficients mpp et mpj de Cholesky}}
+
+\Enonce{Écrire l'algorithme de calcul des coefficients $m_{pp}$ et $m_{pj}$.}
+
+\Pourquoi Pour une matrice symétrique, $A = M^{t}M$ avec une seule matrice
+triangulaire supérieure $M$ à calculer : on stocke moitié moins de nombres et
+on fait environ deux fois moins d'opérations que pour $LS$. Le calcul des
+$m_{pp}$ demande des racines carrées : il faut que les quantités sous la racine
+soient strictement positives. C'est le cas si et seulement si $A$ est
+\emph{définie positive} (et pas seulement symétrique) \BF{§~6.6,
+p.~423--424}. L'algorithme doit donc tester ce signe.
+
+\Etapes
+\Etape{1} $M$ étant triangulaire supérieure ($m_{kp} = 0$ si $k > p$), le
+coefficient $(p, j)$ de $M^{t}M$ pour $p \le j$ vaut
+\[
+  a_{pj} = \sum_{k=1}^{p} m_{kp}\,m_{kj}
+         = \sum_{k=1}^{p-1} m_{kp}\,m_{kj} + m_{pp}\,m_{pj} .
+\]
+
+\Etape{2} Pour $j = p$, on obtient
+$a_{pp} = \sum_{k<p} m_{kp}^2 + m_{pp}^2$, d'où
+$m_{pp} = \sqrt{a_{pp} - \sum_{k=1}^{p-1} m_{kp}^2}$. Pour $j > p$, on obtient
+$m_{pj} = \bigl(a_{pj} - \sum_{k=1}^{p-1} m_{kp}m_{kj}\bigr)/m_{pp}$. Ce sont
+les formules du cours (avec $m_{11} = \sqrt{a_{11}}$ et
+$m_{1j} = a_{1j}/m_{11}$ pour $p = 1$).
+
+\Etape{3} On calcule $M$ ligne par ligne : la ligne $p$ n'utilise que les lignes
+$1$ à $p-1$, déjà calculées.
+
+\begin{algo}[ : Cholesky $A = M^{t}M$]
+  \For{$p$ allant de $1$ à $n$}
+    \State $s \leftarrow a_{pp}$
+    \For{$k$ allant de $1$ à $p-1$} \State $s \leftarrow s - m_{kp}^2$ \EndFor
+    \If{$s \le 0$} \Print \og $A$ n'est pas définie positive \fg{} \Stop \EndIf
+    \State $m_{pp} \leftarrow \sqrt{s}$
+    \For{$j$ allant de $p+1$ à $n$}
+      \State $s \leftarrow a_{pj}$
+      \For{$k$ allant de $1$ à $p-1$} \State $s \leftarrow s - m_{kp}\,m_{kj}$ \EndFor
+      \State $m_{pj} \leftarrow s/m_{pp}$
+    \EndFor
+  \EndFor
+\end{algo}
+
+\Verif Pour la matrice de \BF{ex.~4, p.~424},
+\[
+  A = \begin{pmatrix} 4 & -1 & 1\\ -1 & 4{,}25 & 2{,}75\\ 1 & 2{,}75 & 3{,}5 \end{pmatrix},
+  \quad\text{l'algorithme donne}\quad
+  M = \begin{pmatrix} 2 & -0{,}5 & 0{,}5\\ 0 & 2 & 1{,}5\\ 0 & 0 & 1 \end{pmatrix},
+\]
+qui est bien la transposée de la matrice $L$ trouvée par Burden et Faires
+\BF{p.~424}, et $M^{t}M = A$ exactement.
+
+\Refs \BF{alg.~6.6, p.~423--424} (forme $A = LL^{t}$, avec $L = M^{t}$).
+
+% ------------------------------------------------------------------
+\section{Exercice I.7 : Jacobi et Gauss-Seidel avec condition d'arrêt}
+
+\Enonce{Écrire les algorithmes des méthodes de Jacobi et de Gauss-Seidel avec
+imposition de la condition d'arrêt.}
+
+\Pourquoi Une méthode itérative produit une suite infinie
+$X^{(0)}, X^{(1)}, \dots$ ; il faut donc décider quand s'arrêter. Le cours
+recommande le test relatif
+$d = \sum_i\abs{x_i^{(k+1)} - x_i^{(k)}}/\sum_i\abs{x_i^{(k+1)}} < \varepsilon$,
+qui ne dépend pas de l'ordre de grandeur des inconnues. Comme la convergence
+n'est pas toujours assurée, on limite aussi le nombre d'itérations à $k_{\max}$
+(une condition suffisante de convergence des deux méthodes est que $A$ soit à
+diagonale strictement dominante \BF{th.~7.21, p.~464}). La différence entre
+les deux méthodes impose une différence de programmation :
+\begin{itemize}
+  \item Jacobi n'utilise que les valeurs de l'itération précédente : il faut
+        deux tableaux, l'ancien $x$ et le nouveau $y$ ;
+  \item Gauss-Seidel utilise chaque nouvelle valeur dès qu'elle est calculée :
+        un seul tableau suffit, mis à jour sur place ; il faut seulement garder
+        l'ancienne valeur de $x_i$ pour le test d'arrêt.
+\end{itemize}
+
+\Etapes
+\Etape{1} Valeurs initiales $x_i = 0$ (ou $1$), comme le propose le cours.
+
+\Etape{2} À chaque itération, calculer pour $i = 1, \dots, n$ la nouvelle valeur
+par la formule du cours, en accumulant le numérateur et le dénominateur de $d$.
+
+\Etape{3} Arrêter si $d < \varepsilon$ (convergence) ou si $k = k_{\max}$
+(échec, à signaler).
+
+\begin{algo}[ : Jacobi]
+  \Require $n$, $A$, $b$, $\varepsilon$, $k_{\max}$
+  \For{$i$ allant de $1$ à $n$} \State $x_i \leftarrow 0$ \EndFor
+  \State $k \leftarrow 0$
+  \Repeat
+    \State $k \leftarrow k+1$ ; $\mathit{num} \leftarrow 0$ ; $\mathit{den} \leftarrow 0$
+    \For{$i$ allant de $1$ à $n$}
+      \State $s \leftarrow b_i$
+      \For{$j$ allant de $1$ à $n$, $j \neq i$} \State $s \leftarrow s - a_{ij}\,x_j$ \EndFor
+      \State $y_i \leftarrow s/a_{ii}$
+      \State $\mathit{num} \leftarrow \mathit{num} + \abs{y_i - x_i}$ ; $\mathit{den} \leftarrow \mathit{den} + \abs{y_i}$
+    \EndFor
+    \For{$i$ allant de $1$ à $n$} \State $x_i \leftarrow y_i$ \EndFor
+  \Until{$\mathit{num}/\mathit{den} < \varepsilon$ \textbf{ou} $k \ge k_{\max}$}
+  \If{$\mathit{num}/\mathit{den} \ge \varepsilon$} \Print \og pas de convergence \fg{} \EndIf
+  \Print $k$, $x_1, \dots, x_n$
+\end{algo}
+
+\begin{algo}[ : Gauss-Seidel]
+  \Require $n$, $A$, $b$, $\varepsilon$, $k_{\max}$
+  \For{$i$ allant de $1$ à $n$} \State $x_i \leftarrow 0$ \EndFor
+  \State $k \leftarrow 0$
+  \Repeat
+    \State $k \leftarrow k+1$ ; $\mathit{num} \leftarrow 0$ ; $\mathit{den} \leftarrow 0$
+    \For{$i$ allant de $1$ à $n$}
+      \State $s \leftarrow b_i$
+      \For{$j$ allant de $1$ à $n$, $j \neq i$} \State $s \leftarrow s - a_{ij}\,x_j$
+        \Comment{$x_j$ est déjà la nouvelle valeur si $j < i$}
+      \EndFor
+      \State $t \leftarrow s/a_{ii}$
+      \State $\mathit{num} \leftarrow \mathit{num} + \abs{t - x_i}$ ; $\mathit{den} \leftarrow \mathit{den} + \abs{t}$
+      \State $x_i \leftarrow t$
+    \EndFor
+  \Until{$\mathit{num}/\mathit{den} < \varepsilon$ \textbf{ou} $k \ge k_{\max}$}
+  \Print $k$, $x_1, \dots, x_n$
+\end{algo}
+
+\Verif Sur le système de \BF{ex.~1, p.~456} ($10x_1 - x_2 + 2x_3 = 6$,
+$-x_1 + 11x_2 - x_3 + 3x_4 = 25$, $2x_1 - x_2 + 10x_3 - x_4 = -11$,
+$3x_2 - x_3 + 8x_4 = 15$, solution $(1, 2, -1, 1)$), avec
+$\varepsilon = 10^{-3}$ : Jacobi s'arrête après 10 itérations sur
+$(1{,}0001 ; 1{,}9998 ; -0{,}9998 ; 0{,}9998)$ et Gauss-Seidel après 5 itérations
+sur $(1{,}0001 ; 2{,}0000 ; -1{,}0000 ; 1{,}0000)$. Ce sont les mêmes nombres
+d'itérations que dans le livre (10 et 5), qui utilise un test d'arrêt voisin
+fondé sur la norme maximale \BF{p.~458--461}.
+
+\Refs \BF{alg.~7.1, p.~459 (Jacobi) ; alg.~7.2, p.~462 (Gauss-Seidel) ;
+th.~7.21, p.~464}.

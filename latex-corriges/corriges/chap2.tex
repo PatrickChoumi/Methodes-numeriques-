@@ -1,0 +1,167 @@
+\chapter{Chapitre II : équations algébriques non linéaires}
+
+% ------------------------------------------------------------------
+\section{Exercice II.1 : Newton-Raphson avec condition d'arrêt}
+
+\Enonce{Écrire l'algorithme de la méthode de Newton-Raphson en y intégrant la
+condition d'arrêt.}
+
+\Pourquoi La suite $x_{n+1} = x_n - f(x_n)/f'(x_n)$ ne s'arrête jamais
+d'elle-même : il faut un critère qui garantisse la précision $E$ demandée. Le
+cours donne la majoration $\abs{x_n - \bar{x}} \le \abs{f(x_n)}/m$ si
+$\abs{f'} \ge m > 0$ sur un intervalle $[a,b]$ contenant $x_n$ et la racine
+$\bar{x}$. Elle vient du théorème des accroissements finis :
+$f(x_n) = f(x_n) - f(\bar{x}) = f'(\xi)(x_n - \bar{x})$ avec $\xi$ entre $x_n$
+et $\bar{x}$, donc $\abs{x_n - \bar{x}} = \abs{f(x_n)}/\abs{f'(\xi)} \le
+\abs{f(x_n)}/m$. Le test $\abs{f(x_n)}/m < E$ garantit donc
+$\abs{x_n - \bar{x}} < E$. Deux sécurités sont nécessaires en plus : arrêter si
+$f'(x_n) = 0$ (la tangente est horizontale, la formule n'a plus de sens) et
+limiter le nombre d'itérations, car Newton peut diverger si $x_0$ est mal choisi
+(remarque du cours).
+
+\Etapes
+\Etape{1} Localiser la racine dans $[a,b]$ (changement de signe de $f$),
+choisir $x_0 \in [a,b]$ et calculer $m = \min(\abs{f'(a)}, \abs{f'(b)})$
+(valable lorsque $\abs{f'}$ est monotone sur $[a,b]$, comme le suppose le
+cours ; sinon prendre le minimum de $\abs{f'}$ sur $[a,b]$).
+
+\Etape{2} Itérer $x \leftarrow x - f(x)/f'(x)$.
+
+\Etape{3} Après chaque itération, tester $\abs{f(x)}/m < E$ ; arrêter aussi si
+$k$ atteint $k_{\max}$.
+
+\begin{algo}[ : Newton-Raphson]
+  \Require $f$, $f'$, $a$, $b$, $x_0$, $E$, $k_{\max}$
+  \State $m \leftarrow \min(\abs{f'(a)}, \abs{f'(b)})$
+  \State $x \leftarrow x_0$ ; $k \leftarrow 0$
+  \Repeat
+    \If{$f'(x) = 0$} \Print \og dérivée nulle : changer $x_0$ \fg{} \Stop \EndIf
+    \State $x \leftarrow x - f(x)/f'(x)$
+    \State $k \leftarrow k+1$
+  \Until{$\abs{f(x)}/m < E$ \textbf{ou} $k \ge k_{\max}$}
+  \If{$\abs{f(x)}/m \ge E$} \Print \og pas de convergence : changer $x_0$ \fg{}
+  \Else \ \Print $x$, $k$
+  \EndIf
+\end{algo}
+
+\Verif Pour $f(x) = (x-5)e^{x} + 5$ (exercice 1 de la fin du document), sur
+$[4{,}9 ; 5]$ : $f'(x) = (x-4)e^{x}$ est croissante, $m = \abs{f'(4{,}9)} =
+120{,}861$ ; depuis $x_0 = 5$ et avec $E = 10^{-12}$, l'algorithme s'arrête
+après 4 itérations sur $x = 4{,}965114231744$.
+
+\Refs \BF{alg.~2.3, p.~67}.
+
+% ------------------------------------------------------------------
+\section{Exercice II.2 : méthode de bissection}
+
+\Enonce{Écrire l'algorithme de la méthode de bissection.}
+
+\Pourquoi Si $f$ est continue et si $f(a)$ et $f(b)$ sont de signes opposés,
+le théorème des valeurs intermédiaires garantit une racine dans $[a,b]$. En
+gardant à chaque étape la moitié où le signe change, on conserve toujours une
+racine, et la longueur de l'intervalle est divisée par 2. La méthode converge
+donc \emph{toujours} (contrairement à Newton), mais lentement. Son avantage :
+on connaît à l'avance le nombre d'étapes. Pour que l'intervalle final soit de
+longueur inférieure à $\varepsilon$, il faut $(b-a)/2^n < \varepsilon$,
+c'est-à-dire $n > \log_2\bigl((b-a)/\varepsilon\bigr)$.
+
+Le test sur le signe se fait par le produit $f(a)f(c)$ : il fonctionne que $f$
+soit croissante ou décroissante (le cours suppose $f$ croissante, ce qui
+n'est pas nécessaire). On garde $f(a)$ en mémoire pour n'évaluer $f$ qu'une
+fois par étape. Burden et Faires conseillent de tester le \emph{signe} plutôt
+que le produit si l'on craint un dépassement de capacité \BF{p.~52}.
+
+\Etapes
+\Etape{1} Vérifier $f(a)f(b) < 0$.
+
+\Etape{2} Tant que $b - a > \varepsilon$ : calculer $c = (a+b)/2$ et $f(c)$ ;
+si $f(c) = 0$, la racine est $c$ ; si $f(a)f(c) < 0$, la racine est dans
+$[a,c]$ et on pose $b \leftarrow c$ ; sinon elle est dans $[c,b]$ et on pose
+$a \leftarrow c$, $f(a) \leftarrow f(c)$.
+
+\Etape{3} Le résultat est le milieu du dernier intervalle.
+
+\begin{algo}[ : bissection]
+  \Require $f$, $a$, $b$, $\varepsilon$
+  \State $f_a \leftarrow f(a)$
+  \If{$f_a\,f(b) > 0$} \Print \og pas de changement de signe sur $[a,b]$ \fg{} \Stop \EndIf
+  \While{$b - a > \varepsilon$}
+    \State $c \leftarrow (a+b)/2$ ; $f_c \leftarrow f(c)$
+    \If{$f_c = 0$} \Print $c$ \Stop \EndIf
+    \If{$f_a\,f_c < 0$} \State $b \leftarrow c$
+    \Else \State $a \leftarrow c$ ; $f_a \leftarrow f_c$
+    \EndIf
+  \EndWhile
+  \Print $(a+b)/2$
+\end{algo}
+
+\Verif Avec la même fonction que ci-dessus, sur $[4{,}9 ; 5]$ et
+$\varepsilon = 10^{-10}$ : $\log_2(0{,}1/10^{-10}) = 29{,}9$, il faut donc 30
+étapes, et l'algorithme donne effectivement $x = 4{,}9651142317$ en 30 étapes.
+
+\Refs \BF{alg.~2.1, p.~49}.
+
+% ------------------------------------------------------------------
+\section{Exercice II.3 : schéma de Lin pour les racines réelles}
+
+\Enonce{Établir l'algorithme de ce schéma de Lin pour les solutions réelles.}
+
+\Pourquoi Si $x$ est une racine, la dernière quantité de Horner est nulle :
+$b_n = a_n + x\,b_{n-1}(x) = 0$, d'où $x = -a_n/b_{n-1}(x)$. La racine est donc
+un point fixe de la fonction $g(x) = -a_n/b_{n-1}(x)$, et la méthode de Lin
+consiste à itérer $x_{k+1} = g(x_k)$ : c'est une formule d'itération du premier
+ordre au sens du chapitre II. Une telle itération converge vers une racine $r$
+lorsque $\abs{g'(r)} < 1$ et s'en éloigne lorsque $\abs{g'(r)} > 1$ ; c'est ce
+qui explique la remarque du cours (\og elle n'est pas toujours convergente \fg).
+Quand l'itération a convergé, $b_n \approx 0$ et
+$P_n(x) = (x - r)Q(x) + b_n$ : les nombres $b_0, \dots, b_{n-1}$ sont les
+coefficients du quotient $Q$, de degré $n-1$, sur lequel on recommence pour
+trouver la racine suivante (déflation).
+
+\Etapes
+\Etape{1} Partir d'une valeur $x_0$.
+
+\Etape{2} Calculer par Horner $b_0 = a_0$, $b_j = a_j + x\,b_{j-1}$ pour
+$j = 1, \dots, n-1$ (on s'arrête à $b_{n-1}$).
+
+\Etape{3} Nouvelle valeur $x' = -a_n/b_{n-1}$ ; arrêter si
+$\abs{x' - x} < \varepsilon$, ou si $k_{\max}$ itérations ont été faites sans
+convergence (changer alors $x_0$).
+
+\Etape{4} Déflation : recalculer $b_0, \dots, b_{n-1}$ avec la racine trouvée,
+remplacer $(a_0, \dots, a_n)$ par $(b_0, \dots, b_{n-1})$, faire $n \leftarrow
+n-1$ et recommencer à l'étape 1 tant que $n \ge 1$.
+
+\begin{algo}[ : méthode de Lin avec déflation]
+  \Require $n$, $a_0, \dots, a_n$, $x_0$, $\varepsilon$, $k_{\max}$
+  \While{$n \ge 1$}
+    \State $x \leftarrow x_0$ ; $k \leftarrow 0$
+    \Repeat
+      \State $k \leftarrow k+1$ ; $b_0 \leftarrow a_0$
+      \For{$j$ allant de $1$ à $n-1$} \State $b_j \leftarrow a_j + x\,b_{j-1}$ \EndFor
+      \If{$b_{n-1} = 0$} \Print \og changer $x_0$ \fg{} \Stop \EndIf
+      \State $x' \leftarrow -a_n/b_{n-1}$ ; $d \leftarrow \abs{x' - x}$ ; $x \leftarrow x'$
+    \Until{$d < \varepsilon$ \textbf{ou} $k \ge k_{\max}$}
+    \If{$d \ge \varepsilon$} \Print \og pas de convergence \fg{} \Stop \EndIf
+    \Print racine $x$
+    \State $b_0 \leftarrow a_0$
+    \For{$j$ allant de $1$ à $n-1$} \State $b_j \leftarrow a_j + x\,b_{j-1}$ \EndFor
+    \For{$j$ allant de $0$ à $n-1$} \State $a_j \leftarrow b_j$ \EndFor
+    \State $n \leftarrow n-1$
+  \EndWhile
+\end{algo}
+(Pour $n = 1$, la boucle de Horner est vide et $x = -a_1/a_0$ est obtenu en une
+itération.)
+
+\Verif Pour $P(x) = x^3 - 6x^2 + 11x - 6 = (x-1)(x-2)(x-3)$, avec
+$\varepsilon = 10^{-10}$ : depuis $x_0 = 0$ ou $1{,}5$, la méthode converge vers
+$1$ (53 et 56 itérations) ; depuis $x_0 = 2{,}5$ ou $3{,}5$, elle converge vers
+$3$ (7 itérations) ; elle ne converge jamais vers $2$. La théorie l'explique :
+ici $g(x) = 6/(x^2 - 6x + 11)$ et $g'(x) = -6(2x-6)/(x^2-6x+11)^2$, d'où
+$g'(1) = 2/3$ (convergence lente), $g'(2) = 4/3 > 1$ (racine répulsive) et
+$g'(3) = 0$ (convergence rapide). C'est un exemple concret de la non-convergence
+annoncée par le cours.
+
+\Refs Méthode du cours (Lin, 1941). Pour la théorie des itérations de point
+fixe et le critère $\abs{g'} < 1$ : \BF{§~2.2, th.~2.4, p.~61}. Horner
+et déflation : \BF{alg.~2.7, p.~94 ; déflation p.~95}.

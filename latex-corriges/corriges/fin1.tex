@@ -1,0 +1,447 @@
+\chapter{Exercices de fin de document (1 à 7)}
+
+% ------------------------------------------------------------------
+\section{Exercice 1 : maximum de la loi de Planck}
+
+\Question{1- Équation vérifiée par $x_m$.}
+\Pourquoi Avec $x = hc/(\lambda kT)$, on a $\lambda = hc/(xkT)$, et l'intensité
+devient une fonction de $x$ seul (à un facteur constant près). Comme
+$x \mapsto \lambda$ est strictement monotone ($\dd x/\dd\lambda =
+-hc/(\lambda^2kT) \ne 0$), chercher le maximum en $\lambda$ revient à chercher
+le maximum en $x$.
+
+\Etape{1} $I = 8\pi hc\,\lambda^{-5}/(e^{x} - 1) = 8\pi hc\,(kT/hc)^5\;x^5/(e^{x} - 1)$.
+
+\Etape{2} On dérive $\varphi(x) = x^5/(e^{x} - 1)$ :
+\[
+  \varphi'(x) = \frac{5x^4(e^{x} - 1) - x^5e^{x}}{(e^{x} - 1)^2} = 0
+  \iff 5(e^{x} - 1) = xe^{x} .
+\]
+
+\Etape{3} L'équation de $x_m$ est donc
+\[
+  f(x) = (x - 5)e^{x} + 5 = 0, \qquad\text{ou encore}\qquad x = 5\bigl(1 - e^{-x}\bigr) .
+\]
+Attention : $x = 0$ est solution évidente ($f(0) = -5 + 5 = 0$) mais
+correspond à $\lambda \to \infty$, pas au maximum ; on cherche la racine
+strictement positive.
+
+\Question{2- Algorithme de Newton-Raphson.}
+\Pourquoi $f$ est dérivable, de dérivée simple $f'(x) = (x - 4)e^{x}$ : Newton
+converge vite si l'on part près de la racine. Comme $e^{-x}$ est petit pour $x$
+grand, l'écriture $x = 5(1 - e^{-x})$ suggère $x_0 = 5$. Sur $[4{,}9 ; 5]$,
+$f(4{,}9) < 0 < f(5)$, $f' > 0$ et $f'' = (x - 3)e^{x} > 0$, donc
+$f(x_0)f''(x_0) > 0$ en $x_0 = 5$ : d'après la remarque du cours, la suite est
+monotone et converge.
+
+\Etapes
+\Etape{1} $x_0 = 5$, $m = \min\abs{f'} = f'(4{,}9) = 120{,}86$ sur $[4{,}9 ; 5]$.
+
+\Etape{2} $x_{n+1} = x_n - \dfrac{(x_n - 5)e^{x_n} + 5}{(x_n - 4)e^{x_n}}$.
+
+\Etape{3} Arrêt quand $\abs{f(x_n)}/m < E$ (algorithme de l'exercice II.1).
+
+\begin{algo}[ : Newton pour $x_m$]
+  \Require $E$, $k_{\max}$
+  \State $x \leftarrow 5$ ; $m \leftarrow (4{,}9 - 4)e^{4{,}9}$ ; $k \leftarrow 0$
+  \Repeat
+    \State $x \leftarrow x - \bigl((x-5)e^{x} + 5\bigr)/\bigl((x-4)e^{x}\bigr)$ ; $k \leftarrow k + 1$
+  \Until{$\abs{(x-5)e^{x} + 5}/m < E$ \textbf{ou} $k \ge k_{\max}$}
+  \Print $x_m = x$ et $\lambda_mT = hc/(k\,x_m)$
+\end{algo}
+
+\Verif Itérés : $x_1 = 4{,}966310265$, $x_2 = 4{,}965115686$,
+$x_3 = 4{,}965114231746$, $x_4 = 4{,}965114231744$ (convergence quadratique :
+le nombre de chiffres exacts double environ à chaque pas). Cette valeur est
+celle de la suite A094090 de l'OEIS ($4{,}96511423174427\ldots$) [OEIS]. Avec
+les valeurs exactes des constantes ($h = 6{,}62607015\times 10^{-34}$~J\,s,
+$c = 299\,792\,458$~m/s, $k = 1{,}380649\times 10^{-23}$~J/K), on obtient la loi
+de Wien $\lambda_mT = hc/(kx_m) = 2{,}8978\times 10^{-3}$~m\,K.
+
+\Refs \BF{alg.~2.3, p.~67} ; [OEIS].
+
+% ------------------------------------------------------------------
+\section{Exercice 2 : volume d'un gaz de Van der Waals}
+
+\Pourquoi Pour $T$ et $P$ donnés, $V$ est racine de
+$g(V) = (P + a/V^2)(V - b) - RMT$ ; on ne sait pas l'isoler, il faut une
+méthode numérique : Newton. En multipliant par $V^2 > 0$, on obtient une
+équation polynomiale de degré 3, sans division par $V$ :
+\[
+  f(V) = PV^3 - (Pb + K)V^2 + aV - ab = 0, \qquad K = RMT .
+\]
+Elle se dérive facilement, $f'(V) = 3PV^2 - 2(Pb + K)V + a$, et s'évalue par
+Horner (chapitre II). Le point de départ naturel est le volume du gaz parfait,
+$V_0 = K/P$ (on retrouve Van der Waals quand $a = b = 0$). Seules les racines
+$V > b$ ont un sens physique. Sous la température critique, le polynôme peut
+avoir trois racines réelles (liquide et gaz) ; partir de $V_0$ oriente vers la
+racine \og gaz \fg.
+
+\Etapes
+\Etape{1} Lire $a$, $b$, $R$, $M$ puis, pour chaque couple $(T, P)$ :
+$K = RMT$, $V = K/P$.
+
+\Etape{2} Itérer $V \leftarrow V - f(V)/f'(V)$ jusqu'à
+$\abs{\Delta V} < \varepsilon\abs{V}$ (test relatif, $V$ pouvant être très
+petit ou très grand selon les unités).
+
+\Etape{3} Vérifier $V > b$ et afficher.
+
+\begin{algo}[ : Van der Waals]
+  \Require $a$, $b$, $R$, $M$, $\varepsilon$, $k_{\max}$
+  \While{il reste des couples $(T, P)$ à traiter}
+    \Read $T$, $P$
+    \State $K \leftarrow RMT$ ; $V \leftarrow K/P$ ; $k \leftarrow 0$
+    \Repeat
+      \State $f \leftarrow ((PV - (Pb + K))V + a)V - ab$ \Comment{Horner}
+      \State $f' \leftarrow (3PV - 2(Pb + K))V + a$
+      \State $\Delta \leftarrow f/f'$ ; $V \leftarrow V - \Delta$ ; $k \leftarrow k + 1$
+    \Until{$\abs{\Delta} < \varepsilon\abs{V}$ \textbf{ou} $k \ge k_{\max}$}
+    \If{$V \le b$ \textbf{ou} $k \ge k_{\max}$} \Print \og échec \fg{} \Else \ \Print $T$, $P$, $V$ \EndIf
+  \EndWhile
+\end{algo}
+
+\Verif Pour le dioxyde de carbone, avec $a = 3{,}592$~L$^2$\,atm/mol$^2$,
+$b = 0{,}04267$~L/mol [VdW] et $R = 0{,}08206$~L\,atm/(mol\,K), pour une mole
+($K = RT$) à $T = 300$~K : à $P = 10$~atm, $V = 2{,}354688$~L en 5 itérations
+(gaz parfait : $2{,}4618$~L) ; à $P = 50$~atm, $V = 0{,}358484$~L en 7
+itérations (gaz parfait : $0{,}4924$~L). Dans les deux cas les deux autres
+racines du polynôme sont complexes, la racine trouvée est donc la seule racine
+réelle.
+
+\Refs \BF{alg.~2.3, p.~67 ; Horner, alg.~2.7, p.~94} ; constantes : [VdW].
+
+% ------------------------------------------------------------------
+\section{Exercice 3 : facteur de compressibilité (De Santis)}
+
+\Attention L'expression $z = (1 + y + y^2 - y^3)/(1 - y)^3$, avec
+$y = b/(4v)$, est celle de Carnahan et Starling pour un gaz de sphères dures,
+reprise dans l'équation d'état de Carnahan-Starling-De Santis (1976) [CSD].
+Dans le document scanné, le dénominateur est imprimé $(1 - y^3)$ ; c'est
+$(1 - y)^3$ qui est correct (voir la transcription du cours). On connaît $z$
+et $v$, on cherche $b$.
+
+\Question{1- Principe de la méthode de Newton.}
+\Pourquoi On remplace la courbe de $f$ par sa tangente au point $x_n$ ; le point
+où la tangente coupe l'axe donne $x_{n+1} = x_n - f(x_n)/f'(x_n)$ (chapitre II).
+La convergence est quadratique près d'une racine simple.
+
+\Question{2- Algorithme.}
+\Pourquoi On cherche d'abord $y$, puis $b = 4vy$. On multiplie l'équation par
+$(1 - y)^3$ pour supprimer le pôle $y = 1$ :
+\[
+  f(y) = z(1 - y)^3 - (1 + y + y^2 - y^3) = 0, \qquad
+  f'(y) = -3z(1 - y)^2 - (1 + 2y - 3y^2) .
+\]
+Pour le départ : quand $y$ est petit, $(1 - y)^{-3} = 1 + 3y + 6y^2 + \dots$,
+d'où $z = 1 + 4y + 10y^2 + \dots$ ; on peut donc prendre $y_0 = (z - 1)/4$.
+Physiquement $0 < y < 1$.
+
+\Etapes
+\Etape{1} Lire $z$, $v$, $\varepsilon$, $k_{\max}$ ; $y \leftarrow (z - 1)/4$
+(ou une valeur donnée).
+
+\Etape{2} Itérer $y \leftarrow y - f(y)/f'(y)$ jusqu'à
+$\abs{\Delta y} < \varepsilon$.
+
+\Etape{3} $b = 4vy$.
+
+\begin{algo}[ : De Santis]
+  \Read $z$, $v$, $y_0$, $\varepsilon$, $k_{\max}$
+  \State $y \leftarrow y_0$
+  \For{$k$ allant de $1$ à $k_{\max}$}
+    \State $f \leftarrow z(1-y)^3 - (1 + y + y^2 - y^3)$
+    \State $f' \leftarrow -3z(1-y)^2 - (1 + 2y - 3y^2)$
+    \State $\Delta \leftarrow f/f'$ ; $y \leftarrow y - \Delta$
+    \If{$\abs{\Delta} < \varepsilon$} \Print $y$, $b = 4vy$ \Stop \EndIf
+  \EndFor
+  \Print \og pas de convergence \fg{}
+\end{algo}
+
+\Question{3- Programme Fortran.}
+\programme{[90]Fortran}{en Fortran 90}{desantis.f90}
+
+\Verif Pour $y = 0{,}3$, la formule donne $z = 1{,}363/0{,}343 = 3{,}9737609$.
+Avec cette valeur de $z$, $v = 1$ et $y_0 = 0{,}5$, le programme retrouve
+$y = 0{,}2999999984$ et $b = 1{,}1999999937$ (la valeur de $z$ n'ayant que 8
+chiffres, on ne peut pas espérer mieux) ; avec le départ $y_0 = (z-1)/4 =
+0{,}7434$, la convergence vers $0{,}3$ demande 8 itérations.
+
+\Refs \BF{alg.~2.3, p.~67} ; [CSD].
+
+% ------------------------------------------------------------------
+\section{\texorpdfstring{Exercice 4 : $y' = -ay - by^4 + c$ par prédicteur-correcteur}{Exercice 4 : y' = -ay - by\textasciicircum 4 + c par prédicteur-correcteur}}
+
+\Question{1)- Schéma itératif.}
+\Pourquoi On applique l'exercice V.4 avec $f(x, y) = -ay - by^4 + c$ (qui ne
+dépend pas de $x$). Le prédicteur AB2 est explicite mais il lui faut deux
+valeurs ; le démarrage se fait par RK2.
+
+\Etapes
+\Etape{1} Démarrage : $y_1 = y_0 + \frac h2\bigl[f(y_0) + f\bigl(y_0 + hf(y_0)\bigr)\bigr]$.
+
+\Etape{2} Pour $k \ge 1$, prédiction
+$p_{k+1} = y_k + \frac h2\bigl[3f(y_k) - f(y_{k-1})\bigr]$.
+
+\Etape{3} Correction $y_{k+1} = y_k + \frac h2\bigl[f(y_k) + f(p_{k+1})\bigr]$,
+avec $f(y) = -ay - by^4 + c$.
+
+\Question{2)- Algorithme.} C'est celui de l'exercice V.4, avec cette fonction
+$f$ ; on garde $f(y_{k-1})$ dans une variable pour ne calculer que deux
+valeurs de $f$ par pas.
+
+\Question{3)- Programmes.}
+\programme{Pascal}{en Pascal}{ex4_pc.pas}
+\programme{[90]Fortran}{en Fortran 90}{ex4_pc.f90}
+
+\Verif Pour $a = 1$, $b = 0{,}5$, $c = 2$, $y_0 = 0$, $x = 2$ et $n = 40$, les
+deux programmes donnent $y(2) = 1{,}1425354104$ ; une intégration de référence
+très précise (SciPy) donne $1{,}1425030979$ : erreur $3\times 10^{-5}$. La
+solution tend vers l'état d'équilibre $y^*$, racine de $-y - 0{,}5y^4 + 2 = 0$,
+soit $y^* = 1{,}1439$.
+
+\Refs \BF{p.~307 (AB2) ; p.~310--311 (prédicteur-correcteur)}.
+
+% ------------------------------------------------------------------
+\section{\texorpdfstring{Exercice 5 : $y'' + \frac{a}{x}y' + be^{cy} = 0$ par la méthode de tir}{Exercice 5 : y'' + (a/x)y' + b exp(cy) = 0 par la méthode de tir}}
+
+\Pourquoi La condition $y'(0) = 0$ est en $x = 0$ et la condition $y(1) = 1$
+en $x = 1$ : il manque la valeur $y(0)$ pour pouvoir partir de $x = 0$. On la
+remplace par le paramètre de tir $\gamma = y(0)$ et on cherche $\gamma$ tel
+que $F(\gamma) = y(1, \gamma) - 1 = 0$. Newton demande
+$F'(\gamma) = \partial y(1,\gamma)/\partial\gamma$ : on l'obtient en dérivant
+l'équation par rapport à $\gamma$, ce qui donne une deuxième équation
+différentielle (méthode de Burden et Faires, alg.~11.2).
+
+\Question{1)- Schéma itératif de Newton pour $\gamma$.}
+\Etape{1} Posons $z(x) = \partial y(x,\gamma)/\partial\gamma$. En dérivant
+l'équation et les conditions initiales $y(0) = \gamma$, $y'(0) = 0$ par
+rapport à $\gamma$ :
+\[
+  z'' + \frac ax z' + bc\,e^{cy}z = 0, \qquad z(0) = 1, \quad z'(0) = 0 .
+\]
+
+\Etape{2} Newton : $\displaystyle \gamma_{n+1} = \gamma_n - \frac{y(1, \gamma_n) - 1}{z(1, \gamma_n)}$.
+
+\Etape{3} À chaque itération, on intègre ensemble les équations en $y$ et en
+$z$ (même $\gamma_n$), puis on corrige $\gamma$.
+
+\Question{Le point singulier $x = 0$.}
+Le terme $\frac ax y'$ n'est pas défini en $x = 0$. Mais $y'(0) = 0$, donc
+$y'(x)/x \to y''(0)$ quand $x \to 0$. L'équation en $x = 0$ devient
+$y''(0) + a\,y''(0) + be^{c\gamma} = 0$, d'où
+\[
+  y''(0) = -\frac{b\,e^{c\gamma}}{1 + a}, \qquad\text{et de même}\qquad
+  z''(0) = -\frac{bc\,e^{c\gamma}}{1 + a}.
+\]
+Ce sont les valeurs à utiliser au premier pas.
+
+\Question{2)- Méthode de Runge-Kutta d'ordre 4 pour un système.}
+On pose $Y = (Y_1, Y_2, Y_3, Y_4) = (y, y', z, z')$ ; le système s'écrit
+$Y' = F(x, Y)$ avec
+\[
+  F(x, Y) = \Bigl(Y_2,\; -\frac ax Y_2 - be^{cY_1},\; Y_4,\;
+  -\frac ax Y_4 - bc\,e^{cY_1}Y_3\Bigr)
+\]
+(et les limites ci-dessus pour $x = 0$). RK4 s'applique composante par
+composante, avec les mêmes formules que pour une équation scalaire :
+\[
+  K_1 = hF(x_i, Y_i), \qquad K_2 = hF\bigl(x_i + \tfrac h2, Y_i + \tfrac12K_1\bigr),
+\]
+\[
+  K_3 = hF\bigl(x_i + \tfrac h2, Y_i + \tfrac12K_2\bigr), \qquad
+  K_4 = hF(x_i + h, Y_i + K_3),
+\]
+\[
+  Y_{i+1} = Y_i + \tfrac16\bigl(K_1 + 2K_2 + 2K_3 + K_4\bigr).
+\]
+Il est essentiel de calculer \emph{toutes} les composantes de $K_1$ avant de
+passer à $K_2$, etc.
+
+\Question{3)- Algorithme complet.}
+\begin{algo}[ : tir avec Newton]
+  \Require $a$, $b$, $c$, $N$, $\gamma_0$, $\varepsilon$, $k_{\max}$
+  \State $h \leftarrow 1/N$ ; $\gamma \leftarrow \gamma_0$
+  \For{$k$ allant de $1$ à $k_{\max}$}
+    \State $x \leftarrow 0$ ; $Y \leftarrow (\gamma, 0, 1, 0)$ \Comment{conditions initiales}
+    \For{$i$ allant de $1$ à $N$}
+      \State $K_1 \leftarrow hF(x, Y)$ ; $K_2 \leftarrow hF(x + h/2, Y + K_1/2)$
+      \State $K_3 \leftarrow hF(x + h/2, Y + K_2/2)$ ; $K_4 \leftarrow hF(x + h, Y + K_3)$
+      \State $Y \leftarrow Y + (K_1 + 2K_2 + 2K_3 + K_4)/6$ ; $x \leftarrow x + h$
+    \EndFor
+    \State $\Delta \leftarrow (Y_1 - 1)/Y_3$ \Comment{$Y_1 = y(1)$, $Y_3 = z(1)$}
+    \State $\gamma \leftarrow \gamma - \Delta$
+    \If{$\abs{\Delta} < \varepsilon$} \Print $\gamma$ (et refaire un tir pour afficher $y(x_i)$) \Stop \EndIf
+  \EndFor
+  \Print \og pas de convergence \fg{}
+\end{algo}
+où $F(0, Y)$ utilise les limites $y''(0)$ et $z''(0)$.
+
+\Verif
+\begin{itemize}
+  \item Cas test exact $c = 0$ : l'équation devient linéaire,
+        $y = \gamma - \frac{b}{2(1+a)}x^2$, d'où $\gamma = 1 + \frac{b}{2(1+a)}$.
+        Pour $a = b = 1$ : $\gamma = 1{,}25$. L'algorithme ($N = 200$) trouve
+        $1{,}2500000000$ en 2 itérations.
+  \item $a = 1$, $b = 1$, $c = 0{,}5$ : $\gamma = 1{,}4961487192$ (5 itérations
+        depuis $\gamma_0 = 1$), avec $y(1) = 1$ à $10^{-12}$ près. Ce problème a
+        une seconde solution, $\gamma = 9{,}5942$, que Newton atteint si l'on part
+        plus haut : le point de départ choisit la solution.
+  \item $a = 2$, $b = 0{,}5$, $c = 1$ : $\gamma = 1{,}2739793373$.
+  \item Pour $a = b = c = 1$, il n'y a \emph{pas} de solution : le calcul de
+        $y(1, \gamma)$ pour $\gamma \in [-5, 5]$ montre que son maximum vaut
+        $0{,}693$ (vers $\gamma \approx 2{,}1$), toujours inférieur à $1$.
+        Une méthode de tir qui ne converge pas peut donc signaler un problème
+        sans solution, et pas seulement un mauvais $\gamma_0$.
+\end{itemize}
+
+\Refs \BF{§~11.2, p.~693--698, alg.~11.2, p.~696 ; RK4 pour les systèmes, alg.~5.7,
+p.~333}.
+
+% ------------------------------------------------------------------
+\section{\texorpdfstring{Exercice 6 : potentiel entre cathode et anode, $V'' = aV^{-1/2}$}{Exercice 6 : potentiel entre cathode et anode, V'' = a V\textasciicircum (-1/2)}}
+
+\Question{1-a- Itérations RK2.}
+\Pourquoi On intègre $y' = f(x,y)$ entre $x_k$ et $x_{k+1}$ par les trapèzes et on
+remplace l'inconnue $y_{k+1}$ du second membre par la prévision d'Euler
+(exercice V.1) :
+\[
+  y_{k+1} = y_k + \frac h2\Bigl[f(x_k, y_k) + f\bigl(x_k + h, y_k + hf(x_k, y_k)\bigr)\Bigr].
+\]
+
+\Question{1-b- Algorithme pour (1).}
+\Pourquoi On pose $W = V'$ (c'est l'opposé du champ électrique) : (1) devient le
+système $V' = W$, $W' = aV^{-1/2}$, avec $V(0) = W(0) = 0$. RK2 s'applique au
+vecteur $(V, W)$. Mais en $x = 0$, $V = 0$ et le second membre $a/\sqrt{V}$
+est infini : on ne peut pas démarrer en $0$. On cherche alors une solution de
+la forme $V = Cx^{p}$ : $V'' = Cp(p-1)x^{p-2}$ et $aV^{-1/2} = aC^{-1/2}x^{-p/2}$
+imposent $p - 2 = -p/2$, soit $p = 4/3$, puis $C\cdot\frac43\cdot\frac13 =
+aC^{-1/2}$, soit $C = (9a/4)^{2/3}$. On retrouve la loi de Child-Langmuir
+$V = (9a/4)^{2/3}x^{4/3}$ [CL]. On démarre donc en $x = \varepsilon$ petit, avec
+$V(\varepsilon) = C\varepsilon^{4/3}$ et
+$W(\varepsilon) = \frac43C\varepsilon^{1/3}$.
+
+\begin{algo}[ : RK2 pour $V'' = aV^{-1/2}$]
+  \Require $a$, $l$, $\varepsilon$, $n$
+  \State $C \leftarrow (9a/4)^{2/3}$ ; $x \leftarrow \varepsilon$ ; $V \leftarrow C\varepsilon^{4/3}$ ;
+         $W \leftarrow \frac43C\varepsilon^{1/3}$ ; $h \leftarrow (l - \varepsilon)/n$
+  \For{$i$ allant de $1$ à $n$}
+    \State $k_{1V} \leftarrow hW$ ; $k_{1W} \leftarrow ha/\sqrt{V}$
+    \State $k_{2V} \leftarrow h(W + k_{1W})$ ; $k_{2W} \leftarrow ha/\sqrt{V + k_{1V}}$
+    \State $V \leftarrow V + (k_{1V} + k_{2V})/2$ ; $W \leftarrow W + (k_{1W} + k_{2W})/2$ ; $x \leftarrow x + h$
+    \Print $x$, $V$, $W$
+  \EndFor
+\end{algo}
+
+\Question{1-c- Programmes.}
+\programme{Pascal}{en Pascal}{ex6_rk2.pas}
+\programme{[90]Fortran}{en Fortran 90}{ex6_rk2.f90}
+
+\Verif $a = 1$, $l = 1$, $\varepsilon = 10^{-2}$ ; valeur exacte
+$V(1) = (9/4)^{2/3} = 1{,}71707139$. Résultats : $n = 100$ : $1{,}72325822$ ;
+$n = 200$ : $1{,}71871099$ ; $n = 400$ : $1{,}71749475$ (identique en Fortran).
+Les erreurs ($6{,}2\times 10^{-3}$ ; $1{,}6\times 10^{-3}$ ;
+$4{,}2\times 10^{-4}$) sont divisées par 4 : ordre 2. Partir trop près de la
+singularité dégrade la précision : avec $\varepsilon = 10^{-3}$ et $n = 400$,
+on obtient $1{,}7256$.
+
+\Question{2-a- Principe de la méthode de tir.}
+\Pourquoi Les conditions sont maintenant $V(0) = 0$ et $V(l) = V_0$ : une
+condition à chaque bout. On choisit la pente inconnue $\gamma = V'(0)$
+(c'est-à-dire le champ sur la cathode), on intègre le problème à valeurs
+initiales, et on ajuste $\gamma$ pour que $V(l, \gamma) = V_0$ (exercice V.5).
+
+\Question{2-b- Algorithme.}
+\Etape{1} Démarrage hors de la singularité : pour $\gamma > 0$, près de $0$,
+$V \approx \gamma x$, donc $V'' \approx a/\sqrt{\gamma x}$ ; en intégrant deux
+fois : $W(\varepsilon) \approx \gamma + 2a\sqrt{\varepsilon/\gamma}$ et
+$V(\varepsilon) \approx \gamma\varepsilon + \frac{4a}{3}\varepsilon^{3/2}/\sqrt\gamma$.
+
+\Etape{2} Deux tirs $\gamma_0$, $\gamma_1$, puis la formule de la sécante du cours
+jusqu'à $\abs{V(l, \gamma) - V_0} < \text{tolérance}$.
+
+\Etape{3} Remarque physique : pour $\gamma = 0$ on retrouve Child-Langmuir,
+$V(l) = Cl^{4/3}$. Le calcul montre que $V(l, \gamma)$ croît avec $\gamma$
+($1{,}7173$ ; $1{,}7233$ ; $1{,}8429$ ; $2{,}1223$ ; $2{,}8746$ pour
+$\gamma = 0{,}01$ ; $0{,}1$ ; $0{,}5$ ; $1$ ; $2$, avec $a = l = 1$) : une solution
+avec $V \ge 0$ n'existe que si $V_0 \ge Cl^{4/3}$.
+
+\begin{algo}[ : tir pour $V(0) = 0$, $V(l) = V_0$]
+  \Require $a$, $l$, $V_0$, $\varepsilon$, $n$, $\gamma_0$, $\gamma_1$, tolérance, $k_{\max}$
+  \State $R_0 \leftarrow V(l, \gamma_0) - V_0$ \Comment{RK2 depuis $x = \varepsilon$, étape 1}
+  \For{$k$ allant de $1$ à $k_{\max}$}
+    \State $R_1 \leftarrow V(l, \gamma_1) - V_0$
+    \If{$\abs{R_1} < \text{tolérance}$} \Print $\gamma_1$ \Stop \EndIf
+    \State $\gamma \leftarrow \gamma_1 - (\gamma_1 - \gamma_0)R_1/(R_1 - R_0)$
+    \State $\gamma_0 \leftarrow \gamma_1$ ; $R_0 \leftarrow R_1$ ; $\gamma_1 \leftarrow \gamma$
+  \EndFor
+\end{algo}
+
+\Verif $a = l = 1$, $V_0 = 2{,}5$, $\gamma_0 = 0{,}1$, $\gamma_1 = 1$ :
+$\gamma = 1{,}52966$ et $V(1) = 2{,}50000000$.
+
+\Refs Child-Langmuir : [CL] ; \BF{RK pour les systèmes, alg.~5.7, p.~333 ;
+tir, §~11.2, p.~694}.
+
+% ------------------------------------------------------------------
+\section{Exercice 7 : équation du troisième ordre par la méthode de tir}
+
+\Attention Une équation du troisième ordre demande trois conditions ; l'énoncé
+n'en donne que deux, $y(a) = y_1$ et $y(b) = y_2$. Le problème est donc
+incomplet. On suppose ici une troisième condition donnée en $x = a$,
+$y'(a) = y'_1$ (avec une condition en $b$, par exemple $y'(b)$, la démarche
+serait la même avec deux paramètres de tir).
+
+\Question{1)- Problème aux valeurs initiales.}
+\Pourquoi En $x = a$, on connaît $y$ et $y'$ ; il manque $y''(a)$, que l'on
+remplace par le paramètre $\gamma$. On écrit l'équation comme un système du
+premier ordre pour pouvoir utiliser les méthodes du chapitre V.
+
+\Etape{1} $Y_1 = y$, $Y_2 = y'$, $Y_3 = y''$ :
+\[
+  Y_1' = Y_2, \quad Y_2' = Y_3, \quad Y_3' = f(x, Y_1, Y_2, Y_3), \qquad
+  Y_1(a) = y_1, \quad Y_2(a) = y'_1, \quad Y_3(a) = \gamma .
+\]
+
+\Etape{2} On cherche $\gamma$ tel que $Y_1(b, \gamma) = y_2$ (sécante).
+
+\Question{2-a)- Principe du prédicteur-correcteur (premier ordre).}
+Voir l'exercice V.4 : on prédit $y_{k+1}$ par une formule explicite
+(Adams-Bashforth d'ordre 2, $p = y_k + \frac h2(3f_k - f_{k-1})$), puis on le
+corrige par une formule implicite (trapèzes,
+$y_{k+1} = y_k + \frac h2(f_k + f(x_{k+1}, p))$), dans laquelle on utilise la
+valeur prédite à la place de l'inconnue.
+
+\Question{2-b)- Algorithme pour le problème du troisième ordre.}
+\Pourquoi Les formules sont les mêmes, appliquées au vecteur $Y$ (toutes les
+composantes sont prédites, puis toutes sont corrigées). On les place dans la
+boucle de tir.
+
+\begin{algo}[ : tir + prédicteur-correcteur pour $y''' = f(x, y, y', y'')$]
+  \Require $f$, $a$, $b$, $y_1$, $y'_1$, $y_2$, $N$, $\gamma_0$, $\gamma_1$, $\varepsilon$, $k_{\max}$
+  \State $h \leftarrow (b-a)/N$
+  \Statex \textbf{Procédure} $\mathrm{PC}(\gamma)$ :
+  \State \quad $x \leftarrow a$ ; $Y \leftarrow (y_1, y'_1, \gamma)$ ; $F_p \leftarrow F(x, Y)$
+  \State \quad $Y \leftarrow Y + \frac h2\bigl(F_p + F(x + h, Y + hF_p)\bigr)$ ; $x \leftarrow x + h$ \Comment{démarrage RK2}
+  \State \quad \textbf{pour} $k = 1$ à $N-1$ : $F_k \leftarrow F(x, Y)$ ; $P \leftarrow Y + \frac h2(3F_k - F_p)$ ;
+  \State \quad\quad $Y \leftarrow Y + \frac h2\bigl(F_k + F(x + h, P)\bigr)$ ; $F_p \leftarrow F_k$ ; $x \leftarrow x + h$
+  \State \quad retourner $Y_1$ \Comment{$\approx y(b, \gamma)$}
+  \Statex \textbf{Programme principal} :
+  \State $R_0 \leftarrow \mathrm{PC}(\gamma_0) - y_2$
+  \For{$k$ allant de $1$ à $k_{\max}$}
+    \State $R_1 \leftarrow \mathrm{PC}(\gamma_1) - y_2$
+    \If{$\abs{R_1} < \varepsilon$} \Print $\gamma_1$ \Stop \EndIf
+    \State $\gamma \leftarrow \gamma_1 - (\gamma_1 - \gamma_0)R_1/(R_1 - R_0)$ ;
+           $\gamma_0 \leftarrow \gamma_1$ ; $R_0 \leftarrow R_1$ ; $\gamma_1 \leftarrow \gamma$
+  \EndFor
+\end{algo}
+avec $F(x, Y) = \bigl(Y_2, Y_3, f(x, Y_1, Y_2, Y_3)\bigr)$.
+
+\Verif Test avec solution connue $y = \sin x + x^2$ : elle vérifie
+$y''' = -\cos x = 2x - y'$, $y(0) = 0$, $y'(0) = 1$, $y(1) = \sin 1 + 1$, et
+$y''(0) = 2$. L'algorithme retrouve $\gamma = 2{,}00025923$ ($N = 20$),
+$2{,}00006339$ ($N = 40$), $2{,}00001560$ ($N = 80$) : erreur divisée par 4,
+ordre 2 du prédicteur-correcteur.
+
+\Refs \BF{p.~310--311 ; systèmes et équations d'ordre supérieur, §~5.9,
+p.~331--335}.

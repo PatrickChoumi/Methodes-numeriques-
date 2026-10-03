@@ -1,0 +1,479 @@
+\chapter{Exercices de fin de document (8 à 13)}
+
+% ------------------------------------------------------------------
+\section{Exercice 8 : différences finies et méthode de Jacobi}
+
+\Question{1-a- Dérivée première centrée.}
+\Pourquoi C'est le calcul de l'exercice IV.1 : on interpole $y$ par le polynôme
+de degré 2 passant par $x - h$, $x$, $x + h$, et on le dérive en $x$.
+\Etapes
+\Etape{1} Les dérivées des polynômes de base en $x$ valent $-1/(2h)$, $0$ et
+$1/(2h)$ (calcul détaillé à l'exercice IV.1).
+\Etape{2} D'où $y'(x) \approx \bigl(y(x+h) - y(x-h)\bigr)/(2h)$, avec l'erreur
+$-\frac{h^2}{6}y'''(\xi)$.
+
+\Question{1-b- Dérivée seconde.}
+\Pourquoi On applique la formule de a) deux fois, à la fonction $y'$, avec le pas
+$h/2$ : $y''(x) \approx \bigl[y'(x + h/2) - y'(x - h/2)\bigr]/h$.
+\Etapes
+\Etape{1} Par a) avec le pas $h/2$ : $y'(x + h/2) \approx \bigl(y(x+h) - y(x)\bigr)/h$
+et $y'(x - h/2) \approx \bigl(y(x) - y(x-h)\bigr)/h$.
+\Etape{2} D'où
+\[
+  y''(x) \approx \frac{y(x+h) - 2y(x) + y(x-h)}{h^2} .
+\]
+\Etape{3} Erreur : en additionnant les développements de Taylor de $y(x \pm h)$
+jusqu'à l'ordre 4, les termes impairs disparaissent et il reste
+$-\frac{h^2}{12}y^{(4)}(\xi)$. C'est pourquoi l'énoncé suppose $y$ de classe
+$C^4$.
+
+\Question{2- Système algébrique.}
+\Pourquoi On écrit l'équation aux nœuds $x_i = a + ih$, $i = 1, \dots, n-1$,
+$h = (b-a)/n$, en remplaçant $y'$ et $y''$ par les formules centrées. Les
+inconnues sont $y_1, \dots, y_{n-1}$ ; $y_0 = c$ et $y_n = d$ sont connues.
+\Etapes
+\Etape{1} $\dfrac{y_{i+1} - 2y_i + y_{i-1}}{h^2}
+          = p_i\dfrac{y_{i+1} - y_{i-1}}{2h} + q_iy_i + g_i$.
+\Etape{2} En multipliant par $h^2$ et en regroupant :
+\[
+  \Bigl(1 + \frac h2p_i\Bigr)y_{i-1} - \bigl(2 + h^2q_i\bigr)y_i
+  + \Bigl(1 - \frac h2p_i\Bigr)y_{i+1} = h^2g_i, \qquad i = 1, \dots, n-1 .
+\]
+\Etape{3} Pour $i = 1$ et $i = n-1$, les termes connus $y_0 = c$ et $y_n = d$
+passent au second membre. Le système est \emph{tridiagonal}, d'erreur de
+troncature $O(h^2)$. Burden et Faires montrent qu'il a une solution unique si
+$q \ge 0$ et $h < 2/L$, avec $L = \max\abs{p}$ \BF{th.~11.3, p.~702} ; la
+condition $h\abs{p_i} < 2$ rend aussi $1 \pm \frac h2p_i$ positifs.
+
+\Question{3-a- Principe de Jacobi.}
+On isole $y_i$ dans l'équation $i$ et on calcule les nouvelles valeurs à partir
+des anciennes uniquement (exercice I.7) :
+\[
+  y_i^{(k+1)} = \frac{h^2g_i - \bigl(1 + \frac h2p_i\bigr)y_{i-1}^{(k)}
+                - \bigl(1 - \frac h2p_i\bigr)y_{i+1}^{(k)}}{-\bigl(2 + h^2q_i\bigr)} .
+\]
+Le coefficient diagonal $2 + h^2q_i$ est au moins égal à la somme
+$\abs{1 + \frac h2p_i} + \abs{1 - \frac h2p_i} = 2$ des autres (si $q_i \ge 0$
+et $h\abs{p_i} \le 2$) : la matrice est à diagonale dominante, ce qui favorise
+la convergence (lente, car la dominance n'est pas stricte quand $q_i = 0$).
+
+\Question{3-b- Algorithme.}
+\begin{algo}[ : différences finies + Jacobi]
+  \Require $a$, $b$, $c$, $d$, $n$, $p$, $q$, $g$, $\varepsilon$, $k_{\max}$
+  \State $h \leftarrow (b-a)/n$
+  \For{$i$ allant de $1$ à $n-1$}
+    \State $x \leftarrow a + ih$ ; $B_i \leftarrow 1 + \frac h2p(x)$ ; $A_i \leftarrow -(2 + h^2q(x))$
+    \State $C_i \leftarrow 1 - \frac h2p(x)$ ; $D_i \leftarrow h^2g(x)$ ; $y_i \leftarrow 0$
+  \EndFor
+  \State $y_0 \leftarrow c$ ; $y_n \leftarrow d$ ; $k \leftarrow 0$
+  \Repeat
+    \State $k \leftarrow k + 1$ ; $\mathit{num} \leftarrow 0$ ; $\mathit{den} \leftarrow 0$
+    \For{$i$ allant de $1$ à $n-1$}
+      \State $z_i \leftarrow (D_i - B_iy_{i-1} - C_iy_{i+1})/A_i$
+      \State $\mathit{num} \leftarrow \mathit{num} + \abs{z_i - y_i}$ ; $\mathit{den} \leftarrow \mathit{den} + \abs{z_i}$
+    \EndFor
+    \For{$i$ allant de $1$ à $n-1$} \State $y_i \leftarrow z_i$ \EndFor
+  \Until{$\mathit{num}/\mathit{den} < \varepsilon$ \textbf{ou} $k \ge k_{\max}$}
+  \Print $k$, $(x_i, y_i)$
+\end{algo}
+
+\Question{3-c- Programme Pascal.}
+\programme{Pascal}{en Pascal}{ex8_jacobi.pas}
+
+\Verif Le programme a été testé sur l'exemple~1 de \BF{p.~703} :
+$y'' = -\frac2xy' + \frac2{x^2}y + \frac{\sin(\ln x)}{x^2}$, $1 \le x \le 2$,
+$y(1) = 1$, $y(2) = 2$, $n = 10$. Avec $\varepsilon = 10^{-12}$, Jacobi converge
+en 450 itérations et donne $y(1{,}1) = 1{,}09260052$, $y(1{,}5) = 1{,}48112026$,
+$y(1{,}9) = 1{,}89392110$, etc. : \emph{toutes} les valeurs coïncident avec la
+table~11.3 de Burden et Faires (obtenue par résolution directe). Le nombre élevé
+d'itérations illustre la lenteur de Jacobi (Gauss-Seidel ou la résolution
+tridiagonale directe, exercice VI.4, seraient plus rapides).
+
+\Refs \BF{(4.9), p.~178 ; §~11.3, alg.~11.3 et th.~11.3, p.~700--703}.
+
+% ------------------------------------------------------------------
+\section{Exercice 9 : oscillateur de Duffing forcé et amorti}
+
+\Question{1)- Équation du mouvement et adimensionnement.}
+\Pourquoi La force qui dérive du potentiel est $-\dd u/\dd y = -ky - k_1y^3$ ;
+la viscosité linéaire donne $-\alpha\dot y$ ; la force extérieure est
+$F\cos\omega t$. Adimensionner réduit le nombre de paramètres et donne des
+nombres d'ordre 1, plus sûrs numériquement.
+
+\Etapes
+\Etape{1} Deuxième loi de Newton :
+\[
+  M\ddot y + \alpha\dot y + ky + k_1y^3 = F\cos\omega t .
+\]
+\Etape{2} Échelle de temps : la pulsation propre $\omega_0 = \sqrt{k/M}$,
+$\tau = \omega_0t$. Échelle de longueur : le déplacement statique
+$y_s = F/k$, $Y = y/y_s$. Alors $\dot y = y_s\omega_0Y'$ et
+$\ddot y = y_s\omega_0^2Y'' = (F/M)Y''$ (le prime désigne $\dd/\dd\tau$).
+\Etape{3} En reportant et en divisant par $F$ :
+\[
+  Y'' + \mu Y' + Y + \beta Y^3 = \cos(\Omega\tau),
+  \qquad \mu = \frac{\alpha}{M\omega_0} = \frac{\alpha}{\sqrt{kM}},
+  \quad \beta = \frac{k_1F^2}{k^3},
+  \quad \Omega = \frac{\omega}{\omega_0} .
+\]
+Il ne reste que trois paramètres sans dimension. (D'autres choix d'échelle de
+longueur sont possibles, par exemple $\sqrt{k/k_1}$, qui donne $\beta = 1$ et
+une amplitude de forçage sans dimension.) Conditions initiales :
+$Y(0) = Y'(0) = 0$.
+
+\Question{2)- Algorithme RK4.}
+\Pourquoi RK4 est une méthode à un pas : il suffit d'écrire l'équation du second
+ordre comme un système du premier ordre et d'appliquer RK4 au vecteur
+(voir l'exercice 5).
+
+\Etape{1} $X_1 = Y$, $X_2 = Y'$ : $X_1' = X_2$,
+$X_2' = \cos(\Omega\tau) - \mu X_2 - X_1 - \beta X_1^3$.
+\Etape{2} À chaque pas, calcul des quatre pentes vectorielles, puis combinaison
+$1, 2, 2, 1$.
+
+\begin{algo}[ : RK4 pour le Duffing adimensionné]
+  \Require $\mu$, $\beta$, $\Omega$, $h$, $N$
+  \State $\tau \leftarrow 0$ ; $X_1 \leftarrow 0$ ; $X_2 \leftarrow 0$
+  \For{$i$ allant de $1$ à $N$}
+    \State $k_1 \leftarrow hX_2$ ; $l_1 \leftarrow hG(\tau, X_1, X_2)$
+    \State $k_2 \leftarrow h(X_2 + l_1/2)$ ; $l_2 \leftarrow hG(\tau + h/2, X_1 + k_1/2, X_2 + l_1/2)$
+    \State $k_3 \leftarrow h(X_2 + l_2/2)$ ; $l_3 \leftarrow hG(\tau + h/2, X_1 + k_2/2, X_2 + l_2/2)$
+    \State $k_4 \leftarrow h(X_2 + l_3)$ ; $l_4 \leftarrow hG(\tau + h, X_1 + k_3, X_2 + l_3)$
+    \State $X_1 \leftarrow X_1 + (k_1 + 2k_2 + 2k_3 + k_4)/6$ ; $X_2 \leftarrow X_2 + (l_1 + 2l_2 + 2l_3 + l_4)/6$
+    \State $\tau \leftarrow \tau + h$
+    \Print $\tau$, $X_1$, $X_2$
+  \EndFor
+\end{algo}
+avec $G(\tau, X_1, X_2) = \cos(\Omega\tau) - \mu X_2 - X_1 - \beta X_1^3$.
+
+\Question{3)- Moindres carrés pour les $a_n$ et $b_n$.}
+\Pourquoi On dispose de beaucoup plus de valeurs $y_i$ que d'inconnues
+($2N$) : on ne peut pas interpoler, on minimise
+\[
+  R = \sum_{i=1}^{m}\Bigl[y_i - \sum_{n=1}^{N}\bigl(a_n\cos n\omega t_i + b_n\sin n\omega t_i\bigr)\Bigr]^2 .
+\]
+Le modèle est linéaire en les $a_n$, $b_n$ : c'est le cadre du chapitre III avec
+les $2N$ fonctions $g = \cos n\omega t$ et $\sin n\omega t$.
+
+\Etapes
+\Etape{1} Équations normales : $\partial R/\partial a_n = 0$ et
+$\partial R/\partial b_n = 0$ donnent, pour $n = 1, \dots, N$,
+\[
+  \sum_{p=1}^{N}\Bigl[a_p\sum_i\cos p\omega t_i\cos n\omega t_i
+  + b_p\sum_i\sin p\omega t_i\cos n\omega t_i\Bigr] = \sum_i y_i\cos n\omega t_i ,
+\]
+et la même équation avec $\sin n\omega t_i$ à la place de $\cos n\omega t_i$
+en facteur. C'est un système $2N \times 2N$, symétrique ; on calcule ses
+coefficients avec l'algorithme de l'exercice III.2 et on le résout par Gauss.
+
+\Etape{2} Cas particulier très utile : si les $t_i$ sont équidistants et
+couvrent exactement une période $T = 2\pi/\omega$ ($t_i = t_0 + iT/m$,
+$i = 0, \dots, m-1$, avec $m > 2N$), les sommes croisées sont nulles
+(orthogonalité discrète) et $\sum_i\cos^2 = \sum_i\sin^2 = m/2$. Le système
+devient diagonal :
+\[
+  a_n = \frac2m\sum_i y_i\cos n\omega t_i, \qquad
+  b_n = \frac2m\sum_i y_i\sin n\omega t_i .
+\]
+
+\Etape{3} Précautions. Le modèle suppose un régime périodique de période
+$2\pi/\omega$ et sans terme constant : il faut écarter le régime transitoire
+(qui dépend des conditions initiales) avant de prendre les $y_i$. En variables
+sans dimension, la pulsation à utiliser est $\Omega$ et le temps $\tau$.
+
+\begin{algo}[ : coefficients de Fourier par moindres carrés]
+  \Require $m$ valeurs $(t_i, y_i)$ en régime permanent, $\omega$, $N$
+  \For{$i$ allant de $1$ à $m$}
+    \For{$n$ allant de $1$ à $N$}
+      \State $G_{i,n} \leftarrow \cos n\omega t_i$ ; $G_{i,N+n} \leftarrow \sin n\omega t_i$
+    \EndFor
+  \EndFor
+  \State former $A_{pq} = \sum_i G_{ip}G_{iq}$ et $B_p = \sum_i G_{ip}y_i$ ($p, q = 1, \dots, 2N$) \Comment{exercice III.2}
+  \State résoudre $A\,c = B$ par Gauss \Comment{$c = (a_1, \dots, a_N, b_1, \dots, b_N)$}
+  \Statex (si échantillonnage uniforme sur une période : $a_n \leftarrow \frac2m\sum_iy_i\cos n\omega t_i$, $b_n \leftarrow \frac2m\sum_iy_i\sin n\omega t_i$)
+  \Print $a_n$, $b_n$
+\end{algo}
+
+\Verif Avec $\mu = 0{,}2$, $\beta = 0{,}1$, $\Omega = 1{,}2$, RK4 avec $64$ pas par
+période, $100$ périodes écartées puis $m = 64$ points sur une période,
+$N = 5$ : $a_1 = 2{,}07476$, $b_1 = 2{,}12381$, $a_3 = -0{,}04201$,
+$b_3 = 0{,}04485$, $a_5 = -0{,}00091$, $b_5 = -0{,}00083$, et $a_2 = b_2 = a_4 =
+b_4 = 0$ (le terme $Y^3$ étant impair, seules les harmoniques impaires
+apparaissent). Les équations normales et les formules d'orthogonalité donnent
+les mêmes valeurs (écart $3\times 10^{-12}$), et le reste vaut
+$R = 2\times 10^{-8}$.
+
+\Refs \BF{RK4 pour les systèmes, alg.~5.7, p.~333 ; moindres carrés, §~8.1 ;
+approximation trigonométrique discrète, §~8.5, p.~545--550}.
+
+% ------------------------------------------------------------------
+\section{Exercice 10 : méthode de Gauss}
+
+\Question{1- Principe.} On élimine les inconnues une à une : à l'étape $k$, on
+choisit l'équation pivotale (plus grand $\abs{a_{ik}}$, $i \ge k$), on soustrait
+de chaque ligne $l > k$ le multiple $a_{lk}/a_{kk}$ de la ligne $k$ pour
+annuler le coefficient de $x_k$. Après $n-1$ étapes, le système est
+triangulaire ; on le résout par remontée. \emph{Pourquoi le pivot} : éviter la
+division par zéro et l'amplification des erreurs d'arrondi (exercice I.2).
+
+\Question{2- Algorithme de triangularisation.} C'est l'algorithme de l'exercice
+I.3 (boucle sur $k$ avec recherche du pivot, échange, puis élimination).
+
+\Question{3- Résolution du système triangulaire.} C'est l'algorithme de
+remontée de l'exercice I.1.
+
+\Question{4- Programme Pascal.}
+Le programme contient les deux procédures : \texttt{triangularise} (questions 1
+et 2) et \texttt{remontee} (question 3).
+\programme{Pascal}{en Pascal}{gauss.pas}
+
+\Verif Sur le système $2x_2 + x_3 = 5$, $x_1 + x_2 + x_3 = 6$,
+$2x_1 + x_2 + 3x_3 = 13$ (où $a_{11} = 0$), le programme donne
+$x = (7/3, 4/3, 7/3)$ (détail du calcul à l'exercice I.3) ; sur un système
+$6\times 6$ aléatoire avec $a_{11} = 0$, l'erreur est de $4{,}4\times 10^{-11}$.
+
+\Refs \BF{alg.~6.1, p.~368 ; alg.~6.2, p.~378}.
+
+% ------------------------------------------------------------------
+\section{Exercice 11 : le pendule simple}
+
+\Question{1-a- Algorithme RK2.}
+\Pourquoi On écrit $Y'' + \omega_0^2\sin Y = 0$ comme un système :
+$Y' = Z$, $Z' = -\omega_0^2\sin Y$, avec $Y(0) = Y_0$, $Z(0) = Z_0$ (pour un
+pendule lâché sans vitesse, $Z_0 = 0$). RK2 (exercice V.1) s'applique au vecteur
+$(Y, Z)$ : on calcule les deux pentes de Euler pour les deux composantes,
+puis on fait la moyenne.
+
+\begin{algo}[ : RK2 pour le pendule]
+  \Require $\omega_0$, $Y_0$, $Z_0$, $t_{\max}$, $n$
+  \State $h \leftarrow t_{\max}/n$ ; $t \leftarrow 0$ ; $Y \leftarrow Y_0$ ; $Z \leftarrow Z_0$
+  \For{$i$ allant de $1$ à $n$}
+    \State $k_{1Y} \leftarrow hZ$ ; $k_{1Z} \leftarrow -h\omega_0^2\sin Y$
+    \State $k_{2Y} \leftarrow h(Z + k_{1Z})$ ; $k_{2Z} \leftarrow -h\omega_0^2\sin(Y + k_{1Y})$
+    \State $Y \leftarrow Y + (k_{1Y} + k_{2Y})/2$ ; $Z \leftarrow Z + (k_{1Z} + k_{2Z})/2$ ; $t \leftarrow t + h$
+    \Print $t$, $Y$, $Z$
+  \EndFor
+\end{algo}
+
+\Question{1-b- Programme Fortran.}
+\programme{[90]Fortran}{en Fortran 90}{ex11_pendule.f90}
+
+\Verif $\omega_0 = 1$, $Y_0 = 2\pi/9$, $Z_0 = 0$, $h = 10^{-3}$, comparaison
+avec une intégration de référence (SciPy, tolérance $10^{-12}$) :
+\begin{center}
+\begin{tabular}{lcccc}
+  \toprule
+  $t$ & 1 & 2 & 3 & 4\\ \midrule
+  RK2 & $0{,}39768602$ & $-0{,}25372859$ & $-0{,}67967973$ & $-0{,}51945770$\\
+  référence & $0{,}39768609$ & $-0{,}25372840$ & $-0{,}67967966$ & $-0{,}51945795$\\
+  \bottomrule
+\end{tabular}
+\end{center}
+Les écarts sont inférieurs à $3\times 10^{-7}$.
+
+\Question{2-a- Formule composite des trapèzes et algorithme pour (2).}
+\Pourquoi On découpe $[0, \pi/2]$ en $n$ intervalles de longueur
+$h = \pi/(2n)$ ; sur chacun, l'aire sous la courbe est remplacée par celle du
+trapèze : $\frac h2\bigl(f(x_{k-1}) + f(x_k)\bigr)$. En sommant, chaque nœud
+intérieur est compté deux fois :
+\[
+  \int_0^{\pi/2} f \approx h\Bigl[\tfrac12f(0) + \sum_{k=1}^{n-1}f(kh) + \tfrac12f(\pi/2)\Bigr],
+  \qquad f(x) = \bigl(1 - A\sin^2x\bigr)^{-1/2},
+\]
+d'erreur $-\frac{h^2}{12}\cdot\frac\pi2f''(\eta)$ (chapitre IV). Puis
+$T/T_0 = \frac2\pi\times$ intégrale. L'intégrande est défini et régulier car
+$A = \sin^2(Y_0/2) < 1$ pour $\abs{Y_0} < \pi$.
+
+\begin{algo}[ : période par les trapèzes]
+  \Require $Y_0$, $n$
+  \State $A \leftarrow \sin^2(Y_0/2)$ ; $h \leftarrow \pi/(2n)$
+  \State $S \leftarrow \bigl(f(0) + f(\pi/2)\bigr)/2$
+  \For{$k$ allant de $1$ à $n-1$} \State $S \leftarrow S + f(kh)$ \EndFor
+  \Print $T/T_0 = \frac2\pi\,h\,S$
+\end{algo}
+
+\Question{2-b- Programmes.}
+\programme{Pascal}{en Pascal}{ex11_trapeze.pas}
+\programme{[90]Fortran}{en Fortran 90}{ex11_trapeze.f90}
+
+\Verif Avec seulement $n = 4$ :
+$T/T_0 = 1{,}00190719$ ; $1{,}00766903$ ; $1{,}01740880$ ; $1{,}03134052$ pour
+$Y_0 = \pi/18$, $\pi/9$, $\pi/6$, $2\pi/9$, et $n = 8$ donne les mêmes huit
+chiffres. Cette précision, bien meilleure que ce qu'annonce l'erreur en $h^2$,
+s'explique : l'intégrande est régulier, pair et de période $\pi$, et les
+trapèzes sur une période d'une fonction périodique régulière convergent
+exponentiellement vite [TW]. Les valeurs coïncident avec la formule exacte
+$T = \frac{2T_0}\pi K\bigl(\sin(Y_0/2)\bigr)$ ($K$ : intégrale elliptique
+complète de première espèce) [LA].
+
+\Question{3- Moindres carrés $T/T_0 = a + bY_0^2$.}
+\Pourquoi Le modèle est linéaire en $a$ et $b$ avec la variable $X = Y_0^2$ :
+c'est la droite des moindres carrés (chapitre III) en $X$.
+\Etapes
+\Etape{1} $X_i = Y_{0,i}^2 = 0{,}030462$ ; $0{,}121847$ ; $0{,}274156$ ;
+$0{,}487388$. Sommes ($m = 4$) : $\sum X = 0{,}913852$,
+$\sum X^2 = 0{,}328483$, $\sum T/T_0 = 4{,}06$,
+$\sum X\,T/T_0 = 0{,}934993$.
+\Etape{2} Système :
+$4a + 0{,}913852\,b = 4{,}06$ ; $0{,}913852\,a + 0{,}328483\,b = 0{,}934993$.
+Déterminant $0{,}478806$.
+\Etape{3} $a = (0{,}328483 \times 4{,}06 - 0{,}913852 \times 0{,}934993)/0{,}478806
+      = 1{,}000814$ ; $b = (4 \times 0{,}934993 - 0{,}913852 \times 4{,}06)/0{,}478806
+      = 0{,}062093$.
+
+\Attention Les valeurs exactes de $T/T_0$ (question 2) sont $1{,}0019$ ;
+$1{,}0077$ ; $1{,}0174$ ; $1{,}0313$. Trois valeurs du tableau sont correctes à
+l'arrondi près, mais la troisième ($1{,}020$ pour $\pi/6$) ne l'est pas (la
+valeur exacte est $1{,}0174$) ; c'est aussi le point du plus grand écart à la
+droite ($0{,}0022$). Avec les valeurs exactes, les moindres carrés donnent
+$a = 0{,}999856$ et $b = 0{,}064452$. Pour comparaison, le développement
+théorique pour les petites amplitudes est $T/T_0 = 1 + Y_0^2/16 + \dots$, soit
+$a = 1$ et $b = 0{,}0625$ [LA].
+
+\Refs \BF{alg.~5.7, p.~333 ; th.~4.5, p.~205 ; §~8.1} ; [TW], [LA].
+
+% ------------------------------------------------------------------
+\section{Exercice 12 : capacité calorifique et chaleur absorbée}
+
+\Question{1- Chaleur $Q$ par Simpson.}
+\Pourquoi À volume constant, $\dd Q = C_v\,\dd T$, donc
+$Q = \int_{0{,}1}^{0{,}5} C_v(T)\,\dd T$. On a trois points équidistants
+($h = 0{,}2$) : c'est exactement le cas de la formule de Simpson simple.
+\Etapes
+\Etape{1} $Q \approx \frac h3\bigl[C_v(0{,}1) + 4C_v(0{,}3) + C_v(0{,}5)\bigr]$.
+\Etape{2} $Q \approx \frac{0{,}2}{3}\bigl[0{,}211 + 4 \times 0{,}694 + 1{,}361\bigr]\times 10^{-4}
+         = \frac{0{,}2}{3} \times 4{,}348 \times 10^{-4}$.
+\Etape{3} $Q \approx 0{,}289867 \times 10^{-4}$ cal/mol.
+
+\Question{2-a- Système vérifié par $a$ et $b$.}
+Ce sont les équations normales de la droite (complément du chapitre III) :
+\[
+  m\,a + \Bigl(\sum T_i\Bigr)b = \sum C_i, \qquad
+  \Bigl(\sum T_i\Bigr)a + \Bigl(\sum T_i^2\Bigr)b = \sum T_iC_i .
+\]
+
+\Question{2-b- Algorithmes.}
+\Pourquoi Les quatre sommes se calculent en une seule boucle sur les mesures ;
+le système $2\times 2$ se résout par la règle de Cramer (pas besoin de Gauss
+pour deux inconnues), à condition que le déterminant
+$m\sum T_i^2 - (\sum T_i)^2$ soit non nul.
+\begin{algo}[ : droite des moindres carrés]
+  \State $s_1 \leftarrow 0$ ; $s_2 \leftarrow 0$ ; $s_y \leftarrow 0$ ; $s_{ty} \leftarrow 0$
+  \For{$i$ allant de $1$ à $m$}
+    \State $s_1 \leftarrow s_1 + T_i$ ; $s_2 \leftarrow s_2 + T_i^2$ ; $s_y \leftarrow s_y + C_i$ ; $s_{ty} \leftarrow s_{ty} + T_iC_i$
+  \EndFor
+  \State $D \leftarrow m\,s_2 - s_1^2$
+  \State $a \leftarrow (s_2s_y - s_1s_{ty})/D$ ; $b \leftarrow (m\,s_{ty} - s_1s_y)/D$
+  \Print $a$, $b$
+\end{algo}
+
+\Question{2-c- Programme Pascal.} Il contient aussi la question 2-d.
+\programme{Pascal}{en Pascal}{ex12_mc.pas}
+
+\Question{2-d- $Q$ par Simpson composite sur les mesures.}
+\Pourquoi Simpson composite exige des abscisses équidistantes et un nombre
+\emph{pair} d'intervalles, donc un nombre \emph{impair} de mesures. Les poids
+sont $1, 4, 2, 4, \dots, 4, 1$ (exercice IV.5). Si l'on préfère utiliser la
+droite ajustée, on intègre exactement $a + bT$.
+\begin{algo}[ : Simpson composite sur un tableau]
+  \If{$m$ pair} \Print \og nombre de points impair requis \fg{} \Stop \EndIf
+  \State $h \leftarrow T_2 - T_1$ ; $Q \leftarrow C_1 + C_m$
+  \For{$i$ allant de $2$ à $m-1$}
+    \If{$i$ pair} \State $Q \leftarrow Q + 4C_i$ \Else \State $Q \leftarrow Q + 2C_i$ \EndIf
+  \EndFor
+  \State $Q \leftarrow hQ/3$
+  \Print $Q$
+\end{algo}
+(Avec la numérotation $i = 1, \dots, m$, les points d'indice pair sont les
+milieux des paires d'intervalles.)
+
+\Verif Sur les trois mesures données, le programme affiche le système
+$3a + 0{,}9b = 2{,}266$ ; $0{,}9a + 0{,}35b = 0{,}9098$, puis
+$a = -0{,}107167$ et $b = 2{,}875$ (en $10^{-4}$ cal/(K\,mol)), et
+$Q = 0{,}289867$ ($\times 10^{-4}$ cal/mol) par Simpson. L'intégrale exacte de la
+droite, $a(0{,}5 - 0{,}1) + b(0{,}5^2 - 0{,}1^2)/2 = 0{,}302133$, diffère de 4~\% :
+avec seulement trois points, une droite décrit mal des données qui ne sont pas
+alignées.
+
+\Refs \BF{th.~4.4, p.~204 ; alg.~4.1, p.~205 ; §~8.1, p.~507--508}.
+
+% ------------------------------------------------------------------
+\section{Exercice 13 : équation intégrale de Fredholm}
+
+\Attention L'énoncé écrit $t_i = ih$ pour $n$ points. Pour que la formule des
+trapèzes utilise les bornes $a$ et $b$, on prend, comme le cours (chapitre V),
+$t_i = a + (i-1)h$, $i = 1, \dots, n$, avec $h = (b-a)/(n-1)$ ; ainsi
+$t_1 = a$ et $t_n = b$.
+
+\Question{1)- Coefficients $c_i$.}
+\Pourquoi La formule composite des trapèzes donne le poids $h/2$ aux deux
+extrémités et $h$ aux points intérieurs. On l'écrit sous la forme
+$(b-a)\sum c_i\,(\dots)$ du cours en divisant les poids par $b - a$.
+\Etapes
+\Etape{1} $\int_a^b k(x,t)\phi(t)\,\dd t \approx h\bigl[\tfrac12k(x,t_1)\phi_1
+  + k(x,t_2)\phi_2 + \dots + k(x,t_{n-1})\phi_{n-1} + \tfrac12k(x,t_n)\phi_n\bigr]$.
+\Etape{2} Comme $h = (b-a)/(n-1)$ :
+\[
+  c_1 = c_n = \frac{1}{2(n-1)}, \qquad c_i = \frac{1}{n-1} \quad (i = 2, \dots, n-1),
+\]
+et l'on vérifie que $\sum c_i = 1$ (la formule est exacte pour une constante).
+
+\Question{2)- Le système algébrique.}
+\Pourquoi L'équation (2) est vraie pour tout $x$ ; en particulier aux nœuds.
+En prenant $x = t_j$, le membre de gauche devient $\phi(t_j) = \phi_j$, et le
+membre de droite ne contient que les inconnues $\phi_1, \dots, \phi_n$ : on
+obtient $n$ équations linéaires à $n$ inconnues, c'est-à-dire (3)
+\[
+  \phi_j = f_j + (b-a)\sum_{i=1}^{n}c_i\,k(t_j, t_i)\,\phi_i, \qquad j = 1, \dots, n .
+\]
+(C'est la méthode de Nyström.)
+
+\Question{3)- Les matrices $A$, $X$, $b$.}
+On passe les inconnues à gauche :
+$\phi_j - (b-a)\sum_i c_ik(t_j,t_i)\phi_i = f_j$. Donc
+\[
+  A_{ji} = \delta_{ji} - (b-a)\,c_i\,k(t_j, t_i), \qquad
+  X = (\phi_1, \dots, \phi_n)^{t}, \qquad b = (f_1, \dots, f_n)^{t},
+\]
+où $\delta_{ji} = 1$ si $j = i$ et $0$ sinon : $A = I - (b-a)\,K\,C$, avec
+$K_{ji} = k(t_j, t_i)$ et $C = \operatorname{diag}(c_1, \dots, c_n)$.
+
+\Question{4)- Résolution par Gauss.}
+a) Triangularisation : algorithme de l'exercice I.3 (avec pivot maximal).
+b) Système triangulaire : remontée, exercice I.1.
+c) Programmes : procédures \texttt{triangularise} et \texttt{remontee} de
+\fichier{gauss.pas} (exercice 10, ci-dessus) et leur traduction en Fortran :
+\programme{[90]Fortran}{en Fortran 90}{gauss.f90}
+
+\Verif Sur l'exemple du cours, $\phi(x) = \frac{5x}6 - \frac19 +
+\frac13\int_0^1(t + x)\phi(t)\,\dd t$ (solution exacte $\phi = x$, donc
+$k(x,t) = (x + t)/3$), l'erreur maximale de la méthode des trapèzes vaut
+$2{,}48\times 10^{-2}$ ; $6{,}17\times 10^{-3}$ ; $1{,}54\times 10^{-3}$ ;
+$3{,}85\times 10^{-4}$ pour $n = 3$, $5$, $9$, $17$ : divisée par 4 quand $h$ est
+divisé par 2 (ordre 2 des trapèzes). Le cours, avec Simpson et 3 points, obtient
+la solution exacte, car Simpson intègre exactement le produit
+$(t + x)\,t$, polynôme de degré 2 en $t$.
+
+\Question{5)- Zéro de $\phi$ par bissection.}
+\Pourquoi La résolution donne $\phi$ aux nœuds seulement ; mais la formule (2)
+permet ensuite de calculer $\phi(x)$ en \emph{n'importe quel} $x$ (interpolation
+de Nyström), ce dont la bissection a besoin. Si $\phi(a)\phi(b) < 0$, la
+bissection (exercice II.2) converge vers un zéro.
+\begin{algo}[ : zéro de $\phi$]
+  \State résoudre (4) : $\phi_1, \dots, \phi_n$
+  \State définir $\phi(x) = f(x) + (b-a)\sum_{i=1}^{n}c_i\,k(x,t_i)\,\phi_i$
+  \State $\alpha \leftarrow a$ ; $\beta \leftarrow b$
+  \If{$\phi(\alpha)\phi(\beta) > 0$} \Print \og pas de changement de signe \fg{} \Stop \EndIf
+  \While{$\beta - \alpha > \varepsilon$}
+    \State $\gamma \leftarrow (\alpha + \beta)/2$
+    \If{$\phi(\alpha)\phi(\gamma) \le 0$} \State $\beta \leftarrow \gamma$ \Else \State $\alpha \leftarrow \gamma$ \EndIf
+  \EndWhile
+  \Print $(\alpha + \beta)/2$
+\end{algo}
+
+\Verif Avec le noyau $(x + t)/3$ sur $[0,1]$ et $f(x) = x - \frac12 - \frac1{36}$,
+la solution exacte est $\phi = x - \frac12$ (zéro en $0{,}5$). La bissection sur
+la solution de Nyström donne $0{,}494718$ ($n = 5$), $0{,}498680$ ($n = 9$),
+$0{,}499670$ ($n = 17$) : l'erreur suit celle de la discrétisation (ordre 2).
+
+\Refs \BF{alg.~6.2, p.~378 ; alg.~2.1, p.~49 ; th.~4.5, p.~205}.
