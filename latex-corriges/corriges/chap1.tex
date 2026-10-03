@@ -45,10 +45,10 @@ l'ordre de $n^3/3$).
   \Print $x_1, \dots, x_n$
 \end{algo}
 
-\Verif Cet algorithme est la procédure \texttt{remontee} des programmes
-\fichier{gauss.pas} et \fichier{gauss.f90} (exercice 10 de la fin du document).
-Sur un système $6\times 6$ aléatoire dont on connaît la solution, l'erreur
-maximale obtenue est $4{,}4\times 10^{-11}$.
+\Verif Cet algorithme est la fonction \texttt{remontee} du programme
+\fichier{gauss.py} (exercice 10 de la fin du document). Sur un système
+$6\times 6$ aléatoire dont on connaît la solution, l'erreur maximale obtenue est
+$2{,}4\times 10^{-16}$.
 
 \Refs \BF{alg.~6.1, étapes 8 et 9, p.~368 ; décompte des opérations
 p.~370--371}.
@@ -150,8 +150,8 @@ $a_{lj} \leftarrow a_{lj} - m\,a_{kj}$ pour $j = k+1, \dots, n$.
 Le coût total est de $n^3/3 + n^2 - n/3$ multiplications ou divisions
 \BF{p.~371} ; la recherche du pivot n'ajoute que des comparaisons.
 
-\Verif Exemple traité à la main (et par les programmes \fichier{gauss.pas} et
-\fichier{gauss.f90}) : le système
+\Verif Exemple traité à la main (et par le programme \fichier{gauss.py}) :
+le système
 \[
   2x_2 + x_3 = 5, \qquad x_1 + x_2 + x_3 = 6, \qquad 2x_1 + x_2 + 3x_3 = 13
 \]
@@ -168,7 +168,7 @@ ne peut pas être traité sans échange car $a_{11} = 0$.
   \item Remontée : $x_3 = 7/3$, $x_2 = (5 - 7/3)/2 = 4/3$,
         $x_1 = (13 - 4/3 - 3\cdot 7/3)/2 = 7/3$.
 \end{itemize}
-Les programmes affichent bien $x_1 = 2{,}3333333333$, $x_2 = 1{,}3333333333$,
+Le programme affiche bien $x_1 = 2{,}3333333333$, $x_2 = 1{,}3333333333$,
 $x_3 = 2{,}3333333333$. Un test sur une matrice $5\times 5$ aléatoire avec
 $a_{11} = 0$ donne une erreur de $10^{-15}$ (\fichier{tests_algorithmes.py}).
 

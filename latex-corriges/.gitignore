@@ -6,5 +6,4 @@
 *.fdb_latexmk
 *.synctex.gz
 main.pdf
-programmes/bin/
 __pycache__/

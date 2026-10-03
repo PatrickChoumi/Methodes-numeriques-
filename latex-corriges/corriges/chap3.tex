@@ -15,15 +15,16 @@ n'a jamais besoin des coefficients du polynôme : on évalue directement sa
 valeur en $x_p$.
 
 \Etapes
-\Etape{1} Lire le nombre de points $n+1$, les couples $(x_k, y_k)$ et $x_p$.
+\Etape{1} Écrire une fonction qui reçoit la liste des $x_k$, la liste des $y_k$
+et $x_p$ (en Python, \texttt{len(x)} donne le nombre de points $n+1$).
 
 \Etape{2} Traduire les deux boucles imbriquées ; le test $i \ne k$ évite le
 facteur nul $(x_k - x_k)$ au dénominateur.
 
-\Etape{3} En C, les tableaux commencent à l'indice 0 : les boucles vont de $0$ à
-$n$ au lieu de $1$ à $n+1$.
+\Etape{3} En Python, les listes commencent à l'indice 0 :
+\texttt{range(len(x))} parcourt les indices $0$ à $n$ au lieu de $1$ à $n+1$.
 
-\programme{C}{en C}{lagrange.c}
+\programme{lagrange.py}
 
 \Verif Avec les données de l'exercice III.4 ci-dessous, le programme affiche
 $y_p = 15{,}793629$ pour $x_p = 102$.
@@ -211,8 +212,8 @@ d'interpolation de la fonction constante $1$ est $1$).
 valeurs les $x_k$. Poids en $13{,}5$ : $-0{,}084007$ ; $0{,}710729$ ;
 $0{,}435996$ ; $-0{,}069802$ ; $0{,}007084$, d'où $x_p = 97{,}655750$.
 
-\Verif Le programme \fichier{lagrange.c} donne $y_p = 15{,}793629$ et (en lui
-donnant les colonnes échangées) $x_p = 97{,}655750$. La réponse du cours
+\Verif Le programme \fichier{lagrange.py} donne $y_p = 15{,}793629$ et (en
+échangeant les deux listes) $x_p = 97{,}655750$. La réponse du cours
 ($15{,}79$ et $97{,}65$) est retrouvée ; arrondi au centième, $x_p$ vaut
 plutôt $97{,}66$ ($97{,}65$ est la valeur tronquée).
 

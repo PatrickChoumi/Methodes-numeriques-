@@ -91,9 +91,9 @@
   literate={é}{{\'e}}1 {è}{{\`e}}1 {à}{{\`a}}1 {ê}{{\^e}}1 {ç}{{\c c}}1
            {É}{{\'E}}1 {ô}{{\^o}}1 {î}{{\^i}}1 {ù}{{\`u}}1
 }
-\newcommand{\programme}[3]{%
-  \par\smallskip\noindent\textit{Programme #2} (fichier \fichier{programmes/#3}) :
-  \lstinputlisting[language={#1}]{programmes/#3}}
+\newcommand{\programme}[1]{%
+  \par\smallskip\noindent\textit{Programme Python} (fichier \fichier{programmes/#1}) :
+  \lstinputlisting[language=Python]{programmes/#1}}
 
 % ---------------------------------------------------------------
 % Macros mathématiques

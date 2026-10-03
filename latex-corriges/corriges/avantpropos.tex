@@ -38,11 +38,13 @@ document.
 
 \section{Programmes et calculs}
 
-Les programmes demandés par les énoncés se trouvent dans le dossier
-\fichier{latex-corriges/programmes/} (langages C, Fortran 90 et Pascal). Ils ont
-été compilés avec \texttt{gcc}, \texttt{gfortran} et Free Pascal
-(\texttt{fpc}) ; le script \fichier{tester.sh} les compile et les exécute
-tous avec les données utilisées dans ce document (résultats dans
+Les énoncés demandent parfois de traduire les algorithmes en Pascal, en Fortran
+ou en C. Tous les programmes sont donnés ici en \textbf{Python} (version 3,
+sans bibliothèque externe). Ils se trouvent dans le dossier
+\fichier{latex-corriges/programmes/} : chaque fichier contient les fonctions
+qui traduisent l'algorithme du corrigé puis, à la fin (après
+\texttt{if \_\_name\_\_ == "\_\_main\_\_":}), l'exemple utilisé dans la
+vérification. Le script \fichier{tester.sh} les exécute tous (résultats dans
 \fichier{calculs/programmes_resultats.txt}). Les calculs numériques et les
 tests d'algorithmes sont dans \fichier{latex-corriges/calculs/} (Python avec
 NumPy et SciPy) : \fichier{calculs.py}, \fichier{complements.py} et

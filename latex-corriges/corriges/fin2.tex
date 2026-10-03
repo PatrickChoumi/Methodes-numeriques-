@@ -77,8 +77,8 @@ la convergence (lente, car la dominance n'est pas stricte quand $q_i = 0$).
   \Print $k$, $(x_i, y_i)$
 \end{algo}
 
-\Question{3-c- Programme Pascal.}
-\programme{Pascal}{en Pascal}{ex8_jacobi.pas}
+\Question{3-c- Programme.}
+\programme{ex8_jacobi.py}
 
 \Verif Le programme a été testé sur l'exemple~1 de \BF{p.~703} :
 $y'' = -\frac2xy' + \frac2{x^2}y + \frac{\sin(\ln x)}{x^2}$, $1 \le x \le 2$,
@@ -222,15 +222,15 @@ I.3 (boucle sur $k$ avec recherche du pivot, échange, puis élimination).
 \Question{3- Résolution du système triangulaire.} C'est l'algorithme de
 remontée de l'exercice I.1.
 
-\Question{4- Programme Pascal.}
-Le programme contient les deux procédures : \texttt{triangularise} (questions 1
-et 2) et \texttt{remontee} (question 3).
-\programme{Pascal}{en Pascal}{gauss.pas}
+\Question{4- Programme.}
+Le programme contient les deux fonctions \texttt{triangularise} (questions 1
+et 2) et \texttt{remontee} (question 3), réunies dans \texttt{gauss}.
+\programme{gauss.py}
 
 \Verif Sur le système $2x_2 + x_3 = 5$, $x_1 + x_2 + x_3 = 6$,
 $2x_1 + x_2 + 3x_3 = 13$ (où $a_{11} = 0$), le programme donne
 $x = (7/3, 4/3, 7/3)$ (détail du calcul à l'exercice I.3) ; sur un système
-$6\times 6$ aléatoire avec $a_{11} = 0$, l'erreur est de $4{,}4\times 10^{-11}$.
+$6\times 6$ aléatoire avec $a_{11} = 0$, l'erreur est de $2{,}4\times 10^{-16}$.
 
 \Refs \BF{alg.~6.1, p.~368 ; alg.~6.2, p.~378}.
 
@@ -255,8 +255,8 @@ puis on fait la moyenne.
   \EndFor
 \end{algo}
 
-\Question{1-b- Programme Fortran.}
-\programme{[90]Fortran}{en Fortran 90}{ex11_pendule.f90}
+\Question{1-b- Programme.}
+\programme{ex11_pendule.py}
 
 \Verif $\omega_0 = 1$, $Y_0 = 2\pi/9$, $Z_0 = 0$, $h = 10^{-3}$, comparaison
 avec une intégration de référence (SciPy, tolérance $10^{-12}$) :
@@ -292,9 +292,10 @@ $A = \sin^2(Y_0/2) < 1$ pour $\abs{Y_0} < \pi$.
   \Print $T/T_0 = \frac2\pi\,h\,S$
 \end{algo}
 
-\Question{2-b- Programmes.}
-\programme{Pascal}{en Pascal}{ex11_trapeze.pas}
-\programme{[90]Fortran}{en Fortran 90}{ex11_trapeze.f90}
+\Question{2-b- Programme.}
+Le même fichier traite aussi la question 3, avec la fonction
+\fichier{droite_moindres_carres}.
+\programme{ex11_trapeze.py}
 
 \Verif Avec seulement $n = 4$ :
 $T/T_0 = 1{,}00190719$ ; $1{,}00766903$ ; $1{,}01740880$ ; $1{,}03134052$ pour
@@ -367,8 +368,8 @@ $m\sum T_i^2 - (\sum T_i)^2$ soit non nul.
   \Print $a$, $b$
 \end{algo}
 
-\Question{2-c- Programme Pascal.} Il contient aussi la question 2-d.
-\programme{Pascal}{en Pascal}{ex12_mc.pas}
+\Question{2-c- Programme.} Il contient aussi la question 2-d.
+\programme{ex12_mc.py}
 
 \Question{2-d- $Q$ par Simpson composite sur les mesures.}
 \Pourquoi Simpson composite exige des abscisses équidistantes et un nombre
@@ -441,9 +442,8 @@ $K_{ji} = k(t_j, t_i)$ et $C = \operatorname{diag}(c_1, \dots, c_n)$.
 \Question{4)- Résolution par Gauss.}
 a) Triangularisation : algorithme de l'exercice I.3 (avec pivot maximal).
 b) Système triangulaire : remontée, exercice I.1.
-c) Programmes : procédures \texttt{triangularise} et \texttt{remontee} de
-\fichier{gauss.pas} (exercice 10, ci-dessus) et leur traduction en Fortran :
-\programme{[90]Fortran}{en Fortran 90}{gauss.f90}
+c) Programme : fonctions \texttt{triangularise} et \texttt{remontee} de
+\fichier{gauss.py}, données à l'exercice 10 ci-dessus.
 
 \Verif Sur l'exemple du cours, $\phi(x) = \frac{5x}6 - \frac19 +
 \frac13\int_0^1(t + x)\phi(t)\,\dd t$ (solution exacte $\phi = x$, donc
