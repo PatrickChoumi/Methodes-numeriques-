@@ -1,0 +1,484 @@
+% Statistiques -- Ajustement linéaire (méthode de Mayer, moindres carrés)
+% Transcription LaTeX des notes manuscrites (stats.pdf)
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[a4paper,margin=2.2cm,headheight=14pt]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{array}
+\usepackage[table]{xcolor}
+\usepackage{enumitem}
+\usepackage[normalem]{ulem}
+\frenchsetup{StandardLists=true}
+\setlist[itemize]{label=\textbullet}
+\usepackage{titlesec}
+\usepackage{tikz}
+\usepackage[most]{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage{needspace}
+\usepackage{lastpage}
+\usepackage[hidelinks]{hyperref}
+
+\hypersetup{
+  pdftitle={Statistiques -- Ajustement linéaire},
+  pdfsubject={Méthode de Mayer, méthode des moindres carrés, corrélation},
+  pdflang={fr}
+}
+
+% ---------------------------------------------------------------
+% Numérotation : I-, II- pour les parties ; 1), 2)... pour les étapes
+% ---------------------------------------------------------------
+\renewcommand{\thesection}{\Roman{section}}
+\renewcommand{\thesubsection}{\arabic{subsection}}
+\titleformat{\section}{\normalfont\Large\bfseries}{\thesection-}{0.6em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection)}{0.5em}{}
+\titlespacing*{\section}{0pt}{1.6em}{0.8em}
+\titlespacing*{\subsection}{0pt}{1.2em}{0.5em}
+
+\newcommand{\abs}[1]{\left|#1\right|}
+
+% Points à compléter
+\newcommand{\blanc}[1][1.8cm]{\makebox[#1]{\dotfill}}
+
+% Puces des rubriques (« • Série marginale en x », ...)
+\newcommand{\rubrique}[1]{\par\medskip\noindent$\bullet$~\textbf{\uline{#1}}\par\smallskip}
+
+% Encadrés
+\newtcolorbox{retenons}[1][]{enhanced,breakable,colback=blue!3,
+  colframe=blue!45!black,boxrule=0.5pt,arc=1mm,left=8pt,right=8pt,
+  fonttitle=\bfseries,#1}
+\newtcolorbox{exercice}[1][]{enhanced,breakable,
+  colback=orange!4,colframe=orange!60!black,boxrule=0.5pt,arc=1mm,
+  left=8pt,right=8pt,fonttitle=\bfseries,#1}
+
+% Tableaux
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\renewcommand{\arraystretch}{1.35}
+\newcommand{\barre}{\cellcolor{gray!35}}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\itshape Statistiques -- Ajustement linéaire}
+\fancyfoot[C]{\thepage/\pageref*{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\begin{center}
+  \fbox{\parbox{0.55\linewidth}{\centering\vspace{0.4em}
+    {\Huge\bfseries STATISTIQUES}\vspace{0.4em}}}
+\end{center}
+\thispagestyle{fancy}
+
+% =================================================================
+\section{Ajustement linéaire par la méthode de Mayer}
+% =================================================================
+
+On a recueilli les données concernant les notes $x$ de mathématiques et $y$ de
+physique d'un certain nombre d'élèves de la classe. Les données sont présentées
+dans un tableau :
+
+\begin{center}
+  \small
+  \begin{tabular}{|c|*{15}{C{0.62cm}|}}
+    \hline
+    $x$ & 10 & 12 & 10 & 13 & 09 & 11 & 12 & 11 & 13 & 12 & 14 & 10 & 15 & 10 & 12\\ \hline
+    $y$ & 11 & 13 & 10 & 13 & 10 & 10 & 12 & 12 & 14 & 13 & 15 & 10 & 16 & 11 & 13\\ \hline
+  \end{tabular}
+\end{center}
+
+\subsection{Situation problème}
+
+Peut-on prédire la note $y$ de physique d'un élève qui a obtenu une note $x$ en
+mathématiques ? En d'autres termes, peut-on trouver $a$ et $b$ réels tels que
+\[
+  y = ax + b \;?
+\]
+
+\subsection{Activité d'apprentissage}
+
+\rubrique{Série marginale en $x$}
+
+\begin{center}
+  \begin{tabular}{|c|*{7}{C{0.8cm}|}c|}
+    \hline
+    $x_i$ & 09 & 10 & 11 & 12 & 13 & 14 & 15 & Total\\ \hline
+    $n_i$ & & & & & & & & 15\\ \hline
+  \end{tabular}
+\end{center}
+La moyenne $\bar{x}$ en mathématiques est
+$\bar{x} = \blanc[3cm] = \blanc$.
+
+\rubrique{Série marginale en $y$}
+
+\begin{center}
+  \begin{tabular}{|c|*{7}{C{0.8cm}|}c|}
+    \hline
+    $y_i$ & 10 & 11 & 12 & 13 & 14 & 15 & 16 & Total\\ \hline
+    $n_i$ & & & & & & & & 15\\ \hline
+  \end{tabular}
+\end{center}
+La moyenne $\bar{y}$ en physique est
+$\bar{y} = \blanc[3cm] = \blanc$.
+
+\rubrique{Coordonnées du point moyen $G$}
+
+Le point moyen est $G(\bar{x}\,;\,\bar{y})$, donc
+$G\bigl(\blanc\,;\,\blanc\bigr)$.
+
+\rubrique{Nuage de points}
+
+C'est la représentation des points $(x_i\,;\,y_i)$ du tableau à double entrée
+des données.
+
+Représenter les points.
+
+\begin{center}
+  \begin{tikzpicture}[x=0.55cm,y=0.55cm,>=stealth]
+    \draw[gray!30,step=1] (8,9) grid (16.5,17.5);
+    \draw[->] (8,9) -- (17.2,9) node[right] {$x$ (maths)};
+    \draw[->] (8,9) -- (8,18.2) node[above] {$y$ (physique)};
+    \foreach \i in {9,...,16} \draw (\i,9) -- (\i,8.85) node[below] {\footnotesize\i};
+    \foreach \j in {10,...,17} \draw (8,\j) -- (7.85,\j) node[left] {\footnotesize\j};
+    \node[below left] at (8,9) {\footnotesize 8\,;\,9};
+  \end{tikzpicture}
+\end{center}
+
+Ces points semblent être regroupés autour d'une droite affine ; donc
+l'ajustement linéaire de $y$ en $x$ est possible. En posant
+$(\Delta) : y = ax + b$ cette droite, le but est de rechercher $a$ et $b$.
+
+\rubrique{Détermination de la droite d'ajustement linéaire de $y$ en $x$ par la
+méthode de Mayer}
+
+Divisons la série statistique en deux sous-séries de même effectif ou
+d'effectifs différents de 1 (ici 8 et 7).
+
+\begin{center}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{|c|*{8}{C{0.55cm}|}}
+    \hline
+    $x_i$ & 10 & 12 & 10 & 13 & 09 & 11 & 12 & 11\\ \hline
+    $y_i$ & 11 & 13 & 10 & 13 & 10 & 10 & 12 & 12\\ \hline
+  \end{tabular}
+  \hfill
+  \begin{tabular}{|c|*{7}{C{0.55cm}|}}
+    \hline
+    $x_i$ & 13 & 12 & 14 & 10 & 15 & 10 & 12\\ \hline
+    $y_i$ & 14 & 13 & 15 & 10 & 16 & 11 & 13\\ \hline
+  \end{tabular}
+\end{center}
+
+Pour chaque sous-série, calculons les points moyens $G_1$ et $G_2$ :
+\begin{align*}
+  G_1(\bar{x}_1\,;\,\bar{y}_1) &\quad\text{donc}\quad G_1\bigl(\blanc\,;\,\blanc\bigr)\\
+  G_2(\bar{x}_2\,;\,\bar{y}_2) &\quad\text{donc}\quad G_2\bigl(\blanc\,;\,\blanc\bigr).
+\end{align*}
+\begin{enumerate}[label=\roman*)]
+  \item Calculer
+        $a = \dfrac{\bar{y}_1 - \bar{y}_2}{\bar{x}_1 - \bar{x}_2} = \blanc[2.4cm] = \blanc$.
+  \item Calculer $b = \bar{y}_1 - a\bar{x}_1$ ou $b = \bar{y}_2 - a\bar{x}_2$ ou
+        $b = \bar{y} - a\bar{x}$.
+  \item L'équation de la droite d'ajustement linéaire par la méthode de Mayer
+        est $y = ax + b$.
+\end{enumerate}
+
+\textbf{Remarque :} c'est en fait la droite $(G_1G_2)$ ; elle passe toujours par
+le point $G(\bar{x}\,;\,\bar{y})$.
+
+\subsection{Retenons}
+
+\begin{retenons}
+  \begin{itemize}
+    \item Lorsque le nuage de points a la \og forme\fg{} d'une droite, on peut
+          faire un ajustement linéaire de $y$ en $x$.
+    \item La méthode de Mayer consiste à diviser la série statistique en deux
+          sous-séries, à déterminer les coordonnées des deux points moyens
+          $G_1$ et $G_2$, puis à déterminer l'équation de la droite
+          $(G_1G_2) : y = ax + b$ où
+          \[
+            a = \frac{\bar{y}_1 - \bar{y}_2}{\bar{x}_1 - \bar{x}_2}
+            \qquad\text{et}\qquad
+            b = \bar{y}_1 - a\bar{x}_1 .
+          \]
+  \end{itemize}
+\end{retenons}
+
+\needspace{10\baselineskip}
+\subsection{Exercice d'application}
+
+\begin{exercice}
+  \begin{itemize}
+    \item Pour l'activité d'apprentissage, l'équation de la droite
+          d'ajustement linéaire est ${y = ax + b} = \blanc[4cm]$.
+    \item Déterminer la note théorique de physique d'un élève qui a obtenu 17
+          en mathématiques.
+    \item Déterminer la note théorique de mathématiques d'une élève qui a
+          obtenu 8 en physique.
+    \item Vérifier que $G$ appartient à cette droite.
+  \end{itemize}
+\end{exercice}
+
+% =================================================================
+\section{Ajustement linéaire par la méthode des moindres carrés}
+% =================================================================
+
+À partir du tableau des données :
+
+\begin{center}
+  \small
+  \begin{tabular}{|c|*{15}{C{0.62cm}|}}
+    \hline
+    $x_i$ & 10 & 12 & 10 & 13 & 09 & 11 & 12 & 11 & 13 & 12 & 14 & 10 & 15 & 10 & 12\\ \hline
+    $y_i$ & 11 & 13 & 10 & 13 & 10 & 10 & 12 & 12 & 14 & 13 & 15 & 10 & 16 & 11 & 13\\ \hline
+  \end{tabular}
+\end{center}
+
+\subsection{Activité d'apprentissage}
+
+$\bullet$ Calculer la moyenne
+\[
+  \bar{x} = \frac{\sum_{i=1}^{15} x_i}{N} = \frac{\blanc}{15} = \blanc
+\]
+et la moyenne
+\[
+  \bar{y} = \frac{\sum_{i=1}^{15} y_i}{N} = \frac{\blanc}{15} = \blanc\,;
+\]
+c'est la méthode directe lorsqu'on a un tableau à deux lignes ; mais on peut
+aussi utiliser les séries marginales en $X$ et en $Y$.
+
+$\bullet$ Calculer la covariance de $(X,Y)$ en complétant le tableau et en
+appliquant les formules.
+
+\begin{center}
+  \small\setlength{\tabcolsep}{3pt}
+  \begin{tabular}{|c|*{15}{C{0.6cm}|}C{1.1cm}|}
+    \cline{17-17}
+    \multicolumn{16}{c|}{} & Total\\ \hline
+    $x_i$ & 10 & 12 & 10 & 13 & 09 & 11 & 12 & 11 & 13 & 12 & 14 & 10 & 15 & 10 & 12 & \barre\\ \hline
+    $y_i$ & 11 & 13 & 10 & 13 & 10 & 10 & 12 & 12 & 14 & 13 & 15 & 10 & 16 & 11 & 13 & \barre\\ \hline
+    $x_i \times y_i$ & & & & & & & & & & & & & & & & \\ \hline
+  \end{tabular}
+\end{center}
+
+$\bullet$ La \uline{covariance de $(X,Y)$} est
+\[
+  \operatorname{cov}(X,Y) = \frac{\sum_{i=1}^{15} x_i y_i}{N} - \bar{x}\,\bar{y}
+  = \frac{\blanc}{15} - \bigl(\blanc\bigr)\bigl(\blanc\bigr)
+  = \blanc .
+\]
+
+$\bullet$ \uline{Calcul de la variance de $X$, $V(X)$ ; de l'écart type de
+$X$, $\sigma_X$ ; de la variance de $Y$, $V(Y)$ ; de l'écart type de $Y$,
+$\sigma_Y$.}
+
+Ici, on utilise la série marginale en $X$ et la série marginale en $Y$.
+
+\begin{center}
+  \begin{tabular}{|c|*{7}{C{0.85cm}|}C{1.1cm}|}
+    \hline
+    $x_i$ & 09 & 10 & 11 & 12 & 13 & 14 & 15 & Total\\ \hline
+    $n_i$ & 1 & 4 & 2 & 4 & 2 & 1 & 1 & 15\\ \hline
+    $n_i \times x_i$ & & & & & & & & \\ \hline
+    $x_i^2$ & & & & & & & & \barre\\ \hline
+    $n_i \times x_i^2$ & & & & & & & & \\ \hline
+  \end{tabular}
+
+  \bigskip
+  \begin{tabular}{|c|*{7}{C{0.85cm}|}C{1.1cm}|}
+    \hline
+    $y_i$ & 10 & 11 & 12 & 13 & 14 & 15 & 16 & Total\\ \hline
+    $n_i$ & 4 & 2 & 2 & 4 & 1 & 1 & 1 & 15\\ \hline
+    $n_i \times y_i$ & & & & & & & & \\ \hline
+    $y_i^2$ & & & & & & & & \barre\\ \hline
+    $n_i \times y_i^2$ & & & & & & & & \\ \hline
+  \end{tabular}
+\end{center}
+
+On a alors :
+
+\noindent
+\begin{minipage}[t]{0.48\linewidth}
+  \underline{La moyenne de $X$ est}
+  \[
+    \bar{x} = \frac{\sum_{i=1}^{7} n_i x_i}{N} = \frac{\blanc}{15} = \blanc
+  \]
+  \underline{La variance de $X$ est}
+  \[
+    V(X) = \frac{\sum_{i=1}^{7} n_i x_i^2}{N} - (\bar{x})^2 = \blanc
+  \]
+  \underline{L'écart type de $X$ est}
+  \[
+    \sigma_X = \sqrt{V(X)} = \blanc = \blanc
+  \]
+\end{minipage}%
+\hfill\vrule\hfill
+\begin{minipage}[t]{0.48\linewidth}
+  \underline{La moyenne de $Y$ est}
+  \[
+    \bar{y} = \frac{\sum_{i=1}^{7} n_i y_i}{N} = \frac{\blanc}{15} = \blanc
+  \]
+  \underline{La variance de $Y$ est}
+  \[
+    V(Y) = \frac{\sum_{i=1}^{7} n_i y_i^2}{N} - (\bar{y})^2 = \blanc
+  \]
+  \underline{L'écart type de $Y$ est}
+  \[
+    \sigma_Y = \sqrt{V(Y)} = \blanc = \blanc
+  \]
+\end{minipage}
+
+\begin{exercice}[title={Exercice}]
+  Avec les données précédentes, calculer
+  \[
+    a = \frac{\operatorname{cov}(X,Y)}{V(X)} = \blanc[2.4cm]
+    \qquad;\qquad
+    a' = \frac{\operatorname{cov}(X,Y)}{V(Y)} = \blanc[2.4cm]
+  \]
+  \begin{itemize}
+    \item Déterminer le point moyen $G(\bar{x}\,;\,\bar{y})$ :
+          $G\bigl(\blanc\,;\,\blanc\bigr)$.
+    \item Calculer $a \times a' = \blanc[2.4cm] = \blanc$.
+    \item Calculer
+          $r = \dfrac{\operatorname{cov}(X,Y)}{\sqrt{V(X)} \times \sqrt{V(Y)}}$.
+  \end{itemize}
+\end{exercice}
+
+\subsection{\texorpdfstring{Corrélation linéaire entre $X$ et $Y$}{Corrélation linéaire entre X et Y}}
+
+\begin{retenons}[title={Retenons}]
+  \begin{itemize}
+    \item Le coefficient de corrélation linéaire entre $X$ et $Y$ est
+          \[
+            r = \frac{\operatorname{cov}(X,Y)}{\sqrt{V(X)} \times \sqrt{V(Y)}} .
+          \]
+    \item Si $\abs{r} \le 0{,}5$, on dit que la corrélation est faible.
+
+          Si $0{,}7 \le \abs{r} < 1$, on dit que la corrélation est bonne ou
+          forte.
+
+          Si $\abs{r} = 1$, on dit que la corrélation est parfaite.
+    \item L'ajustement linéaire se justifie si $0{,}7 \le \abs{r} \le 1$.
+  \end{itemize}
+\end{retenons}
+
+\subsection{\texorpdfstring{Droite de régression de $y$ en $x$ ou droite
+d'ajustement linéaire obtenue par la méthode des moindres carrés}{Droite de
+régression de y en x ou droite d'ajustement linéaire obtenue par la méthode des
+moindres carrés}}
+
+On calcule
+\[
+  a = \frac{\operatorname{cov}(X,Y)}{V(X)}
+  \qquad\text{et}\qquad
+  G(\bar{x}\,;\,\bar{y}),
+\]
+alors
+\[
+  (\Delta) : y - \bar{y} = a(x - \bar{x}) ;
+\]
+on en déduit $y = ax + \bar{y} - a\bar{x}$, ou bien
+\[
+  y = ax + b
+  \qquad\text{avec}\qquad
+  a = \frac{\operatorname{cov}(X,Y)}{V(X)}
+  \quad\text{et}\quad
+  b = \bar{y} - a\bar{x} .
+\]
+
+\textbf{Remarque :} pour la droite de régression de $x$ en $y$, on calcule
+\[
+  a' = \frac{\operatorname{cov}(X,Y)}{V(Y)}
+\]
+et
+\[
+  (\Delta') : x - \bar{x} = a'(y - \bar{y}),
+  \qquad\text{c'est-à-dire}\qquad
+  x = a'y + \bar{x} - a'\bar{y} .
+\]
+
+\textbf{Attention :}
+\begin{itemize}
+  \item le coefficient directeur de $(\Delta')$ est
+        $\dfrac{1}{a'} = \dfrac{V(Y)}{\operatorname{cov}(X,Y)}$ ;
+  \item on a :
+        $a \times a' = \dfrac{\bigl(\operatorname{cov}(X,Y)\bigr)^2}{V(X)\,V(Y)} = r^2$ ;
+  \item justifier que $a$, $a'$ et $\operatorname{cov}(X,Y)$ ont le même signe.
+\end{itemize}
+
+\subsection{Exercice d'application}
+
+\begin{exercice}
+  \begin{enumerate}[label=\alph*)]
+    \item Ayant calculé le coefficient de corrélation linéaire de l'activité
+          d'apprentissage, qualifier la corrélation entre $X$ et $Y$.
+          \begin{enumerate}[label=\roman*)]
+            \item Écrire l'équation de la droite de régression de $y$ en $x$.
+            \item Un élève a 16 en mathématiques ; estimer sa note théorique de
+                  physique.
+            \item Une élève a 8 en physique ; estimer sa note théorique de
+                  mathématiques.
+          \end{enumerate}
+
+    \item $(\Delta_1) : y = 6x - 38$ et $(\Delta_2) : x = 0{,}135y + 6{,}65$
+          sont les droites de régression d'une série double. Déterminer $G$ et
+          $r$. Que dire de la corrélation de $X$ et $Y$ ?
+          \begin{itemize}
+            \item Même exercice pour $(\Delta_1) : y = 0{,}8x - 3$ et
+                  $(\Delta_2) : x = 0{,}9y + 5{,}5$.
+            \item Même exercice pour $(\Delta_1) : y = 1{,}5x + 3$ et
+                  $(\Delta_2) : x = 0{,}54y - 0{,}86$.
+          \end{itemize}
+
+    \item La droite de régression de $y$ en $x$ d'équation
+          $y = \dfrac{27}{14}x + \dfrac{16}{7}$ a été obtenue à partir du
+          tableau ci-dessous ; les réels $a$ et $b$ ont été malheureusement
+          effacés. Déterminer les nombres $a$ et $b$.
+          \begin{center}
+            \begin{tabular}{|c|*{7}{C{0.8cm}|}}
+              \hline
+              $x_i$ & 1 & 2 & 3 & 4 & 5 & 6 & 7\\ \hline
+              $y_i$ & 4 & 6 & $a$ & 10 & 13 & $b$ & 15\\ \hline
+            \end{tabular}
+          \end{center}
+
+    \needspace{4\baselineskip}
+    \item On considère le tableau suivant :
+          \begin{center}
+            \begin{tabular}{|c|*{7}{C{1cm}|}}
+              \hline
+              $x_i$ & 1 & 2 & 3 & 4 & 5 & 6 & 7\\ \hline
+              $y_i$ & $a$ & $a+2$ & $2a$ & $b-4$ & $b-1$ & $b$ & $b+1$\\ \hline
+            \end{tabular}
+          \end{center}
+          La droite de régression de $y$ en $x$ a pour équation
+          $27x - 14y + 32 = 0$.
+          \begin{enumerate}[label=\roman*)]
+            \item Calculer $a$ et $b$.
+            \item Restituer le tableau original.
+          \end{enumerate}
+
+    \item On considère le tableau suivant :
+          \begin{center}
+            \begin{tabular}{|c|*{7}{C{0.8cm}|}}
+              \hline
+              $x_i$ & 5 & 10 & 11 & 8 & 7 & 6 & 9\\ \hline
+              $y_i$ & 11 & 21 & 23 & 17 & 15 & 13 & 19\\ \hline
+            \end{tabular}
+          \end{center}
+          \begin{enumerate}[label=\roman*)]
+            \item La corrélation entre $x$ et $y$ est-elle parfaite ?
+            \item Écrire l'équation de la droite de régression de $y$ en $x$.
+          \end{enumerate}
+  \end{enumerate}
+\end{exercice}
+
+\end{document}
